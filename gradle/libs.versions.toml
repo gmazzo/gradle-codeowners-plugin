@@ -1,0 +1,11 @@
+[versions]
+kotlin = "1.7.21"
+junit = "5.9.1"
+
+[libraries]
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version = "junit" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

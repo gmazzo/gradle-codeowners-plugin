@@ -1,25 +1,22 @@
-plugins {
-    kotlin("jvm") version "1.7.21" apply false
-}
-
-group = "com.github.gmazzo.codeowners"
-version = "1.0-SNAPSHOT"
-
 allprojects {
 
     repositories {
         mavenCentral()
     }
 
-    plugins.withId("kotlin") {
+    group = "com.github.gmazzo.codeowners"
+    version = "1.0-SNAPSHOT"
+
+    plugins.withId("java") {
+
+        the<JavaPluginExtension>().toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 
         dependencies {
-            "testImplementation"(kotlin("test"))
-            "testImplementation"(platform("org.junit:junit-bom:5.9.1"))
-            "testImplementation"("org.junit.jupiter:junit-jupiter")
+            "testImplementation"(libs.junit)
+            "testImplementation"(libs.junit.params)
         }
 
-        tasks.named<Test>("test") {
+        tasks.withType<Test> {
             useJUnitPlatform()
         }
 
