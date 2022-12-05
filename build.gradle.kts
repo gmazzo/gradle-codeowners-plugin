@@ -18,6 +18,7 @@ allprojects {
 
         tasks.withType<Test> {
             useJUnitPlatform()
+            workingDir(provider { temporaryDir })
         }
 
     }
