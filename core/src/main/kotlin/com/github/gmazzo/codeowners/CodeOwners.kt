@@ -9,7 +9,7 @@ inline val KClass<*>.codeOwner
     get() = java.codeOwner
 
 inline val Class<*>.codeOwner
-    get() = `package`.codeOwner(classLoader)
+    get() = getAnnotation(CodeOwner::class.java)?.value ?: `package`.codeOwner(classLoader)
 
 fun Package.codeOwner(
     classLoader: ClassLoader = Thread.currentThread().contextClassLoader

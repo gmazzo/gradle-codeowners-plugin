@@ -16,14 +16,14 @@ class CodeOwnersTest {
         "bar.Bar,                   bar",
         "bar.impl.BarImpl,          bar",
     )
-    fun testCodeOwners(className: String, expectedCodeOwners: String) {
+    fun `given a class, reports a its owners correctly`(className: String, expectedCodeOwners: String) {
         val owners = Class.forName(className).codeOwner?.asList()
 
         assertEquals(expectedCodeOwners.split('|'), owners)
     }
 
     @Test
-    fun testMissingCodeOwners() {
+    fun `given an unowned class, returns null`() {
         assertEquals(null, CodeOwnersTest::class.codeOwner)
     }
 
