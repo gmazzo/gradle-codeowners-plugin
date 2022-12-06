@@ -2,9 +2,8 @@ package com.github.gmazzo.codeowners
 
 import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
@@ -21,17 +20,15 @@ abstract class CodeOwnersTask : DefaultTask() {
     abstract val codeOwners: Property<CodeOwnersFile>
 
     @get:Input
-    abstract val sourceDirectories: ConfigurableFileCollection
+    val sourceDirectories: SourceDirectorySet = project.objects
+        .sourceDirectorySet("sourceDirectories", "source directories")
 
     @get:OutputDirectory
-    abstract val outputDirectory: DirectoryProperty
-
-    init {
-        outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
-    }
+    val outputDirectory: DirectoryProperty = sourceDirectories.destinationDirectory
+        .convention(project.layout.dir(project.provider { temporaryDir }))
 
     @TaskAction
-    fun generatePackagesInfo(): Unit = with(project.layout) {
+    fun generateCodeOwnersInfo(): Unit = with(project.layout) {
         val root = codeOwnersRoot.asFile.get()
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
         val claimed = mutableMapOf<String, List<String>>()
@@ -43,38 +40,34 @@ abstract class CodeOwnersTask : DefaultTask() {
                 if (claimed.containsKey(path)) return true
 
                 val index = path.lastIndexOf(File.separatorChar)
-                if (index < 0) return false
+                if (index < 0) return claimed.containsKey(".")
                 return isClaimed(path.subSequence(0, index))
             }
 
-            sourceDirectories.asFileTree.visit {
-                if (it.file.path.startsWith(outputDir.asFile.path)) {
-                    // our output directory will part of sources too!
-                    return@visit
-                }
+            fun process(file: File, relativePath: String, isDirectory: Boolean) {
+                val rootPath = file.toRelativeString(root)
 
-                val rootPath = it.file.toRelativeString(root)
+                if (ignore.isMatch(rootPath, isDirectory) && !isClaimed(relativePath)) {
+                    claimed.putIfAbsent(relativePath, owners)
 
-                // TODO how to handle files?
-                if (it.isDirectory && ignore.isMatch(rootPath, it.isDirectory) && !isClaimed(it.path)) {
-                    claimed.putIfAbsent(it.path, owners)
-                    writePackageInfo(it.path, owners, outputDir)
+                    outputDir.dir(
+                        when (isDirectory) {
+                            true -> "$relativePath/.codeowners"
+                            false -> "$relativePath/../${file.nameWithoutExtension}.codeowners"
+                        }
+                    ).asFile.apply {
+                        parentFile.mkdirs()
+                        writeText(owners.joinToString(separator = "\n"))
+                    }
                 }
             }
-        }
-    }
 
-    private fun writePackageInfo(path: String, owners: List<String>, outputDir: Directory) {
-        val packageName = path.replace('/', '.')
-
-        outputDir.file("$path/package-info.java").asFile.apply {
-            parentFile.mkdirs()
-            writeText(
-                """
-                @${CodeOwner::class.java.name}(${owners.joinToString(separator = ", ") { "\"$it\"" }})
-                package $packageName;
-                """.trimIndent()
-            )
+            sourceDirectories.srcDirs.forEach {
+                if (it.isDirectory) {
+                    process(it, ".", true)
+                }
+            }
+            sourceDirectories.asFileTree.visit { process(it.file, it.path, it.isDirectory) }
         }
     }
 

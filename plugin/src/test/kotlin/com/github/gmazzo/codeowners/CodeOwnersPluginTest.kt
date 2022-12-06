@@ -47,8 +47,9 @@ class CodeOwnersPluginTest {
 
         sequenceOf(
             "src/main/java/com/test/app/App.java",
-            "src/main/java/com/test/app/admin/AdminFactory.kt",
-            "src/main/java/com/test/app/child1/Child1Factory.kt",
+            "src/main/java/com/test/app/admin/AdminFactory.java",
+            "src/main/java/com/test/app/child1/Child1Factory.java",
+            "src/main/kotlin/com/test/app/AppData.kt",
             "src/main/kotlin/com/test/app/child2/Child2Factory.kt",
 
             "admin/src/main/java/com/test/admin/Admin.java",
@@ -64,6 +65,7 @@ class CodeOwnersPluginTest {
             """
             # this is a test CODEOWNERS file
             *                   app-devs
+            *.kt                app-devs kotlin-devs
             child1/             child1-devs
             child2/             child2-devs app-devs 
             /admin              app-devs admin-devs
@@ -72,37 +74,31 @@ class CodeOwnersPluginTest {
     }
 
     @Test
-    fun `generates root code package info correctly`() = root.testGeneratePackageInfo(
-        "com" to listOf("app-devs"),
-        "com.test.app.child1" to listOf("child1-devs"),
-        "com.test.app.child2" to listOf("child2-devs", "app-devs"),
+    fun `generates root code package info correctly`() = root.testGenerateCodeOwners(
+        ".codeowners" to "app-devs",
+        "com/test/app/AppData.codeowners" to "app-devs\nkotlin-devs",
+        "com/test/app/child1/.codeowners" to "child1-devs",
+        "com/test/app/child2/.codeowners" to "child2-devs\napp-devs",
     )
 
     @Test
-    fun `generates admin code package info correctly`() = admin.testGeneratePackageInfo(
-        "com" to listOf("app-devs", "admin-devs"),
+    fun `generates admin code package info correctly`() = admin.testGenerateCodeOwners(
+        ".codeowners" to "app-devs\nadmin-devs",
     )
 
     @Test
-    fun `generates child1 code package info correctly`() = child1.testGeneratePackageInfo(
-        "com" to listOf("child1-devs"),
+    fun `generates child1 code package info correctly`() = child1.testGenerateCodeOwners(
+        ".codeowners" to "child1-devs",
     )
 
     @Test
-    fun `generates child2 code package info correctly`() = child2.testGeneratePackageInfo(
-        "com" to listOf("child2-devs", "app-devs"),
-        "env-dev" to listOf("scripting-devs"),
+    fun `generates child2 code package info correctly`() = child2.testGenerateCodeOwners(
+        ".codeowners" to "child2-devs\napp-devs",
+        "env-dev/.codeowners" to "scripting-devs",
     )
 
-    private fun Project.testGeneratePackageInfo(vararg expected: Pair<String, List<String>>) {
-        tasks.withType<CodeOwnersTask>().all { it.generatePackagesInfo() }
-
-        val expectedInfos = expected.map { (packageName, owners) ->
-            "${packageName.replace('.', '/')}/package-info.java" to """
-                @com.github.gmazzo.codeowners.CodeOwner(${owners.joinToString(separator = ", ") { "\"$it\"" }})
-                package $packageName;
-                """.trimIndent()
-        }
+    private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, String>) {
+        tasks.withType<CodeOwnersTask>().all { it.generateCodeOwnersInfo() }
 
         val actualInfos = layout.buildDirectory.dir("codeOwners/main").get().let { dir ->
             dir.asFileTree.files
@@ -110,7 +106,7 @@ class CodeOwnersPluginTest {
                 .map { it.toRelativeString(dir.asFile) to it.readText() }
         }
 
-        assertIterableEquals(expectedInfos, actualInfos)
+        assertIterableEquals(expectedInfos.toList(), actualInfos)
     }
 
 }

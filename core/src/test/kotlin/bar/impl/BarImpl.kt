@@ -2,4 +2,8 @@ package bar.impl
 
 import bar.Bar
 
-object BarImpl : Bar
+object BarImpl : Bar {
+
+    object Inner
+
+}

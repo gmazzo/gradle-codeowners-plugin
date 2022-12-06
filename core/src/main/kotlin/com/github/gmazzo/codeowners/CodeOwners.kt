@@ -1,23 +1,32 @@
 package com.github.gmazzo.codeowners
 
+import java.io.Reader
 import kotlin.reflect.KClass
 
-inline fun <reified Type> codeOwnerOf() =
-    Type::class.codeOwner
+inline fun <reified Type> codeOwnersOf() =
+    Type::class.codeOwners
 
-inline val KClass<*>.codeOwner
-    get() = java.codeOwner
+val KClass<*>.codeOwners
+    get() = java.codeOwners
 
-inline val Class<*>.codeOwner
-    get() = getAnnotation(CodeOwner::class.java)?.value ?: `package`.codeOwner(classLoader)
+val Class<*>.codeOwners: List<String>?
+    get() = with(topLevelClass()) {
+        codeOwners(simpleName) ?: recursiveCodeOwners(packageName.replace('.', '/'))
+    }
 
-fun Package.codeOwner(
-    classLoader: ClassLoader = Thread.currentThread().contextClassLoader
-): Array<out String>? = generateSequence(this) { it.parent(classLoader) }
-    .mapNotNull { it.getAnnotation(CodeOwner::class.java)?.value }
-    .firstOrNull()
+private tailrec fun Class<*>.topLevelClass(): Class<*> = when (val enclosing = enclosingClass) {
+    null -> this
+    else -> enclosing.topLevelClass()
+}
 
-private fun Package.parent(classLoader: ClassLoader) = when (val i = name.lastIndexOf('.')) {
-    -1 -> null
-    else -> classLoader.getDefinedPackage(name.substring(0, i))
+private fun Class<*>.codeOwners(path: String) =
+    getResource("$path.codeowners")?.openStream()?.reader()?.use(Reader::readLines)
+
+private tailrec fun Class<*>.recursiveCodeOwners(packagePath: String): List<String>? {
+    val owners = codeOwners("/$packagePath/")
+    if (owners != null) return owners
+
+    val index = packagePath.lastIndexOf('/')
+    if (index < 0) return null
+    return recursiveCodeOwners(packagePath.substring(0, index))
 }

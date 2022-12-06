@@ -5,7 +5,6 @@ plugins {
 
 dependencies {
     implementation(gradleKotlinDsl())
-    implementation(projects.core)
     implementation(projects.parser)
     implementation(libs.jgit)
 
