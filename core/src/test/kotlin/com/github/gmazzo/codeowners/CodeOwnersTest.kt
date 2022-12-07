@@ -25,13 +25,21 @@ class CodeOwnersTest {
 
     /**
      * TODO This is a known limitation test
-     * Event both [Baz] and [AnotherBaz] comes from Baz.kt, only [Baz]'s only will be reported as there is no known way
-     * to track the original file name from a [Class]
+     * Both [Baz] and [AnotherBaz] comes from `Baz.kt`, but only [Baz]'s will be reported as there is no known way
+     * to track the original file name from a [Class].
+     *
+     * For those cases, you can use `Throwable.codeOwners` instead (next test)
      */
     @Test
     fun `reports AnotherBaz owners correctly`() {
         assertEquals(null, codeOwnersOf<AnotherBaz>())
-        Exception().fillInStackTrace()
+    }
+
+    @Test
+    fun `reports AnotherBaz owners correctly, when reading from a stacktrace`() {
+        val throwable = runCatching { AnotherBaz() }.exceptionOrNull()
+
+        assertEquals(listOf("baz"), throwable?.codeOwners)
     }
 
     @Test

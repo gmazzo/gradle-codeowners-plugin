@@ -14,6 +14,17 @@ val Class<*>.codeOwners: List<String>?
         codeOwners(simpleName) ?: recursiveCodeOwners(packageName.replace('.', '/'))
     }
 
+val Throwable.codeOwners
+    get() = stackTrace.asSequence().codeOwners
+
+val Sequence<StackTraceElement>.codeOwners: List<String>?
+    get() = mapNotNull { st ->
+        when (val clazz = runCatching { Class.forName(st.className) }.getOrNull()) {
+            null -> null
+            else -> st.fileName?.substringBeforeLast('.')?.let(clazz::codeOwners) ?: clazz.codeOwners
+        }
+    }.firstOrNull()
+
 private tailrec fun Class<*>.topLevelClass(): Class<*> = when (val enclosing = enclosingClass) {
     null -> this
     else -> enclosing.topLevelClass()
