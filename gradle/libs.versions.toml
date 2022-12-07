@@ -9,4 +9,5 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version = "j
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 [plugins]
+android = "com.android.application:7.3.1"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -2,6 +2,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        google()
     }
 
     group = "com.github.gmazzo.codeowners"

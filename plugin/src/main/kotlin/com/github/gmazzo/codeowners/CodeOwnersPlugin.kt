@@ -1,5 +1,8 @@
 package com.github.gmazzo.codeowners
 
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.api.AndroidSourceDirectorySet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
@@ -45,6 +48,18 @@ class CodeOwnersPlugin : Plugin<Project> {
                 sources.source(ss.extensions.getByName<SourceDirectorySet>("groovy"))
             }
 
+        }
+
+        plugins.withId("com.android.base") {
+            val androidSourceSets = the<BaseExtension>().sourceSets
+
+            extensions.getByName<AndroidComponentsExtension<*, *, *>>("androidComponents").onVariants {
+                val sources = sourceSets.maybeCreate(it.name)
+                val ss = androidSourceSets.getByName(it.name)
+
+                sources.srcDir(provider { ss.java.srcDirs + (ss.kotlin as AndroidSourceDirectorySet).srcDirs })
+                ss.resources.srcDir(sources)
+            }
         }
 
     }

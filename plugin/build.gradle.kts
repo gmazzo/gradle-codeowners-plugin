@@ -8,6 +8,8 @@ dependencies {
     implementation(projects.parser)
     implementation(libs.jgit)
 
+    compileOnly(plugin(libs.plugins.android))
+
     testRuntimeOnly(plugin(libs.plugins.kotlin))
 }
 
