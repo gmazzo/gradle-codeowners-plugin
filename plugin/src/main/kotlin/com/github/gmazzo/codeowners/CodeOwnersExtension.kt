@@ -6,7 +6,7 @@ import org.gradle.api.provider.Property
 
 interface CodeOwnersExtension {
 
-     val codeOwnersRoot : DirectoryProperty
+     val rootDirectory : DirectoryProperty
 
      val codeOwnersFile : ConfigurableFileCollection
 

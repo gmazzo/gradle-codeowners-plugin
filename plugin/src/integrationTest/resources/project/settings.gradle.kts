@@ -1,5 +1,3 @@
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -8,10 +6,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "gradle-codeowners-plugin"
+buildCache.local.directory = file("$rootDir/.gradle/local-cache")
 
 include(
-    "core",
-    "parser",
-    "plugin",
+    "app",
+    "lib",
 )

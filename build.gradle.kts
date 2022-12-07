@@ -1,10 +1,5 @@
 allprojects {
 
-    repositories {
-        mavenCentral()
-        google()
-    }
-
     group = "com.github.gmazzo.codeowners"
     version = "1.0-SNAPSHOT"
 

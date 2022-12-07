@@ -10,16 +10,16 @@ internal class CodeOwnersRootPlugin : Plugin<Project> {
         check(target == rootProject) { "This plugin can only be applied at root project" }
 
         with(extensions.create<CodeOwnersExtension>("codeOwners")) {
-            codeOwnersRoot
+            rootDirectory
                 .convention(layout.projectDirectory)
                 .finalizeValueOnRead()
 
             codeOwnersFile
                 .from(
-                    codeOwnersRoot.file("CODEOWNERS"),
-                    codeOwnersRoot.file(".github/CODEOWNERS"),
-                    codeOwnersRoot.file(".gitlab/CODEOWNERS"),
-                    codeOwnersRoot.file("docs/CODEOWNERS"),
+                    rootDirectory.file("CODEOWNERS"),
+                    rootDirectory.file(".github/CODEOWNERS"),
+                    rootDirectory.file(".gitlab/CODEOWNERS"),
+                    rootDirectory.file("docs/CODEOWNERS"),
                 )
                 .finalizeValueOnRead()
 

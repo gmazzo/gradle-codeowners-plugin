@@ -14,6 +14,7 @@ import java.io.File
 class CodeOwnersPluginTest {
 
     private val root = ProjectBuilder.builder()
+        .withGradleUserHomeDir(File(".gradle"))
         .withProjectDir(File("."))
         .build()
 
@@ -75,7 +76,7 @@ class CodeOwnersPluginTest {
 
     @Test
     fun `generates root code package info correctly`() = root.testGenerateCodeOwners(
-        ".codeowners" to "app-devs",
+        "com/test/app/.codeowners" to "app-devs",
         "com/test/app/AppData.codeowners" to "app-devs\nkotlin-devs",
         "com/test/app/child1/.codeowners" to "child1-devs",
         "com/test/app/child2/.codeowners" to "child2-devs\napp-devs",
@@ -83,17 +84,17 @@ class CodeOwnersPluginTest {
 
     @Test
     fun `generates admin code package info correctly`() = admin.testGenerateCodeOwners(
-        ".codeowners" to "app-devs\nadmin-devs",
+        "com/test/admin/.codeowners" to "app-devs\nadmin-devs",
     )
 
     @Test
     fun `generates child1 code package info correctly`() = child1.testGenerateCodeOwners(
-        ".codeowners" to "child1-devs",
+        "com/test/child1/.codeowners" to "child1-devs",
     )
 
     @Test
     fun `generates child2 code package info correctly`() = child2.testGenerateCodeOwners(
-        ".codeowners" to "child2-devs\napp-devs",
+        "com/test/child2/.codeowners" to "child2-devs\napp-devs",
         "env-dev/.codeowners" to "scripting-devs",
     )
 
