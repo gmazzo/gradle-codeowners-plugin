@@ -3,9 +3,11 @@ package com.github.gmazzo.codeowners
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.AndroidSourceDirectorySet
+import com.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
@@ -42,28 +44,38 @@ class CodeOwnersPlugin : Plugin<Project> {
         }
 
         the<SourceSetContainer>().configureEach { ss ->
-
             val sources = sourceSets.maybeCreate(ss.name)
             sources.source(ss.java)
             ss.resources.srcDir(sources.generateTask)
             ss.extensions.add(SourceDirectorySet::class.java, "codeOwners", sources.sources)
 
             plugins.withId("kotlin") {
-                sources.source(ss.extensions.getByName<SourceDirectorySet>("kotlin"))
+                val kotlin: SourceDirectorySet by ss.extensions
+
+                sources.source(kotlin)
             }
 
             plugins.withId("groovy") {
-                sources.source(ss.extensions.getByName<SourceDirectorySet>("groovy"))
+                val groovy: SourceDirectorySet by ss.extensions
+
+                sources.source(groovy)
             }
 
         }
 
-        plugins.withId("com.android.base") {
-            val androidSourceSets = the<BaseExtension>().sourceSets
+        plugins.withId("java") {
+            dependencies {
+                JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME(BuildConfig.CORE_DEPENDENCY)
+            }
+        }
 
-            extensions.getByName<AndroidComponentsExtension<*, *, *>>("androidComponents").onVariants { variant ->
+        plugins.withId("com.android.base") {
+            val android: BaseExtension by extensions
+            val androidComponents: AndroidComponentsExtension<*, *, *> by extensions
+
+            androidComponents.onVariants { variant ->
                 val sources = sourceSets.maybeCreate(variant.name)
-                val ss = androidSourceSets.getByName(variant.name)
+                val ss = android.sourceSets.getByName(variant.name)
 
                 sources.srcDir(provider { ss.java.srcDirs })
                 sources.srcDir(provider { (ss.kotlin as AndroidSourceDirectorySet).srcDirs })

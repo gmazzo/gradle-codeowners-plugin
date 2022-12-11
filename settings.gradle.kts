@@ -12,6 +12,5 @@ rootProject.name = "gradle-codeowners-plugin"
 
 include(
     "core",
-    "parser",
     "plugin",
 )

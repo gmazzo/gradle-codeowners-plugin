@@ -2,6 +2,7 @@
 
 plugins {
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.buildConfig)
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -16,8 +17,6 @@ dependencies {
         plugin.map { create("${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}") }
 
     implementation(gradleKotlinDsl())
-
-    implementation(projects.parser)
     implementation(libs.jgit)
 
     compileOnly(plugin(libs.plugins.android))
@@ -35,6 +34,15 @@ gradlePlugin {
         id = "com.github.gmazzo.codeowners"
         implementationClass = "com.github.gmazzo.codeowners.CodeOwnersPlugin"
     }
+}
+
+buildConfig {
+    useKotlinOutput { internalVisibility = true }
+    buildConfigField("String", "CORE_DEPENDENCY", projects.core.dependencyProject
+        .publishing.publications.named<MavenPublication>("java").map {
+            "\"${it.groupId}:${it.artifactId}:${it.version}\""
+        }
+    )
 }
 
 tasks.pluginUnderTestMetadata {
