@@ -23,6 +23,7 @@ dependencies {
 
     testRuntimeOnly(plugin(libs.plugins.kotlin))
 
+    pluginUnderTestImplementation(projects.core)
     pluginUnderTestImplementation(plugin(libs.plugins.android))
     pluginUnderTestImplementation(plugin(libs.plugins.kotlin))
 }

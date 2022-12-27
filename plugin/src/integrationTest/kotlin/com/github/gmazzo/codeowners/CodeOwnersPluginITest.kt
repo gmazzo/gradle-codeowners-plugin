@@ -16,16 +16,15 @@ class CodeOwnersPluginITest {
         .apply { deleteRecursively(); mkdirs() }
         .also { File(this::class.java.getResource("/project")!!.file).copyRecursively(it, overwrite = true) }
 
-    private lateinit var buildArguments: List<String>
-
-    private val build by lazy {
-        GradleRunner.create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withArguments(buildArguments)
-            .withProjectDir(buildDir)
-            .build()
-    }
+    private fun runBuild(vararg args: String) = GradleRunner.create()
+        .forwardOutput()
+        .withPluginClasspath()
+        .withArguments(args.toList() + "-s")
+        .withProjectDir(buildDir)
+        .apply { withEnvironment(mapOf(
+            "ANDROID_HOME" to System.getenv("ANDROID_HOME"),
+            "pluginsClasspath" to pluginClasspath.joinToString(separator = File.pathSeparator))) }
+        .build()
 
     var androidTestPasses = false
     var androidBuildPasses = false
@@ -34,30 +33,9 @@ class CodeOwnersPluginITest {
     val projectsBuildsPasses get() = libBuildPasses && androidBuildPasses
 
     @Test
-    @Order(1)
-    fun `app tests passes`() {
-        buildArguments = listOf(":app:test")
-
-        assertEquals(TaskOutcome.SUCCESS, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
-
-        androidTestPasses = true
-    }
-
-    @Test
-    @Order(2)
-    @EnabledIf("getAndroidTestPasses")
-    fun `app builds successfully`() {
-        buildArguments = listOf(":app:build")
-
-        assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
-
-        androidBuildPasses = true
-    }
-
-    @Test
-    @Order(1)
+    @Order(0)
     fun `lib tests passes`() {
-        buildArguments = listOf(":lib:test")
+        val build = runBuild(":lib:test")
 
         assertEquals(TaskOutcome.SUCCESS, build.task(":lib:generateCodeOwnersResources")?.outcome)
 
@@ -68,7 +46,7 @@ class CodeOwnersPluginITest {
     @Order(2)
     @EnabledIf("getLibTestPasses")
     fun `lib builds successfully`() {
-        buildArguments = listOf(":lib:build")
+        val build = runBuild(":lib:build")
 
         assertEquals(TaskOutcome.UP_TO_DATE, build.task(":lib:generateCodeOwnersResources")?.outcome)
 
@@ -76,10 +54,31 @@ class CodeOwnersPluginITest {
     }
 
     @Test
+    @Order(1)
+    fun `app tests passes`() {
+        val build = runBuild(":app:test")
+
+        assertEquals(TaskOutcome.SUCCESS, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
+
+        androidTestPasses = true
+    }
+
+    @Test
+    @Order(2)
+    @EnabledIf("getAndroidTestPasses")
+    fun `app builds successfully`() {
+        val build = runBuild(":app:build")
+
+        assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
+
+        androidBuildPasses = true
+    }
+
+    @Test
     @Order(3)
     @EnabledIf("getProjectsBuildsPasses")
     fun `whole project builds successfully`() {
-        buildArguments = listOf("build")
+        val build = runBuild("build")
 
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":lib:generateCodeOwnersResources")?.outcome)

@@ -1,17 +1,14 @@
 package com.github.gmazzo.codeowners
 
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.AndroidSourceDirectorySet
 import com.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JvmEcosystemPlugin
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.*
 
@@ -65,27 +62,23 @@ class CodeOwnersPlugin : Plugin<Project> {
 
         plugins.withId("java") {
             dependencies {
-                JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME(BuildConfig.CORE_DEPENDENCY)
+                "implementation"(BuildConfig.CORE_DEPENDENCY)
             }
         }
 
         plugins.withId("com.android.base") {
-            val android: BaseExtension by extensions
             val androidComponents: AndroidComponentsExtension<*, *, *> by extensions
 
             androidComponents.onVariants { variant ->
                 val sources = sourceSets.maybeCreate(variant.name)
-                val ss = android.sourceSets.getByName(variant.name)
 
-                sources.srcDir(provider { ss.java.srcDirs })
-                sources.srcDir(provider { (ss.kotlin as AndroidSourceDirectorySet).srcDirs })
-                ss.resources.srcDir(sources)
+                sources.srcDir(listOfNotNull(variant.sources.java?.all, variant.sources.kotlin?.all))
+                variant.sources.getByName("resources")
+                    .addGeneratedSourceDirectory(sources.generateTask, CodeOwnersTask::outputDirectory)
+            }
 
-                afterEvaluate {
-                    tasks.named("generate${variant.name.capitalized()}Resources") {
-                        it.dependsOn(sources)
-                    }
-                }
+            dependencies {
+                "implementation"(BuildConfig.CORE_DEPENDENCY)
             }
         }
 
@@ -93,7 +86,7 @@ class CodeOwnersPlugin : Plugin<Project> {
 
     private class CodeOwnersSourceSet(
         val sources: SourceDirectorySet,
-        val generateTask: Provider<CodeOwnersTask>,
+        val generateTask: TaskProvider<CodeOwnersTask>,
     ) : SourceDirectorySet by sources
 
 }

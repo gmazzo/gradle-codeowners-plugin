@@ -1,3 +1,4 @@
+@file:JvmName("CodeOwners")
 package com.github.gmazzo.codeowners
 
 import java.io.Reader

@@ -84,8 +84,10 @@ abstract class CodeOwnersTask : DefaultTask() {
                 anotherRound = false
                 project.fileTree(outputDir) { it.matching { p -> p.include(".codeowners") } }.forEach { file ->
                     file.parentFile.listFiles()!!.singleOrNull { it.name != ".codeowners" }?.let {
-                        Files.move(file.toPath(), it.toPath().resolve(file.name))
-                        anotherRound = true
+                        if (it.isDirectory) {
+                            Files.move(file.toPath(), it.toPath().resolve(file.name))
+                            anotherRound = true
+                        }
                     }
                 }
             }
