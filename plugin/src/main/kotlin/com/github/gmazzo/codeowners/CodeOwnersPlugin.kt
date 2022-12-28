@@ -15,10 +15,15 @@ import org.gradle.kotlin.dsl.*
 class CodeOwnersPlugin : Plugin<Project> {
 
     override fun apply(target: Project): Unit = with(target) {
-        rootProject.apply<CodeOwnersRootPlugin>()
         apply<JvmEcosystemPlugin>()
 
-        val extension = rootProject.extensions.getByType<CodeOwnersExtension>()
+        val extension: CodeOwnersExtension = when (project) {
+            rootProject -> createExtension()
+            else -> {
+                check(rootProject.plugins.hasPlugin(CodeOwnersPlugin::class)) { "The codeowners plugin must also be applied at root project" }
+                rootProject.the()
+            }
+        }
 
         val sourceSets = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
             val ss = objects.sourceDirectorySet(name, "$name codeOwners sources")
@@ -82,6 +87,25 @@ class CodeOwnersPlugin : Plugin<Project> {
             }
         }
 
+    }
+
+    private fun Project.createExtension() = extensions.create<CodeOwnersExtension>("codeOwners").apply {
+        rootDirectory
+            .convention(layout.projectDirectory)
+            .finalizeValueOnRead()
+
+        codeOwnersFile
+            .from(
+                rootDirectory.file("CODEOWNERS"),
+                rootDirectory.file(".github/CODEOWNERS"),
+                rootDirectory.file(".gitlab/CODEOWNERS"),
+                rootDirectory.file("docs/CODEOWNERS"),
+            )
+            .finalizeValueOnRead()
+
+        codeOwners
+            .convention(provider { codeOwnersFile.asFileTree.singleFile.useLines { CodeOwnersFile(it) } })
+            .finalizeValueOnRead()
     }
 
     private class CodeOwnersSourceSet(
