@@ -33,6 +33,11 @@ class CodeOwnersPluginTest {
         .withParent(root)
         .build()
 
+    private val child3 = ProjectBuilder.builder()
+        .withName("child3")
+        .withParent(root)
+        .build()
+
     private val codeOwnersFile = root.file("CODEOWNERS")
 
     @BeforeAll
@@ -45,6 +50,7 @@ class CodeOwnersPluginTest {
         }
         root.apply(plugin = "org.jetbrains.kotlin.jvm")
         child2.apply(plugin = "groovy")
+        child3.apply(plugin = "org.jetbrains.kotlin.jvm")
 
         sequenceOf(
             "src/main/java/com/test/app/App.java",
@@ -60,6 +66,9 @@ class CodeOwnersPluginTest {
             "child2/src/main/java/com/test/child2/Piece2.java",
             "child2/src/main/groovy/env-dev/Helper.groovy",
 
+            "child3/src/main/java/com/test/child3/Piece3.java",
+            "child3/src/main/kotlin/com/test/child3/Piece3.kt",
+
         ).map(root::file).onEach { it.parentFile.mkdirs() }.forEach(File::createNewFile)
 
         codeOwnersFile.writeText(
@@ -69,6 +78,8 @@ class CodeOwnersPluginTest {
             *.kt                app-devs kotlin-devs
             child1/             child1-devs
             child2/             child2-devs app-devs 
+            child3/**/java      child3-java 
+            child3/**/kotlin    child3-kotlin
             /admin              app-devs admin-devs
             **/groovy/env-*     scripting-devs
             """.trimIndent())
@@ -96,6 +107,11 @@ class CodeOwnersPluginTest {
     fun `generates child2 code package info correctly`() = child2.testGenerateCodeOwners(
         "com/test/child2/.codeowners" to "child2-devs\napp-devs",
         "env-dev/.codeowners" to "scripting-devs",
+    )
+
+    @Test
+    fun `generates child3 code package info correctly`() = child3.testGenerateCodeOwners(
+        "com/test/child3/.codeowners" to "child3-kotlin\nchild3-java",
     )
 
     private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, String>) {

@@ -3,6 +3,7 @@ package com.github.gmazzo.codeowners
 import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -61,33 +62,41 @@ abstract class CodeOwnersTask : DefaultTask() {
                 val rootPath = it.file.toRelativeString(root)
 
                 if (ignore.isMatch(rootPath, it.isDirectory)) {
-                    val targetFile = outputDir
-                        .dir(
-                            when (it.isDirectory) {
-                                true -> "${it.path}/.codeowners"
-                                false -> "${it.path}/../${it.file.nameWithoutExtension}.codeowners"
-                            }
-                        )
-                        .asFile
-                        .apply { parentFile.mkdirs() }
+                    val targetFile = outputDir.dir(
+                        if (it.isDirectory) "${it.path}/.codeowners"
+                        else "${it.path}/../${it.file.nameWithoutExtension}.codeowners"
+                    ).asFile
 
-                    if (!isClaimed(it.path)) {
-                        claimed.putIfAbsent(it.path, owners)
-                        targetFile.writeText(owners.joinToString(separator = "\n"))
+                    targetFile.parentFile.mkdirs() // required for `shrinkOwnersScope`
+
+                    if (!isClaimed(rootPath)) {
+                        claimed.putIfAbsent(rootPath, owners)
+
+                        val mergedOwners =
+                            if (targetFile.isFile) targetFile.readText().split("\n").toSet() + owners
+                            else owners
+
+                        targetFile.writeText(mergedOwners.joinToString(separator = "\n"))
                     }
                 }
             }
+        }
 
-            // post process the output, moving .codeowners with a single sibling folder up in the hierarchy
-            var anotherRound = true
-            while (anotherRound) {
-                anotherRound = false
-                project.fileTree(outputDir) { it.matching { p -> p.include(".codeowners") } }.forEach { file ->
-                    file.parentFile.listFiles()!!.singleOrNull { it.name != ".codeowners" }?.let {
-                        if (it.isDirectory) {
-                            Files.move(file.toPath(), it.toPath().resolve(file.name))
-                            anotherRound = true
-                        }
+        shrinkOwnersScope(outputDir)
+    }
+
+    /**
+     * post process the output, moving .codeowners with a single sibling folder up in the hierarchy
+     */
+    private fun shrinkOwnersScope(outputDir: Directory) {
+        var anotherRound = true
+        while (anotherRound) {
+            anotherRound = false
+            project.fileTree(outputDir) { it.matching { p -> p.include(".codeowners") } }.forEach { file ->
+                file.parentFile.listFiles()!!.singleOrNull { it.name != ".codeowners" }?.let {
+                    if (it.isDirectory) {
+                        Files.move(file.toPath(), it.toPath().resolve(file.name))
+                        anotherRound = true
                     }
                 }
             }

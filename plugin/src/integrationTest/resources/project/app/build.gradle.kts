@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "org.test.app"
     compileSdk = 30
 }
 
