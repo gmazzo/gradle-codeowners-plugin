@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    kotlin("android")
     id("com.github.gmazzo.codeowners")
 }
 
@@ -10,4 +11,5 @@ android {
 
 dependencies {
     implementation(project(":lib"))
+    testImplementation("junit:junit:4.13.2")
 }

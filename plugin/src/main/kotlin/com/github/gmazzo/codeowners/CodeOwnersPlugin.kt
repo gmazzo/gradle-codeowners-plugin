@@ -1,6 +1,7 @@
 package com.github.gmazzo.codeowners
 
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.gradle.internal.tasks.ProcessJavaResTask
 import com.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -20,7 +21,7 @@ class CodeOwnersPlugin : Plugin<Project> {
         val extension: CodeOwnersExtension = when (project) {
             rootProject -> createExtension()
             else -> {
-                check(rootProject.plugins.hasPlugin(CodeOwnersPlugin::class)) { "The codeowners plugin must also be applied at root project" }
+                check(rootProject.plugins.hasPlugin(CodeOwnersPlugin::class)) { "The CodeOwners plugin must ALSO be applied at root project" }
                 rootProject.the()
             }
         }
@@ -39,7 +40,7 @@ class CodeOwnersPlugin : Plugin<Project> {
                 sourceFiles.from(ss)
             }
 
-            ss.destinationDirectory.value(layout.buildDirectory.dir("codeOwners/${ss.name}"))
+            ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))
             ss.compiledBy(generateTask, CodeOwnersTask::outputDirectory)
 
             CodeOwnersSourceSet(ss, generateTask)
@@ -78,8 +79,14 @@ class CodeOwnersPlugin : Plugin<Project> {
                 val sources = sourceSets.maybeCreate(variant.name)
 
                 sources.srcDir(listOfNotNull(variant.sources.java?.all, variant.sources.kotlin?.all))
-                variant.sources.getByName("resources")
-                    .addGeneratedSourceDirectory(sources.generateTask, CodeOwnersTask::outputDirectory)
+                variant.packaging.resources.merges.add("**/*.codeowners")
+
+                // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
+                afterEvaluate {
+                    tasks.named<ProcessJavaResTask>("process${variant.name.capitalized()}JavaRes") {
+                        from(sources.generateTask.map(CodeOwnersTask::outputDirectory))
+                    }
+                }
             }
 
             dependencies {

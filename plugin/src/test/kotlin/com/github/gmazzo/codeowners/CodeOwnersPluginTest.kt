@@ -117,7 +117,7 @@ class CodeOwnersPluginTest {
     private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, String>) {
         tasks.withType<CodeOwnersTask>().all { it.generateCodeOwnersInfo() }
 
-        val actualInfos = layout.buildDirectory.dir("codeOwners/main").get().let { dir ->
+        val actualInfos = layout.buildDirectory.dir("generated/codeOwners/main").get().let { dir ->
             dir.asFileTree.files
                 .sorted()
                 .map { it.toRelativeString(dir.asFile) to it.readText() }

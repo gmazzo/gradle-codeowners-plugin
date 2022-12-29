@@ -3,6 +3,6 @@ plugins {
     id("com.github.gmazzo.codeowners")
 }
 
-testing.suites.withType<JvmTestSuite> {
-    useJUnit()
+dependencies {
+    testImplementation("junit:junit:4.13.2")
 }

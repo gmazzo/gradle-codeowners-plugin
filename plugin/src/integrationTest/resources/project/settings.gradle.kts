@@ -1,6 +1,6 @@
 import java.io.File
 
-val pluginsClasspath: String? by System.getenv()
+val pluginsClasspath: String? by System.getenv().withDefault { null }
 
 if (pluginsClasspath == null) {
     // meant to allow open this test project as a standalone project
@@ -16,6 +16,7 @@ if (pluginsClasspath == null) {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
 

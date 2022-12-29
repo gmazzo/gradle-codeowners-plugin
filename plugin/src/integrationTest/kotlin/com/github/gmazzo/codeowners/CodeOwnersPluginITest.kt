@@ -78,7 +78,7 @@ class CodeOwnersPluginITest {
     @Order(3)
     @EnabledIf("getProjectsBuildsPasses")
     fun `whole project builds successfully`() {
-        val build = runBuild("build")
+        val build = runBuild("clean", "build")
 
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":lib:generateCodeOwnersResources")?.outcome)
