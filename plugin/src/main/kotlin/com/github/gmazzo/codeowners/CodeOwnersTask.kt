@@ -3,12 +3,10 @@ package com.github.gmazzo.codeowners
 import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
-import java.nio.file.Files
 
 @CacheableTask
 @Suppress("LeakingThis")
@@ -45,62 +43,70 @@ abstract class CodeOwnersTask : DefaultTask() {
     fun generateCodeOwnersInfo(): Unit = with(project.layout) {
         val root = rootDirectory.asFile.get()
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
-        val claimed = mutableMapOf<String, List<String>>()
+        val claimed = mutableMapOf<CharSequence, CodeOwnersFile.Entry>()
+        val ownership = mutableMapOf<String, Owners>()
 
-        codeOwners.get().filterIsInstance<CodeOwnersFile.Entry>().reversed().forEach { (pattern, owners) ->
-            val ignore = FastIgnoreRule(pattern)
+        codeOwners.get().filterIsInstance<CodeOwnersFile.Entry>().reversed().forEach { entry ->
+            val ignore = FastIgnoreRule(entry.pattern)
 
-            tailrec fun isClaimed(path: CharSequence): Boolean {
-                if (claimed.containsKey(path)) return true
-
-                val index = path.lastIndexOf(File.separatorChar)
-                if (index < 0) return claimed.containsKey(".")
-                return isClaimed(path.subSequence(0, index))
-            }
-
+            val dirsMatched = mutableSetOf(".")
             sourceFiles.asFileTree.visit {
                 val rootPath = it.file.toRelativeString(root)
 
                 if (ignore.isMatch(rootPath, it.isDirectory)) {
-                    val targetFile = outputDir.dir(
-                        if (it.isDirectory) "${it.path}/.codeowners"
-                        else "${it.path}/../${it.file.nameWithoutExtension}.codeowners"
-                    ).asFile
+                    val current = claimed.ownerOf(rootPath)
 
-                    targetFile.parentFile.mkdirs() // required for `shrinkOwnersScope`
+                    if (current == null || current === entry) {
+                        claimed.putIfAbsent(rootPath, entry)
 
-                    if (!isClaimed(rootPath)) {
-                        claimed.putIfAbsent(rootPath, owners)
+                        if (it.isDirectory) {
+                            dirsMatched += it.path
 
-                        val mergedOwners =
-                            if (targetFile.isFile) targetFile.readText().split("\n").toSet() + owners
-                            else owners
+                        } else {
+                            val parentPath = it.path.parentPath
+                            if (parentPath in dirsMatched) {
+                                ownership.compute(parentPath) { _, owners -> Owners(owners.orEmpty() + entry.owners) }
 
-                        targetFile.writeText(mergedOwners.joinToString(separator = "\n"))
+                            } else {
+                                val replaced = ownership.putIfAbsent(
+                                    "$parentPath/${it.file.nameWithoutExtension}",
+                                    Owners(entry.owners.toSet(), isFile = true)
+                                )
+
+                                check(replaced == null) { "Duplicated file ownership entry: ${it.path}" }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        shrinkOwnersScope(outputDir)
-    }
-
-    /**
-     * post process the output, moving .codeowners with a single sibling folder up in the hierarchy
-     */
-    private fun shrinkOwnersScope(outputDir: Directory) {
-        var anotherRound = true
-        while (anotherRound) {
-            anotherRound = false
-            project.fileTree(outputDir) { it.matching { p -> p.include(".codeowners") } }.forEach { file ->
-                file.parentFile.listFiles()!!.singleOrNull { it.name != ".codeowners" }?.let {
-                    if (it.isDirectory) {
-                        Files.move(file.toPath(), it.toPath().resolve(file.name))
-                        anotherRound = true
-                    }
-                }
+        ownership.forEach { (path, owners) ->
+            // skip redundant ownership information if parent is the same
+            if (ownership.ownerOf(path.parentPath) != owners) {
+                val fileName = if (owners.isFile) "$path.codeowners" else "$path/.codeowners"
+                val file = outputDir.file(fileName).asFile
+                file.parentFile.mkdirs()
+                file.writeText(owners.joinToString(separator = "\n", postfix = "\n"))
             }
         }
     }
+
+    private val String.parentPath
+        get() = File(this).parent ?: "."
+
+    private tailrec fun <Value> Map<out CharSequence, Value>.ownerOf(path: CharSequence): Value? {
+        val current = get(path)
+        if (current != null) return current
+
+        val index = path.lastIndexOf(File.separatorChar)
+        if (index < 0) return get(".")
+        return ownerOf(path.subSequence(0, index))
+    }
+
+    private data class Owners(
+        val owners: Set<String>,
+        val isFile: Boolean = false,
+    ) : Set<String> by owners
 
 }
