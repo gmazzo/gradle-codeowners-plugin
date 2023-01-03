@@ -2,9 +2,13 @@ package com.github.gmazzo.codeowners
 
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.internal.tasks.ProcessJavaResTask
+import com.github.gmazzo.codeowners.CodeOwnersCompatibilityRule.Companion.ARTIFACT_TYPE_CODEOWNERS
 import com.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.tasks.SourceSet
@@ -26,6 +30,16 @@ class CodeOwnersPlugin : Plugin<Project> {
             }
         }
 
+        dependencies {
+            attributesSchema.attribute(ARTIFACT_TYPE_ATTRIBUTE)
+                .compatibilityRules.add(CodeOwnersCompatibilityRule::class.java)
+
+            registerTransform(CodeOwnersTransform::class) {
+                it.from.attribute(ARTIFACT_TYPE_ATTRIBUTE, JAR_TYPE)
+                it.to.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+            }
+        }
+
         val sourceSets = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
             val ss = objects.sourceDirectorySet(name, "$name codeOwners sources")
 
@@ -34,21 +48,31 @@ class CodeOwnersPlugin : Plugin<Project> {
                 else -> name.capitalized()
             }
 
+            val runtimeResources = configurations.maybeCreate("codeOwners${prefix}Resources").apply {
+                isCanBeConsumed = false
+                isCanBeResolved = true
+                isVisible = false
+                attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+            }
+
             val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
                 codeOwners.value(extension.codeOwners)
                 rootDirectory.value(extension.rootDirectory)
                 sourceFiles.from(ss)
+                runtimeClasspathResources.from(runtimeResources)
             }
 
             ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))
             ss.compiledBy(generateTask, CodeOwnersTask::outputDirectory)
 
-            CodeOwnersSourceSet(ss, generateTask)
+            CodeOwnersSourceSet(ss, generateTask, runtimeResources)
         }
 
         the<SourceSetContainer>().configureEach { ss ->
             val sources = sourceSets.maybeCreate(ss.name)
             sources.source(ss.java)
+            sources.runtimeResources.extendsFrom(configurations[ss.runtimeClasspathConfigurationName])
+
             ss.resources.srcDir(sources.generateTask)
             ss.extensions.add(SourceDirectorySet::class.java, "codeOwners", sources.sources)
 
@@ -63,7 +87,6 @@ class CodeOwnersPlugin : Plugin<Project> {
 
                 sources.source(groovy)
             }
-
         }
 
         plugins.withId("java") {
@@ -77,8 +100,9 @@ class CodeOwnersPlugin : Plugin<Project> {
 
             androidComponents.onVariants { variant ->
                 val sources = sourceSets.maybeCreate(variant.name)
-
                 sources.srcDir(listOfNotNull(variant.sources.java?.all, variant.sources.kotlin?.all))
+                sources.runtimeResources.extendsFrom(variant.runtimeConfiguration)
+
                 variant.packaging.resources.merges.add("**/*.codeowners")
 
                 // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
@@ -118,6 +142,7 @@ class CodeOwnersPlugin : Plugin<Project> {
     private class CodeOwnersSourceSet(
         val sources: SourceDirectorySet,
         val generateTask: TaskProvider<CodeOwnersTask>,
+        val runtimeResources: Configuration,
     ) : SourceDirectorySet by sources
 
 }

@@ -32,6 +32,10 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:SkipWhenEmpty
     abstract val sourceFiles: ConfigurableFileCollection
 
+    @get:InputFiles
+    @get:Classpath
+    abstract val runtimeClasspathResources: ConfigurableFileCollection
+
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
@@ -64,26 +68,29 @@ abstract class CodeOwnersTask : DefaultTask() {
 
                         } else {
                             val parentPath = it.path.parentPath
-                            if (parentPath in dirsMatched) {
-                                ownership.compute(parentPath) { _, owners -> Owners(owners.orEmpty() + entry.owners) }
+                            val isFile = parentPath !in dirsMatched
+                            val path = if (isFile) "$parentPath/${it.file.nameWithoutExtension}" else parentPath
 
-                            } else {
-                                val replaced = ownership.putIfAbsent(
-                                    "$parentPath/${it.file.nameWithoutExtension}",
-                                    Owners(entry.owners.toSet(), isFile = true)
-                                )
-
-                                check(replaced == null) { "Duplicated file ownership entry: ${it.path}" }
-                            }
+                            ownership.addOwner(path, entry.owners, isFile)
                         }
                     }
                 }
             }
         }
 
+        val ownersWithDependencies = ownership.toMutableMap()
+        runtimeClasspathResources.asFileTree.matching { it.include("**/*.codeowners") }.visit {
+            if (!it.isDirectory) {
+                val isFile = it.file.nameWithoutExtension.isNotEmpty()
+                val path = if (isFile) it.path.removePrefix(".codeowners") else it.path.parentPath
+
+                ownersWithDependencies.addOwner(path, it.file.readLines(), isFile)
+            }
+        }
+
         ownership.forEach { (path, owners) ->
             // skip redundant ownership information if parent is the same
-            if (ownership.ownerOf(path.parentPath) != owners) {
+            if (ownersWithDependencies.ownerOf(path.parentPath) != owners) {
                 val fileName = if (owners.isFile) "$path.codeowners" else "$path/.codeowners"
                 val file = outputDir.file(fileName).asFile
                 file.parentFile.mkdirs()
@@ -102,6 +109,15 @@ abstract class CodeOwnersTask : DefaultTask() {
         val index = path.lastIndexOf(File.separatorChar)
         if (index < 0) return get(".")
         return ownerOf(path.subSequence(0, index))
+    }
+
+    private fun MutableMap<String, Owners>.addOwner(
+        path: String,
+        owners: Collection<String>,
+        isFile: Boolean,
+    ) = compute(path) { _, current ->
+        check(!isFile || current == null) { "Duplicated file ownership entry: $path" }
+        Owners(current.orEmpty() + owners, isFile = isFile)
     }
 
     private data class Owners(

@@ -1,7 +1,9 @@
 package com.github.gmazzo.codeowners
 
+import com.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.assertIterableEquals
@@ -47,6 +49,12 @@ class CodeOwnersPluginTest {
         root.allprojects {
             it.apply(plugin = "java")
             it.apply<CodeOwnersPlugin>()
+
+            it.repositories.mavenCentral()
+            it.configurations.configureEach { conf ->
+                val (group, module) = BuildConfig.CORE_DEPENDENCY.split(':')
+                conf.exclude(group = group, module = module)
+            }
         }
         root.apply(plugin = "org.jetbrains.kotlin.jvm")
         child2.apply(plugin = "groovy")
@@ -89,42 +97,42 @@ class CodeOwnersPluginTest {
 
     @Test
     fun `generates root code package info correctly`() = root.testGenerateCodeOwners(
-        "com/test/app/.codeowners" to listOf("app-devs"),
-        "com/test/app/AppData.codeowners" to listOf("app-devs", "kotlin-devs"),
-        "com/test/app/child1/.codeowners" to listOf("child1-devs"),
-        "com/test/app/child2/.codeowners" to listOf("child2-devs", "app-devs"),
+        "com/test/app/.codeowners" to setOf("app-devs"),
+        "com/test/app/AppData.codeowners" to setOf("app-devs", "kotlin-devs"),
+        "com/test/app/child1/.codeowners" to setOf("child1-devs"),
+        "com/test/app/child2/.codeowners" to setOf("child2-devs", "app-devs"),
     )
 
     @Test
     fun `generates admin code package info correctly`() = admin.testGenerateCodeOwners(
-        "com/test/admin/.codeowners" to listOf("app-devs", "admin-devs"),
+        "com/test/admin/.codeowners" to setOf("app-devs", "admin-devs"),
     )
 
     @Test
     fun `generates child1 code package info correctly`() = child1.testGenerateCodeOwners(
-        "com/test/child1/.codeowners" to listOf("child1-devs"),
+        "com/test/child1/.codeowners" to setOf("child1-devs"),
     )
 
     @Test
     fun `generates child2 code package info correctly`() = child2.testGenerateCodeOwners(
-        "com/test/child2/.codeowners" to listOf("child2-devs", "app-devs"),
-        "env-dev/.codeowners" to listOf("scripting-devs"),
+        "com/test/child2/.codeowners" to setOf("child2-devs", "app-devs"),
+        "env-dev/.codeowners" to setOf("scripting-devs"),
     )
 
     @Test
     fun `generates child3 code package info correctly`() = child3.testGenerateCodeOwners(
-        "com/test/child3/.codeowners" to listOf("child3-kotlin", "child3-java"),
-        "com/test/child3/a/.codeowners" to listOf("child3-java"),
-        "com/test/child3/b/.codeowners" to listOf("child3-kotlin"),
+        "com/test/child3/.codeowners" to setOf("child3-kotlin", "child3-java"),
+        "com/test/child3/a/.codeowners" to setOf("child3-java"),
+        "com/test/child3/b/.codeowners" to setOf("child3-kotlin"),
     )
 
-    private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, List<String>>) {
+    private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, Set<String>>) {
         tasks.withType<CodeOwnersTask>().all { it.generateCodeOwnersInfo() }
 
         val actualInfos = layout.buildDirectory.dir("generated/codeOwners/main").get().let { dir ->
             dir.asFileTree.files
                 .sorted()
-                .map { it.toRelativeString(dir.asFile) to it.readLines() }
+                .map { it.toRelativeString(dir.asFile) to it.readLines().toSet() }
         }
 
         assertIterableEquals(expectedInfos.toList(), actualInfos)

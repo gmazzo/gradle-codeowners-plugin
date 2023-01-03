@@ -3,6 +3,8 @@ plugins {
     `maven-publish`
 }
 
+java.withSourcesJar()
+
 publishing.publications {
     create<MavenPublication>("java") { from(components["java"]) }
 }

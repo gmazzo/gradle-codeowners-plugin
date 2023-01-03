@@ -15,12 +15,12 @@ class CodeOwnersTest {
 
     @Test
     fun `reports Foo owners correctly`() {
-        assertEquals(listOf("foo"), codeOwnersOf<Foo>())
+        assertEquals(setOf("foo"), codeOwnersOf<Foo>())
     }
 
     @Test
     fun `reports Baz owners correctly`() {
-        assertEquals(listOf("baz"), codeOwnersOf<Baz>())
+        assertEquals(setOf("baz"), codeOwnersOf<Baz>())
     }
 
     /**
@@ -39,37 +39,37 @@ class CodeOwnersTest {
     fun `reports AnotherBaz owners correctly, when reading from a stacktrace`() {
         val throwable = runCatching { AnotherBaz() }.exceptionOrNull()
 
-        assertEquals(listOf("baz"), throwable?.codeOwners)
+        assertEquals(setOf("baz"), throwable?.codeOwners)
     }
 
     @Test
     fun `reports FooImpl owners correctly`() {
-        assertEquals(listOf("foo"), codeOwnersOf<FooImpl>())
+        assertEquals(setOf("foo"), codeOwnersOf<FooImpl>())
     }
 
     @Test
     fun `reports FooBar owners correctly`() {
-        assertEquals(listOf("foo", "bar"), codeOwnersOf<FooBar>())
+        assertEquals(setOf("foo", "bar"), codeOwnersOf<FooBar>())
     }
 
     @Test
     fun `reports FooBarImpl owners correctly`() {
-        assertEquals(listOf("foo", "bar"), codeOwnersOf<FooBarImpl>())
+        assertEquals(setOf("foo", "bar"), codeOwnersOf<FooBarImpl>())
     }
 
     @Test
     fun `reports Bar owners correctly`() {
-        assertEquals(listOf("bar"), codeOwnersOf<Bar>())
+        assertEquals(setOf("bar"), codeOwnersOf<Bar>())
     }
 
     @Test
     fun `reports BarImpl owners correctly`() {
-        assertEquals(listOf("bar-impl"), codeOwnersOf<BarImpl>())
+        assertEquals(setOf("bar-impl"), codeOwnersOf<BarImpl>())
     }
 
     @Test
     fun `reports BarImpl$Inner owners correctly`() {
-        assertEquals(listOf("bar-impl"), codeOwnersOf<BarImpl.Inner>())
+        assertEquals(setOf("bar-impl"), codeOwnersOf<BarImpl.Inner>())
     }
 
     @Test
