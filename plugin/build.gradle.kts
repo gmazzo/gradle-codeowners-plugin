@@ -4,8 +4,11 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.buildConfig)
     `java-gradle-plugin`
-    `maven-publish`
+    `maven-central-publish`
+    id("com.gradle.plugin-publish") version "1.1.0"
 }
+
+description = "CodeOwners Gradle Plugin"
 
 testing.suites.register<JvmTestSuite>("integrationTest")
 
@@ -29,12 +32,17 @@ dependencies {
 }
 
 gradlePlugin {
-    testSourceSets(integrationTest)
+    website.set("https://github.com/gmazzo/gradle-codeowners-plugin")
+    vcsUrl.set("https://github.com/gmazzo/gradle-codeowners-plugin")
 
     plugins.create("codeOwners") {
         id = "com.github.gmazzo.codeowners"
         implementationClass = "com.github.gmazzo.codeowners.CodeOwnersPlugin"
+        description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
+        tags.addAll("codeowners", "ownership", "attribution")
     }
+
+    testSourceSets(integrationTest)
 }
 
 buildConfig {
@@ -48,4 +56,13 @@ buildConfig {
 
 tasks.pluginUnderTestMetadata {
     pluginClasspath.from(pluginUnderTestImplementation)
+}
+
+// makes sure to publish to mavenCentral first, before doing it to Plugins Portal
+tasks.publishPlugins {
+    mustRunAfter(tasks.publishToSonatype)
+}
+
+tasks.publish {
+    dependsOn(tasks.publishPlugins)
 }

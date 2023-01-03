@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.7.21"
+kotlin = "1.7.20"
 junit = "5.9.1"
 
 [libraries]
@@ -12,3 +12,4 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 android = "com.android.application:7.3.1"
 buildConfig = "com.github.gmazzo.buildconfig:3.1.0"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "kotlin" }

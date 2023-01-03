@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.kotlin)
-    `maven-publish`
+    `maven-central-publish`
 }
+
+description = "CodeOwners Library"
 
 java.withSourcesJar()
 
