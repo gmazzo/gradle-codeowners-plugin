@@ -26,6 +26,7 @@ allprojects {
     group = "com.github.gmazzo.codeowners"
 
     plugins.withId("java") {
+        apply(plugin = "jacoco-report-aggregation")
 
         the<JavaPluginExtension>().toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 
@@ -34,9 +35,17 @@ allprojects {
             "testImplementation"(libs.junit.params)
         }
 
-        tasks.withType<Test> {
+        tasks.withType<Test>().configureEach {
             useJUnitPlatform()
             workingDir(provider { temporaryDir })
+        }
+
+        tasks.withType<JacocoReport>().configureEach {
+            reports.xml.required.set(true)
+        }
+
+        tasks.named("check") {
+            dependsOn(tasks.withType<JacocoReport>())
         }
 
     }
