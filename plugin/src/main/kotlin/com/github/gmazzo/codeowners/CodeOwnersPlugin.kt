@@ -74,13 +74,16 @@ class CodeOwnersPlugin : Plugin<Project> {
             isCanBeConsumed = false
             isCanBeResolved = true
             isVisible = false
-            attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
         }
 
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
             codeOwners.value(extension.codeOwners)
             rootDirectory.value(extension.rootDirectory)
             sourceFiles.from(ss)
+            runtimeClasspathResources.from(runtimeResources.incoming.artifactView {
+                it.isLenient = true
+                it.attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+            }.files)
         }
 
         ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))
