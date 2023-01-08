@@ -9,7 +9,7 @@ import java.util.zip.ZipFile
 import kotlin.streams.asSequence
 
 @CacheableTransform
-abstract class CodeOwnersTransform : TransformAction<TransformParameters.None> {
+internal abstract class CodeOwnersTransform : TransformAction<TransformParameters.None> {
 
     @get:PathSensitive(PathSensitivity.NONE)
     @get:InputArtifact

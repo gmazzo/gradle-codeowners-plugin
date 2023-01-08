@@ -4,7 +4,7 @@ import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JVM_RESOURCES_DIRECT
 import org.gradle.api.attributes.AttributeCompatibilityRule
 import org.gradle.api.attributes.CompatibilityCheckDetails
 
-class CodeOwnersCompatibilityRule : AttributeCompatibilityRule<String> {
+internal class CodeOwnersCompatibilityRule : AttributeCompatibilityRule<String> {
 
     companion object {
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
