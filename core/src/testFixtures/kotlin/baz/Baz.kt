@@ -5,7 +5,7 @@ class Baz
 class AnotherBaz {
 
     init {
-        TODO()
+        throw IllegalStateException()
     }
 
 }
