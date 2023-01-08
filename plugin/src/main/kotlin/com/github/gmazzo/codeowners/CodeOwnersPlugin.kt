@@ -19,15 +19,17 @@ import org.gradle.kotlin.dsl.*
 
 class CodeOwnersPlugin : Plugin<Project> {
 
+    private companion object {
+        const val EXTENSION_NAME = "codeOwners"
+    }
+
     override fun apply(target: Project): Unit = with(target) {
+        rootProject.apply<CodeOwnersPlugin>()
         apply<JvmEcosystemPlugin>()
 
         val extension: CodeOwnersExtension = when (project) {
             rootProject -> createExtension()
-            else -> {
-                check(rootProject.plugins.hasPlugin(CodeOwnersPlugin::class)) { "The CodeOwners plugin must ALSO be applied at root project" }
-                rootProject.the()
-            }
+            else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(EXTENSION_NAME, it) }
         }
 
         dependencies {
@@ -120,7 +122,7 @@ class CodeOwnersPlugin : Plugin<Project> {
 
     }
 
-    private fun Project.createExtension() = extensions.create<CodeOwnersExtension>("codeOwners").apply {
+    private fun Project.createExtension() = extensions.create<CodeOwnersExtension>(EXTENSION_NAME).apply {
         rootDirectory
             .convention(layout.projectDirectory)
             .finalizeValueOnRead()
