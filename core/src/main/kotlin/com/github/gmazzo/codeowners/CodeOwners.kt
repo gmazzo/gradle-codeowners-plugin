@@ -3,7 +3,6 @@
 package com.github.gmazzo.codeowners
 
 import java.io.Reader
-import java.net.URL
 import kotlin.reflect.KClass
 
 inline fun <reified Type> codeOwnersOf() =
@@ -13,39 +12,35 @@ val KClass<*>.codeOwners
     get() = java.codeOwners
 
 val Class<*>.codeOwners: Set<String>?
-    get() = with(topLevelClass()) {
-        codeOwners(simpleName) ?: recursiveCodeOwners(packageName.replace('.', '/'))
-    }
+    get() = with(topLevelClass()) { classLoader.codeOwners(packageName, simpleName) }
 
 val Throwable.codeOwners
-    get() = stackTrace.asSequence().codeOwners
-
-val Sequence<StackTraceElement>.codeOwners: Set<String>?
-    get() = mapNotNull { st ->
-        when (val clazz = runCatching { Class.forName(st.className) }.getOrNull()) {
-            null -> null
-            else -> st.fileName?.substringBeforeLast('.')?.let(clazz::codeOwners) ?: clazz.codeOwners
-        }
-    }.firstOrNull()
+    get() = stackTrace.asSequence().map { it.codeOwners }.firstOrNull()
 
 private tailrec fun Class<*>.topLevelClass(): Class<*> = when (val enclosing = enclosingClass) {
     null -> this
     else -> enclosing.topLevelClass()
 }
 
-private fun Class<*>.codeOwners(path: String) =
-    getResource("$path.codeowners")?.codeOwners
+private val StackTraceElement.codeOwners: Set<String>?
+    get() {
+        val clazz = runCatching { Class.forName(className) }.getOrNull() ?: return null
 
-private val URL.codeOwners
-    get() = openStream()?.reader()?.use(Reader::readLines)?.toSet()
+        return fileName?.substringBeforeLast('.')
+            ?.let { clazz.classLoader.codeOwners(clazz.packageName, it) }
+            ?: clazz.codeOwners
+    }
 
-private tailrec fun Class<*>.recursiveCodeOwners(packagePath: String): Set<String>? {
-    val owners = classLoader.getResources("$packagePath/.codeowners").asSequence()
-        .flatMap { it.codeOwners.orEmpty() }
+private tailrec fun ClassLoader.codeOwners(packageName: String, className: String?): Set<String>? {
+    val packagePath = packageName.replace('.', '/')
+    val path = "$packagePath/${className.orEmpty()}.codeowners"
+    val owners = getResources(path).asSequence()
+        .flatMap { it.openStream()?.reader()?.use(Reader::readLines).orEmpty() }
         .toSet()
 
     if (owners.isNotEmpty()) return owners
+    if (className != null) return codeOwners(packageName, null)
     val index = packagePath.lastIndexOf('/')
     if (index < 0) return null
-    return recursiveCodeOwners(packagePath.substring(0, index))
+    return codeOwners(packagePath.substring(0, index), null)
 }
