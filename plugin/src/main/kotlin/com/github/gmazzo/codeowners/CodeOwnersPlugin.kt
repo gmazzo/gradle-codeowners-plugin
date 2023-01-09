@@ -45,18 +45,22 @@ class CodeOwnersPlugin : Plugin<Project> {
                 .finalizeValueOnRead()
 
             codeOwnersFile
-                .from(
-                    rootDirectory.file("CODEOWNERS"),
-                    rootDirectory.file(".github/CODEOWNERS"),
-                    rootDirectory.file(".gitlab/CODEOWNERS"),
-                    rootDirectory.file("docs/CODEOWNERS"),
-                )
+                .convention(layout.file(provider {
+                    files(
+                        "CODEOWNERS",
+                        ".github/CODEOWNERS",
+                        ".gitlab/CODEOWNERS",
+                        "docs/CODEOWNERS",
+                    ).asFileTree.singleFile
+                }))
                 .finalizeValueOnRead()
 
             codeOwners
-                .convention(provider { codeOwnersFile.asFileTree.singleFile.useLines { CodeOwnersFile(it) } })
+                .value(codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } })
+                .apply { disallowChanges() }
                 .finalizeValueOnRead()
         }
+
         else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(EXTENSION_NAME, it) }
     }
 
