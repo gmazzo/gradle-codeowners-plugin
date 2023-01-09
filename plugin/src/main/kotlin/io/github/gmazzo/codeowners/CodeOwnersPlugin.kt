@@ -11,7 +11,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
 import org.gradle.api.file.SourceDirectorySet
-import org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME
 import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
@@ -33,7 +32,6 @@ class CodeOwnersPlugin : Plugin<Project> {
         val sourceSets = createSourceSets(extension)
 
         bindSourceSets(sourceSets)
-        addCoreDependency()
         setupAndroidSupport(sourceSets)
         setupArtifactTransform()
     }
@@ -106,6 +104,10 @@ class CodeOwnersPlugin : Plugin<Project> {
         ss.resources.srcDir(sources.generateTask)
         ss.extensions.add(SourceDirectorySet::class.java, "codeOwners", sources.sources)
 
+        dependencies.add(
+            ss.implementationConfigurationName,
+            dependencies.create(BuildConfig.CORE_DEPENDENCY))
+
         plugins.withId("kotlin") {
             val kotlin: SourceDirectorySet by ss.extensions
 
@@ -119,12 +121,6 @@ class CodeOwnersPlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.addCoreDependency() = configurations.maybeCreate(IMPLEMENTATION_CONFIGURATION_NAME).also {
-        dependencies {
-            it(BuildConfig.CORE_DEPENDENCY)
-        }
-    }
-
     private fun Project.setupAndroidSupport(
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("com.android.base") {
@@ -134,6 +130,10 @@ class CodeOwnersPlugin : Plugin<Project> {
             val sources = sourceSets.maybeCreate(variant.name)
             sources.srcDir(listOfNotNull(variant.sources.java?.all, variant.sources.kotlin?.all))
             sources.runtimeResources.extendsFrom(variant.runtimeConfiguration)
+
+            dependencies.add(
+                "${variant.name}Implementation",
+                dependencies.create(BuildConfig.CORE_DEPENDENCY))
 
             variant.packaging.resources.merges.add("**/*.codeowners")
 
