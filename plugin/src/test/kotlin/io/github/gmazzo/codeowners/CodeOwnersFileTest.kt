@@ -1,4 +1,4 @@
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test

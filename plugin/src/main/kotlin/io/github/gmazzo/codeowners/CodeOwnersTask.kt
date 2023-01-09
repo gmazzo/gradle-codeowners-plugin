@@ -1,4 +1,4 @@
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
 import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask

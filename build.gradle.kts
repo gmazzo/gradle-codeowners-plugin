@@ -18,13 +18,16 @@ gitVersioning.apply {
 
 nexusPublishing {
     repositories {
-        sonatype()
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+        }
     }
 }
 
 allprojects {
 
-    group = "com.github.gmazzo.codeowners"
+    group = "io.github.gmazzo.codeowners"
 
     plugins.withId("java") {
         apply(plugin = "jacoco-report-aggregation")

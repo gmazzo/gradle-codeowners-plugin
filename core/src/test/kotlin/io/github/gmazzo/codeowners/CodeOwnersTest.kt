@@ -1,4 +1,4 @@
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
 import bar.Bar
 import bar.impl.BarImpl

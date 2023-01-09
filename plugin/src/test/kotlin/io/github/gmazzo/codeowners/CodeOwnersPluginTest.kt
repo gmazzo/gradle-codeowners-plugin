@@ -1,6 +1,6 @@
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
-import com.github.gmazzo.codeowners.plugin.BuildConfig
+import io.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.exclude

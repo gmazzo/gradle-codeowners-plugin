@@ -1,4 +1,4 @@
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty

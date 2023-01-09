@@ -1,9 +1,9 @@
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.internal.tasks.ProcessJavaResTask
-import com.github.gmazzo.codeowners.CodeOwnersCompatibilityRule.Companion.ARTIFACT_TYPE_CODEOWNERS
-import com.github.gmazzo.codeowners.plugin.BuildConfig
+import io.github.gmazzo.codeowners.CodeOwnersCompatibilityRule.Companion.ARTIFACT_TYPE_CODEOWNERS
+import io.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project

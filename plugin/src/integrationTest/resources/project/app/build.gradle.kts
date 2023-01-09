@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("com.github.gmazzo.codeowners")
+    id("io.github.gmazzo.codeowners")
 }
 
 android {

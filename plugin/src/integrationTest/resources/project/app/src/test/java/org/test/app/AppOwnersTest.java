@@ -6,7 +6,7 @@ import org.test.utils.AppUtils;
 import org.test.utils.LibUtils;
 import org.test.utils.more.AppUtils2;
 
-import static com.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
+import static io.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
 import static org.junit.Assert.assertEquals;
 import static kotlin.collections.SetsKt.setOf;
 

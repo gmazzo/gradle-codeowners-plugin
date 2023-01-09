@@ -36,9 +36,9 @@ gradlePlugin {
     vcsUrl.set("https://github.com/gmazzo/gradle-codeowners-plugin")
 
     plugins.create("codeOwners") {
-        id = "com.github.gmazzo.codeowners"
+        id = "io.github.gmazzo.codeowners"
         displayName = name
-        implementationClass = "com.github.gmazzo.codeowners.CodeOwnersPlugin"
+        implementationClass = "io.github.gmazzo.codeowners.CodeOwnersPlugin"
         description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
         tags.addAll("codeowners", "ownership", "attribution")
     }

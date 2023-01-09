@@ -1,6 +1,6 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.gmazzo.codeowners/core)](https://search.maven.org/artifact/com.github.gmazzo.codeowners/core)
-[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.glovoapp.semantic-versioning)](https://plugins.gradle.org/plugin/com.glovoapp.semantic-versioning)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.gmazzo.codeowners/core)](https://search.maven.org/artifact/io.github.gmazzo.codeowners/core)
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.gmazzo.codeowners)](https://plugins.gradle.org/plugin/io.github.gmazzo.codeowners)
 ![Build Status](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/build.yaml/badge.svg)
 [![Coverage](https://codecov.io/gh/gmazzo/gradle-codeowners-plugin/branch/main/graph/badge.svg?token=ExYkP1Q9oE)](https://codecov.io/gh/gmazzo/gradle-codeowners-plugin)
 
@@ -11,7 +11,7 @@ A Gradle plugin to propagate CODEOWNERS to JVM classes
 Apply the plugin at the root project and at any child project that uses it:
 ```kotlin
 plugins {
-    id("com.github.gmazzo.codeowners") version "<latest>"
+    id("io.github.gmazzo.codeowners") version "<latest>"
 }
 ```
 Later, you can query a class's owner by:

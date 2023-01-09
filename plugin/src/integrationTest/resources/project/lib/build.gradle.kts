@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("com.github.gmazzo.codeowners")
+    id("io.github.gmazzo.codeowners")
 }
 
 dependencies {

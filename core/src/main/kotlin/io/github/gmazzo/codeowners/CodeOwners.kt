@@ -1,6 +1,6 @@
 @file:JvmName("CodeOwners")
 
-package com.github.gmazzo.codeowners
+package io.github.gmazzo.codeowners
 
 import java.io.Reader
 import kotlin.reflect.KClass

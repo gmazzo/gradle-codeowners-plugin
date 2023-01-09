@@ -3,7 +3,7 @@ package org.test.lib;
 import org.junit.Test;
 import org.test.utils.LibUtils;
 
-import static com.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
+import static io.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
 
 import static kotlin.collections.SetsKt.setOf;
 import static org.junit.Assert.assertEquals;
