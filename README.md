@@ -8,7 +8,7 @@
 A Gradle plugin to propagate CODEOWNERS to JVM classes
 
 # Usage
-Apply the plugin at the root project and at any child project that uses it:
+Apply the plugin at the **root** project and/or at **any child** project that uses it:
 ```kotlin
 plugins {
     id("io.github.gmazzo.codeowners") version "<latest>"
@@ -22,6 +22,42 @@ or in Java:
 ```java
 Set<String> ownersOfFoo = CodeOwners.getCodeOwners(Foo.class);
 ```
+
+## Crash attribution
+`Expection`s can also be attributed by inspecting its stacktrace (first match wins)
+```kotlin
+try {
+    // do some work
+    
+} catch (ex: Throwable) {
+    val ownersOfErr = ex.codeOwners
+    // report to its owner
+}
+```
+or in Java:
+```java
+try {
+    // do some work
+
+} catch (Throwable ex) {
+    Set<String> ownersOfErr = CodeOwners.getCodeOwners(ex);
+    // report to its owner
+}
+```
+
+## Recommended setup on multi module projects
+At root's `build.gradle.kts` add:
+```kotlin
+plugins {
+    id("io.github.gmazzo.codeowners") version "<latest>"
+}
+
+subprojects {
+    apply(plugin = "io.github.gmazzo.codeowners")
+}
+```
+You must apply the plugin on every project that has source files. Those classes won't be attributed otherwise.
+Applying it at the root project only, will only make sense on single module builds.
 
 ## The CODEOWNERS file
 The expected format is the same as [GitHub's](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-syntax) and it can be located at any of the following paths:
