@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.kotlin) apply false
     id("me.qoomon.git-versioning") version "6.3.7"
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }

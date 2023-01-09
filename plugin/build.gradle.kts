@@ -37,6 +37,7 @@ gradlePlugin {
 
     plugins.create("codeOwners") {
         id = "com.github.gmazzo.codeowners"
+        displayName = name
         implementationClass = "com.github.gmazzo.codeowners.CodeOwnersPlugin"
         description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
         tags.addAll("codeowners", "ownership", "attribution")

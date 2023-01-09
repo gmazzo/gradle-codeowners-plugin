@@ -4,8 +4,13 @@ on:
     types: [published]
 
 jobs:
-  Release:
-    needs: Build
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yaml
+
+  release:
+    name: Release
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

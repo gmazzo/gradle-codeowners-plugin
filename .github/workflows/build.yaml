@@ -1,5 +1,6 @@
 name: build
 on:
+  workflow_call:
   push:
     branches:
       - main
@@ -8,7 +9,8 @@ on:
       - main
 
 jobs:
-  Build:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
