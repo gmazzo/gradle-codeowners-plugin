@@ -10,6 +10,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":lib"))
+    implementation(project(":lib1"))
+    implementation(project(":lib2"))
     testImplementation("junit:junit:4.13.2")
 }

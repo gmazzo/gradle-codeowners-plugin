@@ -30,6 +30,7 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:SkipWhenEmpty
+    @get:IgnoreEmptyDirectories
     abstract val sourceFiles: ConfigurableFileCollection
 
     @get:InputFiles

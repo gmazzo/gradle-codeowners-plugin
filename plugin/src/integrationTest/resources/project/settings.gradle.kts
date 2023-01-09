@@ -33,5 +33,6 @@ buildCache.local.directory = file("$rootDir/.gradle/buildCache")
 
 include(
     "app",
-    "lib",
+    "lib1",
+    "lib2",
 )

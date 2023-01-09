@@ -72,26 +72,16 @@ class CodeOwnersPlugin : Plugin<Project> {
             else -> name.capitalized()
         }
 
-        val runtimeResources = configurations.maybeCreate("codeOwners${prefix}Resources").apply {
-            isCanBeConsumed = false
-            isCanBeResolved = true
-            isVisible = false
-        }
-
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
             codeOwners.value(extension.codeOwners)
             rootDirectory.value(extension.rootDirectory)
             sourceFiles.from(ss)
-            runtimeClasspathResources.from(runtimeResources.incoming.artifactView {
-                it.isLenient = true
-                it.attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
-            }.files)
         }
 
         ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))
         ss.compiledBy(generateTask, CodeOwnersTask::outputDirectory)
 
-        CodeOwnersSourceSet(ss, generateTask, runtimeResources)
+        CodeOwnersSourceSet(ss, generateTask)
     }
 
     private fun Project.bindSourceSets(
@@ -99,14 +89,17 @@ class CodeOwnersPlugin : Plugin<Project> {
     ) = the<SourceSetContainer>().configureEach { ss ->
         val sources = sourceSets.maybeCreate(ss.name)
         sources.source(ss.java)
-        sources.runtimeResources.extendsFrom(configurations[ss.runtimeClasspathConfigurationName])
+        sources.generateTask {
+            runtimeClasspathResources.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
+        }
 
         ss.resources.srcDir(sources.generateTask)
         ss.extensions.add(SourceDirectorySet::class.java, "codeOwners", sources.sources)
 
         dependencies.add(
             ss.implementationConfigurationName,
-            dependencies.create(BuildConfig.CORE_DEPENDENCY))
+            dependencies.create(BuildConfig.CORE_DEPENDENCY)
+        )
 
         plugins.withId("kotlin") {
             val kotlin: SourceDirectorySet by ss.extensions
@@ -129,11 +122,14 @@ class CodeOwnersPlugin : Plugin<Project> {
         androidComponents.onVariants { variant ->
             val sources = sourceSets.maybeCreate(variant.name)
             sources.srcDir(listOfNotNull(variant.sources.java?.all, variant.sources.kotlin?.all))
-            sources.runtimeResources.extendsFrom(variant.runtimeConfiguration)
+            sources.generateTask {
+                runtimeClasspathResources.from(variant.runtimeConfiguration.codeOwners)
+            }
 
             dependencies.add(
                 "${variant.name}Implementation",
-                dependencies.create(BuildConfig.CORE_DEPENDENCY))
+                dependencies.create(BuildConfig.CORE_DEPENDENCY)
+            )
 
             variant.packaging.resources.merges.add("**/*.codeowners")
 
@@ -145,6 +141,11 @@ class CodeOwnersPlugin : Plugin<Project> {
             }
         }
     }
+
+    private val Configuration.codeOwners
+        get() = incoming
+            .artifactView { it.attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS) }
+            .files
 
     private fun Project.setupArtifactTransform() = dependencies {
         attributesSchema.attribute(ARTIFACT_TYPE_ATTRIBUTE)
@@ -159,7 +160,6 @@ class CodeOwnersPlugin : Plugin<Project> {
     private class CodeOwnersSourceSet(
         val sources: SourceDirectorySet,
         val generateTask: TaskProvider<CodeOwnersTask>,
-        val runtimeResources: Configuration,
     ) : SourceDirectorySet by sources
 
 }

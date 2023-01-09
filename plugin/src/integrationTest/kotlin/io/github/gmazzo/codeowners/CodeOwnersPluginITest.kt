@@ -35,9 +35,9 @@ class CodeOwnersPluginITest {
     @Test
     @Order(0)
     fun `lib tests passes`() {
-        val build = runBuild(":lib:test")
+        val build = runBuild(":lib1:test")
 
-        assertEquals(TaskOutcome.SUCCESS, build.task(":lib:generateCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, build.task(":lib1:generateCodeOwnersResources")?.outcome)
 
         libTestPasses = true
     }
@@ -46,9 +46,9 @@ class CodeOwnersPluginITest {
     @Order(2)
     @EnabledIf("getLibTestPasses")
     fun `lib builds successfully`() {
-        val build = runBuild(":lib:build")
+        val build = runBuild(":lib1:build")
 
-        assertEquals(TaskOutcome.UP_TO_DATE, build.task(":lib:generateCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, build.task(":lib1:generateCodeOwnersResources")?.outcome)
 
         libBuildPasses = true
     }
@@ -81,7 +81,8 @@ class CodeOwnersPluginITest {
         val build = runBuild("clean", "build")
 
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.FROM_CACHE, build.task(":lib:generateCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.FROM_CACHE, build.task(":lib1:generateCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
     }
 
 }
