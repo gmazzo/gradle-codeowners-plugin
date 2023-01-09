@@ -22,7 +22,7 @@ abstract class CodeOwnersTask : DefaultTask() {
      */
     @get:Input
     internal val rootDirectoryPath =
-        rootDirectory.map { it.asFile.relativeTo(project.rootProject.projectDir) }
+        rootDirectory.map { it.asFile.relativeTo(project.rootDir) }
 
     @get:Input
     abstract val codeOwners: Property<CodeOwnersFile>
