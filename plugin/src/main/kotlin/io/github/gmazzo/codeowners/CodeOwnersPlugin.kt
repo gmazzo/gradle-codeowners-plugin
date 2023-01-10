@@ -12,7 +12,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
-import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
@@ -41,19 +40,26 @@ class CodeOwnersPlugin : Plugin<Project> {
                 .convention(layout.projectDirectory)
                 .finalizeValueOnRead()
 
+            val defaultLocations = files(
+                "CODEOWNERS",
+                ".github/CODEOWNERS",
+                ".gitlab/CODEOWNERS",
+                "docs/CODEOWNERS",
+            )
             codeOwnersFile
-                .convention(layout.file(provider {
-                    files(
-                        "CODEOWNERS",
-                        ".github/CODEOWNERS",
-                        ".gitlab/CODEOWNERS",
-                        "docs/CODEOWNERS",
-                    ).asFileTree.singleFile
-                }))
+                .convention(layout.file(provider { defaultLocations.asFileTree.singleOrNull() }))
                 .finalizeValueOnRead()
 
             codeOwners
-                .value(codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } })
+                .value(codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } }.orElse(provider {
+                    error(
+                        defaultLocations.joinToString(
+                            prefix = "No CODEOWNERS file found! Default locations:\n",
+                            separator = "\n"
+                        ) {
+                            "- ${it.toRelativeString(rootDir)}"
+                        })
+                }))
                 .apply { disallowChanges() }
                 .finalizeValueOnRead()
         }
@@ -82,33 +88,23 @@ class CodeOwnersPlugin : Plugin<Project> {
 
         objects.newInstance<CodeOwnersSourceSetImpl>(ss, generateTask).apply {
             includeAsResources.convention(true).finalizeValueOnRead()
-            includeCoreDependency.convention(includeAsResources).finalizeValueOnRead()
+            includeCoreDependency.convention(true).finalizeValueOnRead()
         }
     }
 
     private fun Project.bindSourceSets(
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
-    ) = the<SourceSetContainer>().configureEach { ss ->
-        val sources = sourceSets.maybeCreate(ss.name)
-        sources.source(ss.java)
-        sources.generateTask {
-            runtimeClasspathResources.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
-        }
+    ) = plugins.withId("java-base") {
+        the<SourceSetContainer>().configureEach {
+            val sources = sourceSets.maybeCreate(it.name)
+            sources.source(it.allJava)
+            sources.generateTask {
+                runtimeClasspathResources.from(configurations[it.runtimeClasspathConfigurationName].codeOwners)
+            }
 
-        addCoreDependency(sources, ss.implementationConfigurationName)
-        ss.resources.srcDir(sources.includeAsResources.map { if (it) sources.generateTask else files() })
-        ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
-
-        plugins.withId("kotlin") {
-            val kotlin: SourceDirectorySet by ss.extensions
-
-            sources.source(kotlin)
-        }
-
-        plugins.withId("groovy") {
-            val groovy: SourceDirectorySet by ss.extensions
-
-            sources.source(groovy)
+            addCoreDependency(sources, it.implementationConfigurationName)
+            it.resources.srcDir(sources.includeAsResources.map { if (it) sources.generateTask else files() })
+            it.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
         }
     }
 

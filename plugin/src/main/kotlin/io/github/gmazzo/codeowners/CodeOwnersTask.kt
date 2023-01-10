@@ -45,7 +45,7 @@ abstract class CodeOwnersTask : DefaultTask() {
     }
 
     @TaskAction
-    fun generateCodeOwnersInfo(): Unit = with(project.layout) {
+    fun generateCodeOwnersInfo() {
         val root = rootDirectory.asFile.get()
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
         val claimed = mutableMapOf<CharSequence, CodeOwnersFile.Entry>()

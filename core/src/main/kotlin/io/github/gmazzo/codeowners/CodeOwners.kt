@@ -12,7 +12,7 @@ val KClass<*>.codeOwners
     get() = java.codeOwners
 
 val Class<*>.codeOwners: Set<String>?
-    get() = with(topLevelClass()) { classLoader.codeOwners(packageName, simpleName) }
+    get() = with(topLevelClass()) { classLoader.codeOwners(`package`.name, simpleName) }
 
 val Throwable.codeOwners
     get() = stackTrace.asSequence().map { it.codeOwners }.firstOrNull()
@@ -27,7 +27,7 @@ private val StackTraceElement.codeOwners: Set<String>?
         val clazz = runCatching { Class.forName(className) }.getOrNull() ?: return null
 
         return fileName?.substringBeforeLast('.')
-            ?.let { clazz.classLoader.codeOwners(clazz.packageName, it) }
+            ?.let { clazz.classLoader.codeOwners(clazz.`package`.name, it) }
             ?: clazz.codeOwners
     }
 

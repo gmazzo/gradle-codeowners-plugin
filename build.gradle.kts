@@ -32,7 +32,7 @@ allprojects {
     plugins.withId("java") {
         apply(plugin = "jacoco-report-aggregation")
 
-        the<JavaPluginExtension>().toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+        the<JavaPluginExtension>().targetCompatibility = JavaVersion.VERSION_1_8
 
         dependencies {
             "testImplementation"(libs.junit)

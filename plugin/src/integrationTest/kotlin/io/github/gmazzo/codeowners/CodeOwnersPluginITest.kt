@@ -103,11 +103,11 @@ class CodeOwnersPluginITest {
     @Order(4)
     @EnabledIf("getAndroidTestPasses")
     fun `app builds successfully`() {
-        val build = runBuild(":app:build")
+        val build = runBuild(":app:build", ":app:packageDebugAndroidTest")
 
         assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugUnitTestCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.NO_SOURCE, build.task(":app:generateDebugAndroidTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugAndroidTestCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":app:generateReleaseCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":app:generateReleaseUnitTestCodeOwnersResources")?.outcome)
 
