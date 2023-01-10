@@ -8,3 +8,7 @@ android {
     compileSdk = 30
     buildFeatures.buildConfig = false
 }
+
+androidComponents.onVariants {
+    it.unitTest!!.codeOwners.includeAsResources.set(false)
+}

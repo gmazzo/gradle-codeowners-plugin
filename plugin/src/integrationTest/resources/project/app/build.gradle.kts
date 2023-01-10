@@ -9,6 +9,10 @@ android {
     compileSdk = 30
 }
 
+androidComponents.onVariants {
+    it.codeOwners.includeAsResources.set(it.buildType == "debug")
+}
+
 dependencies {
     implementation(project(":lib1"))
     implementation(project(":lib2"))

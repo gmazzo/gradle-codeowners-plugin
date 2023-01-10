@@ -1,6 +1,8 @@
 package io.github.gmazzo.codeowners
 
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Component
+import com.android.build.api.variant.HasAndroidTest
 import com.android.build.gradle.internal.tasks.ProcessJavaResTask
 import io.github.gmazzo.codeowners.CodeOwnersCompatibilityRule.Companion.ARTIFACT_TYPE_CODEOWNERS
 import io.github.gmazzo.codeowners.plugin.BuildConfig
@@ -14,15 +16,12 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.*
 
 class CodeOwnersPlugin : Plugin<Project> {
 
-    private companion object {
-        const val EXTENSION_NAME = "codeOwners"
-    }
+    private val extensionName = Component::codeOwners.name
 
     override fun apply(target: Project): Unit = with(target) {
         rootProject.apply<CodeOwnersPlugin>()
@@ -37,7 +36,7 @@ class CodeOwnersPlugin : Plugin<Project> {
     }
 
     private fun Project.createExtension() = when (project) {
-        rootProject -> extensions.create<CodeOwnersExtension>(EXTENSION_NAME).apply {
+        rootProject -> extensions.create<CodeOwnersExtension>(extensionName).apply {
             rootDirectory
                 .convention(layout.projectDirectory)
                 .finalizeValueOnRead()
@@ -59,7 +58,7 @@ class CodeOwnersPlugin : Plugin<Project> {
                 .finalizeValueOnRead()
         }
 
-        else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(EXTENSION_NAME, it) }
+        else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(extensionName, it) }
     }
 
     private fun Project.createSourceSets(
@@ -81,7 +80,10 @@ class CodeOwnersPlugin : Plugin<Project> {
         ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))
         ss.compiledBy(generateTask, CodeOwnersTask::outputDirectory)
 
-        CodeOwnersSourceSet(ss, generateTask)
+        objects.newInstance<CodeOwnersSourceSetImpl>(ss, generateTask).apply {
+            includeAsResources.convention(true).finalizeValueOnRead()
+            includeCoreDependency.convention(includeAsResources).finalizeValueOnRead()
+        }
     }
 
     private fun Project.bindSourceSets(
@@ -93,13 +95,9 @@ class CodeOwnersPlugin : Plugin<Project> {
             runtimeClasspathResources.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
         }
 
-        ss.resources.srcDir(sources.generateTask)
-        ss.extensions.add(SourceDirectorySet::class.java, "codeOwners", sources.sources)
-
-        dependencies.add(
-            ss.implementationConfigurationName,
-            dependencies.create(BuildConfig.CORE_DEPENDENCY)
-        )
+        addCoreDependency(sources, ss.implementationConfigurationName)
+        ss.resources.srcDir(sources.includeAsResources.map { if (it) sources.generateTask else files() })
+        ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
 
         plugins.withId("kotlin") {
             val kotlin: SourceDirectorySet by ss.extensions
@@ -119,28 +117,46 @@ class CodeOwnersPlugin : Plugin<Project> {
     ) = plugins.withId("com.android.base") {
         val androidComponents: AndroidComponentsExtension<*, *, *> by extensions
 
-        androidComponents.onVariants { variant ->
-            val sources = sourceSets.maybeCreate(variant.name)
-            sources.srcDir(listOfNotNull(variant.sources.java?.all, variant.sources.kotlin?.all))
+        fun bind(
+            component: Component,
+            defaultsTo: CodeOwnersSourceSet? = null,
+        ): CodeOwnersSourceSet {
+            val sources = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
+            sources.srcDir(listOfNotNull(component.sources.java?.all, component.sources.kotlin?.all))
             sources.generateTask {
-                runtimeClasspathResources.from(variant.runtimeConfiguration.codeOwners)
+                runtimeClasspathResources.from(component.runtimeConfiguration.codeOwners)
             }
-
-            dependencies.add(
-                "${variant.name}Implementation",
-                dependencies.create(BuildConfig.CORE_DEPENDENCY)
-            )
-
-            variant.packaging.resources.merges.add("**/*.codeowners")
+            addCoreDependency(sources, component.compileConfiguration.name)
 
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
-                tasks.named<ProcessJavaResTask>("process${variant.name.capitalized()}JavaRes") {
-                    from(sources.generateTask.map(CodeOwnersTask::outputDirectory))
+                tasks.named<ProcessJavaResTask>("process${component.name.capitalized()}JavaRes") {
+                    from(sources.includeAsResources
+                        .map { if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else files() })
                 }
             }
+
+            if (defaultsTo != null) {
+                sources.includeAsResources.convention(defaultsTo.includeAsResources)
+                sources.includeCoreDependency.convention(defaultsTo.includeCoreDependency)
+            }
+            return sources
+        }
+
+        androidComponents.onVariants { variant ->
+            variant.packaging.resources.merges.add("**/*.codeowners")
+
+            val sources = bind(variant)
+            variant.unitTest?.let { bind(component = it, defaultsTo = sources) }
+            (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sources) }
         }
     }
+
+    private fun Project.addCoreDependency(sources: CodeOwnersSourceSet, configuration: String) =
+        dependencies.addProvider(
+            configuration,
+            sources.includeCoreDependency.map { if (it) dependencies.create(BuildConfig.CORE_DEPENDENCY) else files() }
+        )
 
     private val Configuration.codeOwners
         get() = incoming
@@ -156,10 +172,5 @@ class CodeOwnersPlugin : Plugin<Project> {
             it.to.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
         }
     }
-
-    private class CodeOwnersSourceSet(
-        val sources: SourceDirectorySet,
-        val generateTask: TaskProvider<CodeOwnersTask>,
-    ) : SourceDirectorySet by sources
 
 }

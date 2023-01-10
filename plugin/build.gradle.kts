@@ -10,9 +10,7 @@ plugins {
 
 description = "CodeOwners Gradle Plugin"
 
-testing.suites.register<JvmTestSuite>("integrationTest")
-
-val integrationTest by sourceSets
+val integrationTest by testing.suites.registering(JvmTestSuite::class)
 val pluginUnderTestImplementation by configurations.creating
 
 dependencies {
@@ -43,7 +41,7 @@ gradlePlugin {
         tags.addAll("codeowners", "ownership", "attribution")
     }
 
-    testSourceSets(integrationTest)
+    testSourceSets(sourceSets[integrationTest.name])
 }
 
 buildConfig {
@@ -53,6 +51,10 @@ buildConfig {
             "\"${it.groupId}:${it.artifactId}:${it.version}\""
         }
     )
+}
+
+tasks.check {
+    dependsOn(integrationTest)
 }
 
 tasks.pluginUnderTestMetadata {

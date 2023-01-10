@@ -28,54 +28,94 @@ class CodeOwnersPluginITest {
 
     var androidTestPasses = false
     var androidBuildPasses = false
-    var libTestPasses = false
-    var libBuildPasses = false
-    val projectsBuildsPasses get() = libBuildPasses && androidBuildPasses
+    var lib1TestPasses = false
+    var lib1BuildPasses = false
+    var lib2TestPasses = false
+    var lib2BuildPasses = false
+    val projectsBuildsPasses get() = lib1BuildPasses && lib2BuildPasses && androidBuildPasses
 
     @Test
     @Order(0)
-    fun `lib tests passes`() {
+    fun `lib1 tests passes`() {
         val build = runBuild(":lib1:test")
 
         assertEquals(TaskOutcome.SUCCESS, build.task(":lib1:generateCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":lib1:generateTestCodeOwnersResources")?.outcome)
 
-        libTestPasses = true
+        lib1TestPasses = true
     }
 
     @Test
     @Order(2)
-    @EnabledIf("getLibTestPasses")
-    fun `lib builds successfully`() {
+    @EnabledIf("getLib1TestPasses")
+    fun `lib1 builds successfully`() {
         val build = runBuild(":lib1:build")
 
         assertEquals(TaskOutcome.UP_TO_DATE, build.task(":lib1:generateCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":lib1:generateTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib1:generateIntegrationTestCodeOwnersResources")?.outcome)
 
-        libBuildPasses = true
+        lib1BuildPasses = true
     }
 
     @Test
     @Order(1)
+    fun `lib2 tests passes`() {
+        val build = runBuild(":lib2:test")
+
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":lib2:generateDebugUnitTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":lib2:generateReleaseUnitTestCodeOwnersResources")?.outcome)
+
+        lib2TestPasses = true
+    }
+
+    @Test
+    @Order(2)
+    @EnabledIf("getLib2TestPasses")
+    fun `lib2 builds successfully`() {
+        val build = runBuild(":lib2:build", ":lib2:packageDebugAndroidTest")
+
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":lib2:generateDebugUnitTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugAndroidTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":lib2:generateReleaseUnitTestCodeOwnersResources")?.outcome)
+
+        lib2BuildPasses = true
+    }
+
+    @Test
+    @Order(3)
     fun `app tests passes`() {
-        val build = runBuild(":app:test")
+        val build = runBuild(":app:test", ":app:packageDebugAndroidTest")
 
         assertEquals(TaskOutcome.SUCCESS, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, build.task(":app:generateDebugUnitTestCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":app:generateReleaseCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":app:generateReleaseUnitTestCodeOwnersResources")?.outcome)
 
         androidTestPasses = true
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     @EnabledIf("getAndroidTestPasses")
     fun `app builds successfully`() {
         val build = runBuild(":app:build")
 
         assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, build.task(":app:generateDebugUnitTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":app:generateDebugAndroidTestCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":app:generateReleaseCodeOwnersResources")?.outcome)
+        assertEquals(null, build.task(":app:generateReleaseUnitTestCodeOwnersResources")?.outcome)
 
         androidBuildPasses = true
     }
 
     @Test
-    @Order(3)
+    @Order(5)
     @EnabledIf("getProjectsBuildsPasses")
     fun `whole project builds successfully`() {
         val build = runBuild("clean", "build")
