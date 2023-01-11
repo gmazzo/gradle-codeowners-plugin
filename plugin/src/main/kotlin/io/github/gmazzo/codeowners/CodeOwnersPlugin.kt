@@ -95,16 +95,16 @@ class CodeOwnersPlugin : Plugin<Project> {
     private fun Project.bindSourceSets(
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
-        the<SourceSetContainer>().configureEach {
-            val sources = sourceSets.maybeCreate(it.name)
-            sources.source(it.allJava)
+        the<SourceSetContainer>().configureEach { ss ->
+            val sources = sourceSets.maybeCreate(ss.name)
+            sources.source(ss.allJava)
             sources.generateTask {
-                runtimeClasspathResources.from(configurations[it.runtimeClasspathConfigurationName].codeOwners)
+                runtimeClasspathResources.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
             }
 
-            addCoreDependency(sources, it.implementationConfigurationName)
-            it.resources.srcDir(sources.includeAsResources.map { if (it) sources.generateTask else files() })
-            it.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
+            addCoreDependency(sources, ss.implementationConfigurationName)
+            ss.resources.srcDir(sources.includeAsResources.map { if (it) sources.generateTask else files() })
+            ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
         }
     }
 
