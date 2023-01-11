@@ -60,22 +60,27 @@ You must apply the plugin on every project that has source files. Those classes 
 Applying it at the root project only, will only make sense on single module builds.
 
 ## Disable it for specific `SourceSet`s (Java)
-You can use the `sourceSet.codeOwners.includeAsResources` property to configure it. 
+You can use the `sourceSet.codeOwners.enabled` property to configure it. 
 For instance, the following code will disable it `test`:
 ```kotlin
 sourceSets.test {
-    codeOwners.includeAsResources.set(false)
+    codeOwners.enabled.set(false)
 }
 ```
 
 ## Disable it for specific `Variant`s (Android)
-You can use the `variant.codeOwners.includeAsResources` property to configure it.
+You can use the `variant.codeOwners.enabled` property to configure it.
 For instance, the following code will enable it only for `debug`:
 ```kotlin
 androidComponents.onVariants {
-    it.codeOwners.includeAsResources.set(it.buildType == "debug")
+    it.codeOwners.enabled.set(it.buildType == "debug")
 }
 ```
+
+## Excluding default `io.github.gmazzo.codeowners:core` dependency
+By default, a dependency to this plugin runtime DSL (the `.codeOwners` functions) will be added to those `SourceSet`s where CodeOwners are computed.
+
+You can opt out of this behavior by adding `codeowners.default.dependency=false` to your `gradle.properties` file
 
 ## The CODEOWNERS file
 The expected format is the same as [GitHub's](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-syntax) and it can be located at any of the following paths:

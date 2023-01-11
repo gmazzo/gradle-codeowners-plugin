@@ -10,5 +10,5 @@ android {
 }
 
 androidComponents.onVariants {
-    it.unitTest!!.codeOwners.includeAsResources.set(false)
+    it.unitTest!!.codeOwners.enabled.set(false)
 }

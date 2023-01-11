@@ -3,28 +3,28 @@ package io.github.gmazzo.codeowners
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Component
 import com.android.build.api.variant.HasAndroidTest
-import com.android.build.gradle.internal.tasks.ProcessJavaResTask
 import io.github.gmazzo.codeowners.CodeOwnersCompatibilityRule.Companion.ARTIFACT_TYPE_CODEOWNERS
 import io.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
-import org.gradle.api.plugins.JvmEcosystemPlugin
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.configurationcache.extensions.capitalized
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
 
 class CodeOwnersPlugin : Plugin<Project> {
 
     private val extensionName = Component::codeOwners.name
 
+    private val attributeArtifactType = Attribute.of("artifactType", String::class.java)
+
     override fun apply(target: Project): Unit = with(target) {
         rootProject.apply<CodeOwnersPlugin>()
-        apply<JvmEcosystemPlugin>()
 
         val extension = createExtension()
         val sourceSets = createSourceSets(extension)
@@ -74,7 +74,7 @@ class CodeOwnersPlugin : Plugin<Project> {
 
         val prefix = when (name) {
             SourceSet.MAIN_SOURCE_SET_NAME -> ""
-            else -> name.capitalized()
+            else -> name.capitalize()
         }
 
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
@@ -87,8 +87,7 @@ class CodeOwnersPlugin : Plugin<Project> {
         ss.compiledBy(generateTask, CodeOwnersTask::outputDirectory)
 
         objects.newInstance<CodeOwnersSourceSetImpl>(ss, generateTask).apply {
-            includeAsResources.convention(true).finalizeValueOnRead()
-            includeCoreDependency.convention(true).finalizeValueOnRead()
+            enabled.convention(true).finalizeValueOnRead()
         }
     }
 
@@ -101,10 +100,10 @@ class CodeOwnersPlugin : Plugin<Project> {
             sources.generateTask {
                 runtimeClasspathResources.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
             }
+            addCodeDependency(ss.implementationConfigurationName)
 
-            addCoreDependency(sources, ss.implementationConfigurationName)
-            ss.resources.srcDir(sources.includeAsResources.map { if (it) sources.generateTask else files() })
             ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
+            tasks.named<AbstractCopyTask>(ss.processResourcesTaskName).addResources(sources)
         }
     }
 
@@ -122,19 +121,16 @@ class CodeOwnersPlugin : Plugin<Project> {
             sources.generateTask {
                 runtimeClasspathResources.from(component.runtimeConfiguration.codeOwners)
             }
-            addCoreDependency(sources, component.compileConfiguration.name)
+            addCodeDependency(component.compileConfiguration.name)
 
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
-                tasks.named<ProcessJavaResTask>("process${component.name.capitalized()}JavaRes") {
-                    from(sources.includeAsResources
-                        .map { if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else files() })
-                }
+                tasks.named<AbstractCopyTask>("process${component.name.capitalize()}JavaRes")
+                    .addResources(sources)
             }
 
             if (defaultsTo != null) {
-                sources.includeAsResources.convention(defaultsTo.includeAsResources)
-                sources.includeCoreDependency.convention(defaultsTo.includeCoreDependency)
+                sources.enabled.convention(defaultsTo.enabled)
             }
             return sources
         }
@@ -148,24 +144,36 @@ class CodeOwnersPlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.addCoreDependency(sources: CodeOwnersSourceSet, configuration: String) =
-        dependencies.addProvider(
-            configuration,
-            sources.includeCoreDependency.map { if (it) dependencies.create(BuildConfig.CORE_DEPENDENCY) else files() }
-        )
-
     private val Configuration.codeOwners
         get() = incoming
-            .artifactView { it.attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS) }
+            .artifactView { it.attributes.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS) }
             .files
 
+    private fun TaskProvider<out AbstractCopyTask>.addResources(sources: CodeOwnersSourceSet) = configure { task ->
+        task.from(sources.enabled.map {
+            if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else emptyList<Any>()
+        })
+    }
+
+    private val Project.includeCoreDependency
+        get() = findProperty("codeowners.default.dependency")?.toString()?.toBoolean() != false
+
+    private fun Project.addCodeDependency(configurationName: String) {
+        if (includeCoreDependency) {
+            dependencies.add(configurationName, BuildConfig.CORE_DEPENDENCY)
+
+        } else {
+            dependencies.constraints.add(configurationName, BuildConfig.CORE_DEPENDENCY)
+        }
+    }
+
     private fun Project.setupArtifactTransform() = dependencies {
-        attributesSchema.attribute(ARTIFACT_TYPE_ATTRIBUTE)
+        attributesSchema.attribute(attributeArtifactType)
             .compatibilityRules.add(CodeOwnersCompatibilityRule::class.java)
 
         registerTransform(CodeOwnersTransform::class) {
-            it.from.attribute(ARTIFACT_TYPE_ATTRIBUTE, JAR_TYPE)
-            it.to.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+            it.from.attribute(attributeArtifactType, JAR_TYPE)
+            it.to.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
         }
     }
 

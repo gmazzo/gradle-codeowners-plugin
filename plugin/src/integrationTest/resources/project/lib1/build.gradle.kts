@@ -6,10 +6,11 @@ plugins {
 val integrationTest by testing.suites.registering(JvmTestSuite::class)
 
 sourceSets.test {
-    codeOwners.includeAsResources.set(false)
+    codeOwners.enabled.set(false)
 }
 
 dependencies {
+    implementation("io.github.gmazzo.codeowners:core") // because we have `codeowners.default.dependency=false`
     testImplementation("junit:junit:4.13.2")
 }
 

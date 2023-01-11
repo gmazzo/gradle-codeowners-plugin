@@ -10,7 +10,7 @@ android {
 }
 
 androidComponents.onVariants {
-    it.codeOwners.includeAsResources.set(it.buildType == "debug")
+    it.codeOwners.enabled.set(it.buildType == "debug")
 }
 
 dependencies {
