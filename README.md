@@ -80,7 +80,12 @@ androidComponents.onVariants {
 ## Excluding default `io.github.gmazzo.codeowners:core` dependency
 By default, a dependency to this plugin runtime DSL (the `.codeOwners` functions) will be added to those `SourceSet`s where CodeOwners are computed.
 
-You can opt out of this behavior by adding `codeowners.default.dependency=false` to your `gradle.properties` file
+You can opt out of this behavior by adding `codeowners.default.dependency=false` to your `gradle.properties` file and then manually add it on the `Configuration` that fits better for your build:
+```kotlin
+dependencies {
+    implementation("io.github.gmazzo.codeowners:core")
+}
+```
 
 ## The CODEOWNERS file
 The expected format is the same as [GitHub's](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-syntax) and it can be located at any of the following paths:
