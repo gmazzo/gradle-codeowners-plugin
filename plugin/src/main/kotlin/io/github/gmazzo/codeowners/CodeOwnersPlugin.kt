@@ -77,10 +77,10 @@ class CodeOwnersPlugin : Plugin<Project> {
             else -> name.capitalize()
         }
 
-        val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
+        val generateTask = tasks.register("generate${prefix}CodeOwnersResources", CodeOwnersTask::class.java, ss)
+        generateTask {
             codeOwners.value(extension.codeOwners)
             rootDirectory.value(extension.rootDirectory)
-            sourceFiles.from(ss)
         }
 
         ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))

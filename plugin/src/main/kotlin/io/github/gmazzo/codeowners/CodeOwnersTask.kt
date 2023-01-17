@@ -4,34 +4,39 @@ import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
+import javax.inject.Inject
 
 @CacheableTask
 @Suppress("LeakingThis")
-abstract class CodeOwnersTask : DefaultTask() {
+abstract class CodeOwnersTask @Inject constructor(
+    sources: SourceDirectorySet
+) : DefaultTask() {
 
     @get:Internal
     abstract val rootDirectory: DirectoryProperty
 
     /**
-     * Helper input to declare that we only care about paths and not file contents on [rootDirectory] and [sourceFiles]
+     * Helper input to declare that we only care about paths and not file contents on [rootDirectory] and [sources]
      *
      * [Incorrect use of the `@Input` annotation](https://docs.gradle.org/7.6/userguide/validation_problems.html#incorrect_use_of_input_annotation)
      */
     @get:Input
     internal val rootDirectoryPath =
-        rootDirectory.map { it.asFile.relativeTo(project.rootDir) }
+        rootDirectory.map { it.asFile.toRelativeString(project.rootDir) }
 
     @get:Input
     abstract val codeOwners: Property<CodeOwnersFile>
 
+    @Suppress("CanBePrimaryConstructorProperty") // intentional for better reading
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:SkipWhenEmpty
     @get:IgnoreEmptyDirectories
-    abstract val sourceFiles: ConfigurableFileCollection
+    val sources: SourceDirectorySet = sources
 
     @get:InputFiles
     @get:Classpath
@@ -55,7 +60,7 @@ abstract class CodeOwnersTask : DefaultTask() {
             val ignore = FastIgnoreRule(entry.pattern)
 
             val dirsMatched = mutableSetOf(".")
-            sourceFiles.asFileTree.visit {
+            sources.asFileTree.visit {
                 val rootPath = it.file.toRelativeString(root)
 
                 if (ignore.isMatch(rootPath, it.isDirectory)) {
