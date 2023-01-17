@@ -22,6 +22,7 @@ dependencies {
 
     compileOnly(plugin(libs.plugins.android))
 
+    testImplementation(libs.mockk)
     testRuntimeOnly(plugin(libs.plugins.kotlin))
 
     pluginUnderTestImplementation(projects.core)

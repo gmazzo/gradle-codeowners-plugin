@@ -7,6 +7,7 @@ jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version = "junit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+mockk = "io.mockk:mockk:1.13.3"
 
 [plugins]
 android = "com.android.application:7.3.1"
