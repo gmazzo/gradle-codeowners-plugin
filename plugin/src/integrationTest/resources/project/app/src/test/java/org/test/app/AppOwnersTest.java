@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.test.lib.LibClass;
 import org.test.utils.AppUtils;
 import org.test.utils.LibUtils;
-import org.test.utils.more.AppUtils2;
 
 import static io.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
 import static org.junit.Assert.assertEquals;
@@ -22,17 +21,19 @@ public class AppOwnersTest {
         assertEquals(BuildConfig.DEBUG ? setOf("android-devs") : null, getCodeOwners(AppClass.class));
     }
 
+    @Test
+    public void ownerOfAppUtils() {
+        assertEquals(BuildConfig.DEBUG ? setOf("android-devs") : setOf("kotlin-devs"), getCodeOwners(AppUtils.class));
+    }
+
     /**
      * Known limitation test: owners if same package but different sources gets merged
      */
     @Test
-    public void ownerOfAppUtils() {
-        assertEquals(BuildConfig.DEBUG ? setOf("kotlin-devs", "android-devs") : setOf("kotlin-devs"), getCodeOwners(AppUtils.class));
-    }
-
-    @Test
-    public void ownerOfAppUtils2() {
-        assertEquals(BuildConfig.DEBUG ? setOf("android-devs") : setOf("kotlin-devs"), getCodeOwners(AppUtils2.class));
+    public void ownerOfAppUtilsPackage() {
+        assertEquals(
+                BuildConfig.DEBUG ? setOf("android-devs", "kotlin-devs") : setOf("kotlin-devs"),
+                getCodeOwners(AppUtils.class.getClassLoader(), AppUtils.class.getPackage().getName()));
     }
 
     @Test

@@ -12,7 +12,7 @@ val KClass<*>.codeOwners
     get() = java.codeOwners
 
 val Class<*>.codeOwners: Set<String>?
-    get() = with(topLevelClass()) { classLoader.codeOwners(`package`.name, simpleName) }
+    get() = with(topLevelClass()) { classLoader.getCodeOwners(`package`.name, simpleName) }
 
 val Throwable.codeOwners
     get() = stackTrace.asSequence().map { it.codeOwners }.firstOrNull()
@@ -27,11 +27,12 @@ private val StackTraceElement.codeOwners: Set<String>?
         val clazz = runCatching { Class.forName(className) }.getOrNull() ?: return null
 
         return fileName?.substringBeforeLast('.')
-            ?.let { clazz.classLoader.codeOwners(clazz.`package`.name, it) }
+            ?.let { clazz.classLoader.getCodeOwners(clazz.`package`.name, it) }
             ?: clazz.codeOwners
     }
 
-private tailrec fun ClassLoader.codeOwners(packageName: String, className: String?): Set<String>? {
+@JvmOverloads
+tailrec fun ClassLoader.getCodeOwners(packageName: String, className: String? = null): Set<String>? {
     val packagePath = packageName.replace('.', '/')
     val path = "$packagePath/${className.orEmpty()}.codeowners"
     val owners = getResources(path).asSequence()
@@ -39,8 +40,8 @@ private tailrec fun ClassLoader.codeOwners(packageName: String, className: Strin
         .toSet()
 
     if (owners.isNotEmpty()) return owners
-    if (className != null) return codeOwners(packageName, null)
+    if (className != null) return getCodeOwners(packageName, null)
     val index = packagePath.lastIndexOf('/')
     if (index < 0) return null
-    return codeOwners(packagePath.substring(0, index), null)
+    return getCodeOwners(packagePath.substring(0, index), null)
 }
