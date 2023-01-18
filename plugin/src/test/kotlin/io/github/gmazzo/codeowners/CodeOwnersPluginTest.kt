@@ -72,11 +72,14 @@ class CodeOwnersPluginTest {
             "child1/src/main/java/com/test/child1/Piece1.java",
 
             "child2/src/main/java/com/test/child2/Piece2.java",
+            "child2/src/main/groovy/Main.groovy",
             "child2/src/main/groovy/env-dev/Helper.groovy",
 
             "child3/src/main/java/com/test/child3/Piece3.java",
+            "child3/src/main/java/com/test/child3/Piece3Data.java",
             "child3/src/main/java/com/test/child3/a/Piece3A.java",
             "child3/src/main/kotlin/com/test/child3/Piece3.kt",
+            "child3/src/main/kotlin/com/test/child3/Piece3Stubs.kt",
             "child3/src/main/kotlin/com/test/child3/b/Piece3B.kt",
 
         ).map(root::file).onEach { it.parentFile.mkdirs() }.forEach(File::createNewFile)
@@ -115,6 +118,7 @@ class CodeOwnersPluginTest {
 
     @Test
     fun `generates child2 code package info correctly`() = child2.testGenerateCodeOwners(
+        ".codeowners" to setOf("child2-devs", "app-devs"),
         "com/test/child2/.codeowners" to setOf("child2-devs", "app-devs"),
         "env-dev/.codeowners" to setOf("scripting-devs"),
     )
@@ -122,6 +126,8 @@ class CodeOwnersPluginTest {
     @Test
     fun `generates child3 code package info correctly`() = child3.testGenerateCodeOwners(
         "com/test/child3/.codeowners" to setOf("child3-kotlin", "child3-java"),
+        "com/test/child3/Piece3Data.codeowners" to setOf("child3-java"),
+        "com/test/child3/Piece3Stubs.codeowners" to setOf("child3-kotlin"),
         "com/test/child3/a/.codeowners" to setOf("child3-java"),
         "com/test/child3/b/.codeowners" to setOf("child3-kotlin"),
     )

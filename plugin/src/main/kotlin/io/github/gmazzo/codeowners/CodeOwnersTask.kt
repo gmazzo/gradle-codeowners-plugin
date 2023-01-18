@@ -52,83 +52,71 @@ abstract class CodeOwnersTask @Inject constructor(
     @TaskAction
     fun generateCodeOwnersInfo() {
         val root = rootDirectory.asFile.get()
+
+        val entries = codeOwners.get()
+            .filterIsInstance<CodeOwnersFile.Entry>()
+            .reversed()
+            .map { it.owners.toSet() to FastIgnoreRule(it.pattern) }
+
+        val ownership = sortedMapOf<String, Entry>()
+
+        // scans dependency looking for external ownership information and merges it (to increase accuracy)
+        runtimeClasspathResources.asFileTree.matching { it.include("**/*.codeowners") }.visit {
+            if (it.file.isFile) {
+                val isFile = it.file.nameWithoutExtension.isNotEmpty()
+                val path = if (isFile) it.path.removePrefix(".codeowners") else it.relativePath.parent.pathString
+                val owners = it.file.readLines().toMutableSet()
+
+                ownership[path] = Entry(owners, isFile = isFile, isExternal = true, hasFiles = !isFile)
+            }
+        }
+
+        // process all files/directories and sets their owners
+        fun process(file: File, relativePath: String) {
+            val rootPath = file.toRelativeString(root)
+            val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, file.isDirectory) } ?: return
+            val targetPath =
+                if (file.isDirectory) relativePath
+                else relativePath.substringBeforeLast(".")
+
+            ownership.merge(targetPath, Entry(owners, isFile = file.isFile)) { cur, new ->
+                Entry(cur.owners + new.owners, isFile = new.isFile)
+            }
+
+            if (file.isFile) {
+                ownership[File(relativePath).parent ?: ""]?.hasFiles = true
+            }
+        }
+        sources.srcDirs.forEach { process(it, "") }
+        sources.asFileTree.visit { process(it.file, it.path) }
+
+        fun shouldWrite(path: String, entry: Entry): Boolean {
+            if (entry.isExternal) return false
+            if (entry.isFile || entry.hasFiles) {
+                val parent = ownership[File(path).parent ?: ""] ?: return true
+                return parent === entry || !parent.hasFiles || entry.owners != parent.owners
+            }
+            return false
+        }
+
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
-        val claimed = mutableMapOf<CharSequence, CodeOwnersFile.Entry>()
-        val ownership = mutableMapOf<String, Owners>()
+        ownership.entries.forEach { (path, entry) ->
+            if (shouldWrite(path, entry)) {
+                val fileName = if (entry.isFile) "$path.codeowners" else "${path.ifEmpty { "." }}/.codeowners"
 
-        codeOwners.get().filterIsInstance<CodeOwnersFile.Entry>().reversed().forEach { entry ->
-            val ignore = FastIgnoreRule(entry.pattern)
-
-            val dirsMatched = mutableSetOf(".")
-            sources.asFileTree.visit {
-                val rootPath = it.file.toRelativeString(root)
-
-                if (ignore.isMatch(rootPath, it.isDirectory)) {
-                    val current = claimed.ownerOf(rootPath)
-
-                    if (current == null || current === entry) {
-                        claimed.putIfAbsent(rootPath, entry)
-
-                        if (it.isDirectory) {
-                            dirsMatched += it.path
-
-                        } else {
-                            val parentPath = it.path.parentPath
-                            val isFile = parentPath !in dirsMatched
-                            val path = if (isFile) "$parentPath/${it.file.nameWithoutExtension}" else parentPath
-
-                            ownership.addOwner(path, entry.owners, isFile)
-                        }
-                    }
+                with(outputDir.file(fileName).asFile) {
+                    parentFile.mkdirs()
+                    writeText(entry.owners.sorted().joinToString(separator = "\n", postfix = "\n"))
                 }
             }
         }
-
-        val ownersWithDependencies = ownership.toMutableMap()
-        runtimeClasspathResources.asFileTree.matching { it.include("**/*.codeowners") }.visit {
-            if (!it.isDirectory) {
-                val isFile = it.file.nameWithoutExtension.isNotEmpty()
-                val path = if (isFile) it.path.removePrefix(".codeowners") else it.path.parentPath
-
-                ownersWithDependencies.addOwner(path, it.file.readLines(), isFile)
-            }
-        }
-
-        ownership.forEach { (path, owners) ->
-            // skip redundant ownership information if parent is the same
-            if (ownersWithDependencies.ownerOf(path.parentPath) != owners) {
-                val fileName = if (owners.isFile) "$path.codeowners" else "$path/.codeowners"
-                val file = outputDir.file(fileName).asFile
-                file.parentFile.mkdirs()
-                file.writeText(owners.joinToString(separator = "\n", postfix = "\n"))
-            }
-        }
     }
 
-    private val String.parentPath
-        get() = File(this).parent ?: "."
-
-    private tailrec fun <Value> Map<out CharSequence, Value>.ownerOf(path: CharSequence): Value? {
-        val current = get(path)
-        if (current != null) return current
-
-        val index = path.lastIndexOf(File.separatorChar)
-        if (index < 0) return get(".")
-        return ownerOf(path.subSequence(0, index))
-    }
-
-    private fun MutableMap<String, Owners>.addOwner(
-        path: String,
-        owners: Collection<String>,
-        isFile: Boolean,
-    ) = compute(path) { _, current ->
-        check(!isFile || current == null) { "Duplicated file ownership entry: $path" }
-        Owners(current.orEmpty() + owners, isFile = isFile)
-    }
-
-    private data class Owners(
+    private data class Entry(
         val owners: Set<String>,
-        val isFile: Boolean = false,
-    ) : Set<String> by owners
+        val isFile: Boolean,
+        val isExternal: Boolean = false,
+        var hasFiles: Boolean = false,
+    )
 
 }
