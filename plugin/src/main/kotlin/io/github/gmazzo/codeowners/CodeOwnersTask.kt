@@ -4,17 +4,13 @@ import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
-import javax.inject.Inject
 
 @CacheableTask
 @Suppress("LeakingThis")
-abstract class CodeOwnersTask @Inject constructor(
-    sources: SourceDirectorySet
-) : DefaultTask() {
+abstract class CodeOwnersTask : DefaultTask() {
 
     @get:Internal
     abstract val rootDirectory: DirectoryProperty
@@ -31,12 +27,11 @@ abstract class CodeOwnersTask @Inject constructor(
     @get:Input
     abstract val codeOwners: Property<CodeOwnersFile>
 
-    @Suppress("CanBePrimaryConstructorProperty") // intentional for better reading
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:SkipWhenEmpty
     @get:IgnoreEmptyDirectories
-    val sources: SourceDirectorySet = sources
+    abstract val sources: ConfigurableFileCollection
 
     @get:InputFiles
     @get:Classpath
@@ -53,6 +48,7 @@ abstract class CodeOwnersTask @Inject constructor(
     fun generateCodeOwnersInfo() {
         val root = rootDirectory.asFile.get()
 
+        logger.trace("Computing CODEOWNERS file...")
         val entries = codeOwners.get()
             .filterIsInstance<CodeOwnersFile.Entry>()
             .reversed()
@@ -61,6 +57,7 @@ abstract class CodeOwnersTask @Inject constructor(
         val ownership = sortedMapOf<String, Entry>()
 
         // scans dependency looking for external ownership information and merges it (to increase accuracy)
+        logger.info("Scanning dependencies...")
         runtimeClasspathResources.asFileTree.matching { it.include("**/*.codeowners") }.visit {
             if (it.file.isFile) {
                 val isFile = it.file.nameWithoutExtension.isNotEmpty()
@@ -72,23 +69,22 @@ abstract class CodeOwnersTask @Inject constructor(
         }
 
         // process all files/directories and sets their owners
-        fun process(file: File, relativePath: String) {
-            val rootPath = file.toRelativeString(root)
-            val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, file.isDirectory) } ?: return
+        logger.info("Processing sources...")
+        sources.asFileTree.visit {
+            val rootPath = it.file.toRelativeString(root)
+            val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, it.isDirectory) } ?: return@visit
             val targetPath =
-                if (file.isDirectory) relativePath
-                else relativePath.substringBeforeLast(".")
+                if (it.isDirectory) it.path
+                else it.path.substringBeforeLast(".")
 
-            ownership.merge(targetPath, Entry(owners, isFile = file.isFile)) { cur, new ->
+            ownership.merge(targetPath, Entry(owners, isFile = !it.isDirectory)) { cur, new ->
                 Entry(cur.owners + new.owners, isFile = new.isFile)
             }
 
-            if (file.isFile) {
-                ownership[File(relativePath).parent ?: ""]?.hasFiles = true
+            if (!it.isDirectory) {
+                ownership[it.relativePath.parent.pathString]?.hasFiles = true
             }
         }
-        sources.srcDirs.forEach { process(it, "") }
-        sources.asFileTree.visit { process(it.file, it.path) }
 
         fun shouldWrite(path: String, entry: Entry): Boolean {
             if (entry.isExternal) return false
@@ -99,7 +95,9 @@ abstract class CodeOwnersTask @Inject constructor(
             return false
         }
 
+        logger.info("Generating output from ${ownership.size} ownership information entries...")
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
+        var outputCount = 0
         ownership.entries.forEach { (path, entry) ->
             if (shouldWrite(path, entry)) {
                 val fileName = if (entry.isFile) "$path.codeowners" else "${path.ifEmpty { "." }}/.codeowners"
@@ -108,8 +106,11 @@ abstract class CodeOwnersTask @Inject constructor(
                     parentFile.mkdirs()
                     writeText(entry.owners.sorted().joinToString(separator = "\n", postfix = "\n"))
                 }
+                outputCount++
             }
         }
+
+        logger.info("Generated $outputCount simplified ownership information entries.")
     }
 
     private data class Entry(

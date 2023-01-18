@@ -118,7 +118,7 @@ class CodeOwnersPluginTest {
 
     @Test
     fun `generates child2 code package info correctly`() = child2.testGenerateCodeOwners(
-        ".codeowners" to setOf("child2-devs", "app-devs"),
+        "Main.codeowners" to setOf("child2-devs", "app-devs"),
         "com/test/child2/.codeowners" to setOf("child2-devs", "app-devs"),
         "env-dev/.codeowners" to setOf("scripting-devs"),
     )
