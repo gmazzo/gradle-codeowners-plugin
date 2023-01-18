@@ -4,7 +4,9 @@ import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileTree
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import java.io.File
 
@@ -15,33 +17,40 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:Internal
     abstract val rootDirectory: DirectoryProperty
 
+    @get:Input
+    abstract val codeOwners: Property<CodeOwnersFile>
+
+    @get:Internal
+    abstract val sources: ConfigurableFileCollection
+
+    @get:Internal
+    abstract val runtimeClasspath: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:IgnoreEmptyDirectories
+    internal val runtimeClasspathCodeOwners: FileTree =
+        runtimeClasspath.asFileTree.matching { it.include("**/*.codeowners") }
+
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
+
     /**
      * Helper input to declare that we only care about paths and not file contents on [rootDirectory] and [sources]
      *
      * [Incorrect use of the `@Input` annotation](https://docs.gradle.org/7.6/userguide/validation_problems.html#incorrect_use_of_input_annotation)
      */
     @get:Input
-    internal val rootDirectoryPath =
-        rootDirectory.map { it.asFile.toRelativeString(project.rootDir) }
-
-    @get:Input
-    abstract val codeOwners: Property<CodeOwnersFile>
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    @get:SkipWhenEmpty
-    @get:IgnoreEmptyDirectories
-    abstract val sources: ConfigurableFileCollection
-
-    @get:InputFiles
-    @get:Classpath
-    abstract val runtimeClasspathResources: ConfigurableFileCollection
-
-    @get:OutputDirectory
-    abstract val outputDirectory: DirectoryProperty
+    internal abstract val sourcesPaths: SetProperty<String>
 
     init {
         outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
+
+        sourcesPaths.add(rootDirectory.map { it.asFile.toRelativeString(project.rootDir) })
+        sourcesPaths.addAll(sources.asFileTree.asSequence().map { it.toRelativeString(project.rootDir) }.asIterable())
+        sourcesPaths.disallowChanges()
+
+        onlyIf { !sources.isEmpty }
     }
 
     @TaskAction
@@ -58,7 +67,7 @@ abstract class CodeOwnersTask : DefaultTask() {
 
         // scans dependency looking for external ownership information and merges it (to increase accuracy)
         logger.info("Scanning dependencies...")
-        runtimeClasspathResources.asFileTree.matching { it.include("**/*.codeowners") }.visit {
+        runtimeClasspathCodeOwners.visit {
             if (it.file.isFile) {
                 val isFile = it.file.nameWithoutExtension.isNotEmpty()
                 val path = if (isFile) it.path.removePrefix(".codeowners") else it.relativePath.parent.pathString

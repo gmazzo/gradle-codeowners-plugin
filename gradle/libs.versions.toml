@@ -3,11 +3,10 @@ kotlin = "1.7.20"
 junit = "5.9.1"
 
 [libraries]
-jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:5.13.1.202206130422-r"
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version = "junit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-mockk = "io.mockk:mockk:1.13.3"
 
 [plugins]
 android = "com.android.application:7.3.1"
