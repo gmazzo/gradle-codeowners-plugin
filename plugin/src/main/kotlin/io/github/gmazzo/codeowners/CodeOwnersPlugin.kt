@@ -98,7 +98,7 @@ class CodeOwnersPlugin : Plugin<Project> {
             val sources = sourceSets.maybeCreate(ss.name)
             sources.source(ss.allJava)
             sources.generateTask {
-                runtimeClasspathResources.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
+                runtimeClasspath.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
             }
             addCodeDependency(ss.implementationConfigurationName)
 
@@ -119,7 +119,7 @@ class CodeOwnersPlugin : Plugin<Project> {
             val sources = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
             sources.srcDir(listOfNotNull(component.sources.java?.all, component.sources.kotlin?.all))
             sources.generateTask {
-                runtimeClasspathResources.from(component.runtimeConfiguration.codeOwners)
+                runtimeClasspath.from(component.runtimeConfiguration.codeOwners)
             }
             addCodeDependency(component.compileConfiguration.name)
 

@@ -8,6 +8,7 @@ import org.gradle.api.tasks.PathSensitivity
 import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.pathString
 import kotlin.streams.asSequence
 
@@ -24,7 +25,11 @@ internal abstract class CodeOwnersTransform : TransformAction<TransformParameter
         zip.rootDirectories
             .flatMap { Files.walk(it).asSequence() }
             .filter { !Files.isDirectory(it) && it.fileName.endsWith(".codeowners") }
-            .forEach { Files.copy(it, outputs.file(it.root.relativize(it).pathString).toPath()) }
+            .forEach {
+                val target = outputs.file(it.root.relativize(it).pathString).toPath()
+
+                Files.copy(it, target, StandardCopyOption.COPY_ATTRIBUTES)
+            }
     }
 
 }

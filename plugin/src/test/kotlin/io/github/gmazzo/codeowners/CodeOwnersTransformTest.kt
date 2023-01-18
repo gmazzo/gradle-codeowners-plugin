@@ -1,45 +1,39 @@
 package io.github.gmazzo.codeowners
 
-import io.mockk.*
 import org.gradle.api.artifacts.transform.TransformOutputs
+import org.gradle.api.file.FileSystemLocation
+import org.gradle.api.internal.provider.Providers
+import org.gradle.api.provider.Provider
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.lang.UnsupportedOperationException
+import java.nio.file.Files
 
 class CodeOwnersTransformTest {
 
-    private val workingDir = File(".").apply {
-        deleteRecursively()
-        mkdirs()
-    }
-
     private val lib1Jar = File(this::class.java.getResource("/lib1.jar")!!.toURI().path)
 
-    private val transform: CodeOwnersTransform = spyk {
-        every { inputJar } returns mockk {
-            every { get() } returns mockk {
-                every { asFile } returns lib1Jar
-            }
-        }
+    private val transform = object : CodeOwnersTransform() {
+        override fun getParameters() = throw UnsupportedOperationException()
+        override val inputJar: Provider<FileSystemLocation> = Providers.of(FileSystemLocation { lib1Jar })
     }
 
-    private val outputs: TransformOutputs = mockk {
-        every { file(any()) } answers { File(workingDir, firstArg<String>()).apply { parentFile.mkdirs() } }
+    private val outputsDir by lazy { Files.createTempDirectory("transformsTestOutputs").toFile() }
+
+    private val outputs: TransformOutputs = object : TransformOutputs {
+        override fun dir(path: Any) = throw UnsupportedOperationException()
+        override fun file(path: Any) = File(outputsDir, path as String).apply { parentFile.mkdirs() }
     }
 
     @Test
     fun `transform, should process the input jar and generate the right output`() {
         transform.transform(outputs)
 
-        verify {
-            outputs.file("org/test/lib/.codeowners")
-            outputs.file("org/test/utils/.codeowners")
-        }
-        confirmVerified(outputs)
-
-        val outputFiles = workingDir.walkTopDown()
+        val outputFiles = outputsDir.walkTopDown()
             .filter { it.isFile }
-            .map { it.toRelativeString(workingDir) to it.readText().trim() }
+            .map { it.toRelativeString(outputsDir) to it.readText().trim() }
             .toList()
 
         assertIterableEquals(
@@ -49,6 +43,11 @@ class CodeOwnersTransformTest {
             ),
             outputFiles
         )
+    }
+
+    @AfterEach
+    fun cleanUp() {
+        outputsDir.deleteRecursively()
     }
 
 }
