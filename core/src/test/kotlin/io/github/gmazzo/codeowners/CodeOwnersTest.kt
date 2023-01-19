@@ -10,6 +10,7 @@ import foo.bar.impl.FooBarImpl
 import foo.impl.FooImpl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.lang.reflect.Proxy
 
 class CodeOwnersTest {
 
@@ -75,6 +76,13 @@ class CodeOwnersTest {
     @Test
     fun `given an unowned class, returns null`() {
         assertEquals(null, codeOwnersOf<CodeOwnersTest>())
+    }
+
+    @Test
+    fun `given proxy class of Foo, returns owners correctly`() {
+        val proxy = Proxy.newProxyInstance(javaClass.classLoader, arrayOf(Foo::class.java)) { _, _, _ -> }
+
+        assertEquals(setOf("foo"), proxy::class.codeOwners)
     }
 
 }
