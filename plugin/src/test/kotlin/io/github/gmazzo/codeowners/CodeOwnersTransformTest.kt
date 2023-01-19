@@ -8,7 +8,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.lang.UnsupportedOperationException
 import java.nio.file.Files
 
 class CodeOwnersTransformTest {
@@ -33,13 +32,14 @@ class CodeOwnersTransformTest {
 
         val outputFiles = outputsDir.walkTopDown()
             .filter { it.isFile }
+            .sorted()
             .map { it.toRelativeString(outputsDir) to it.readText().trim() }
             .toList()
 
         assertIterableEquals(
             listOf(
-                "org/test/utils/.codeowners" to "kotlin-devs",
                 "org/test/lib/.codeowners" to "kotlin-devs",
+                "org/test/utils/.codeowners" to "kotlin-devs",
             ),
             outputFiles
         )

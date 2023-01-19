@@ -3,6 +3,7 @@
 package io.github.gmazzo.codeowners
 
 import java.io.Reader
+import java.lang.reflect.Proxy
 import kotlin.reflect.KClass
 
 inline fun <reified Type> codeOwnersOf() =
@@ -12,17 +13,21 @@ val KClass<*>.codeOwners
     get() = java.codeOwners
 
 val Class<*>.codeOwners: Set<String>?
-    get() = with(topLevelClass()) { classLoader.getCodeOwners(`package`.name, simpleName) }
+    get() = with(topLevelClass()) { classLoader.getCodeOwners(`package`?.name, simpleName) }
 
 val Throwable.codeOwners
-    get() = stackTrace.asSequence().map { it.codeOwners }.firstOrNull()
+    get() = stackTrace.asSequence().mapNotNull { it.codeOwners }.firstOrNull()
 
 private tailrec fun Class<*>.topLevelClass(): Class<*> = when (val enclosing = enclosingClass) {
-    null -> this
+    null -> when {
+        Proxy.isProxyClass(this) -> interfaces.firstOrNull() ?: this
+        else -> this
+    }
+
     else -> enclosing.topLevelClass()
 }
 
-private val StackTraceElement.codeOwners: Set<String>?
+val StackTraceElement.codeOwners: Set<String>?
     get() {
         val clazz = runCatching { Class.forName(className) }.getOrNull() ?: return null
 
@@ -32,8 +37,8 @@ private val StackTraceElement.codeOwners: Set<String>?
     }
 
 @JvmOverloads
-tailrec fun ClassLoader.getCodeOwners(packageName: String, className: String? = null): Set<String>? {
-    val packagePath = packageName.replace('.', '/')
+tailrec fun ClassLoader.getCodeOwners(packageName: String?, className: String? = null): Set<String>? {
+    val packagePath = packageName?.replace('.', '/') ?: return null
     val path = "$packagePath/${className.orEmpty()}.codeowners"
     val owners = getResources(path).asSequence()
         .flatMap { it.openStream()?.reader()?.use(Reader::readLines).orEmpty() }
