@@ -122,6 +122,7 @@ class CodeOwnersPlugin : Plugin<Project> {
                 runtimeClasspath.from(component.runtimeConfiguration.codeOwners)
             }
             addCodeDependency(component.compileConfiguration.name)
+            addCodeDependency(component.runtimeConfiguration.name)
 
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
