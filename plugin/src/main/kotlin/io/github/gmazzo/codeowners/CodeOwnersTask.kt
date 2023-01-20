@@ -6,7 +6,6 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import java.io.File
 
@@ -17,11 +16,26 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:Internal
     abstract val rootDirectory: DirectoryProperty
 
+    /**
+     * Helper input to declare that we only care about paths and not file contents on [rootDirectory] and [sources]
+     *
+     * [Incorrect use of the `@Input` annotation](https://docs.gradle.org/7.6/userguide/validation_problems.html#incorrect_use_of_input_annotation)
+     */
+    @get:Input
+    internal val rootDirectoryPath =
+        rootDirectory.map { it.asFile.toRelativeString(project.rootDir) }
+
     @get:Input
     abstract val codeOwners: Property<CodeOwnersFile>
 
     @get:Internal
     abstract val sources: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:IgnoreEmptyDirectories
+    @get:SkipWhenEmpty
+    internal val sourcesFiles: FileTree = sources.asFileTree
 
     @get:Internal
     abstract val runtimeClasspath: ConfigurableFileCollection
@@ -35,22 +49,8 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
-    /**
-     * Helper input to declare that we only care about paths and not file contents on [rootDirectory] and [sources]
-     *
-     * [Incorrect use of the `@Input` annotation](https://docs.gradle.org/7.6/userguide/validation_problems.html#incorrect_use_of_input_annotation)
-     */
-    @get:Input
-    internal abstract val sourcesPaths: SetProperty<String>
-
     init {
         outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
-
-        sourcesPaths.add(rootDirectory.map { it.asFile.toRelativeString(project.rootDir) })
-        sourcesPaths.addAll(sources.asFileTree.asSequence().map { it.toRelativeString(project.rootDir) }.asIterable())
-        sourcesPaths.disallowChanges()
-
-        onlyIf { !sources.isEmpty }
     }
 
     @TaskAction
@@ -79,7 +79,7 @@ abstract class CodeOwnersTask : DefaultTask() {
 
         // process all files/directories and sets their owners
         logger.info("Processing sources...")
-        sources.asFileTree.visit {
+        sourcesFiles.visit {
             val rootPath = it.file.toRelativeString(root)
             val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, it.isDirectory) } ?: return@visit
             val targetPath =

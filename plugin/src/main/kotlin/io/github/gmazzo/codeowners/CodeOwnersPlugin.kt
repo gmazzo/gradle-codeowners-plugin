@@ -70,8 +70,6 @@ class CodeOwnersPlugin : Plugin<Project> {
     private fun Project.createSourceSets(
         extension: CodeOwnersExtension,
     ) = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
-        val ss = objects.sourceDirectorySet(name, "$name codeOwners sources")
-
         val prefix = when (name) {
             SourceSet.MAIN_SOURCE_SET_NAME -> ""
             else -> name.capitalize()
@@ -80,13 +78,10 @@ class CodeOwnersPlugin : Plugin<Project> {
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
             codeOwners.value(extension.codeOwners)
             rootDirectory.value(extension.rootDirectory)
-            sources.from(ss)
+            outputDirectory.value(layout.buildDirectory.dir("generated/codeOwners/$name"))
         }
 
-        ss.destinationDirectory.value(layout.buildDirectory.dir("generated/codeOwners/${ss.name}"))
-        ss.compiledBy(generateTask, CodeOwnersTask::outputDirectory)
-
-        objects.newInstance<CodeOwnersSourceSetImpl>(ss, generateTask).apply {
+        objects.newInstance<CodeOwnersSourceSetImpl>(name, generateTask).apply {
             enabled.convention(true).finalizeValueOnRead()
         }
     }
@@ -95,15 +90,15 @@ class CodeOwnersPlugin : Plugin<Project> {
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
         the<SourceSetContainer>().configureEach { ss ->
-            val sources = sourceSets.maybeCreate(ss.name)
-            sources.source(ss.allJava)
-            sources.generateTask {
+            val extension = sourceSets.maybeCreate(ss.name)
+            extension.generateTask {
+                sources.from(provider { ss.allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
                 runtimeClasspath.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
             }
             addCodeDependency(ss.implementationConfigurationName)
 
-            ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sources)
-            tasks.named<AbstractCopyTask>(ss.processResourcesTaskName).addResources(sources)
+            ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, extension)
+            tasks.named<AbstractCopyTask>(ss.processResourcesTaskName).addResources(extension)
         }
     }
 
@@ -116,9 +111,9 @@ class CodeOwnersPlugin : Plugin<Project> {
             component: Component,
             defaultsTo: CodeOwnersSourceSet? = null,
         ): CodeOwnersSourceSet {
-            val sources = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
-            sources.srcDir(listOfNotNull(component.sources.java?.all, component.sources.kotlin?.all))
-            sources.generateTask {
+            val extension = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
+            extension.generateTask {
+                sources.from(component.sources.java?.all, component.sources.kotlin?.all)
                 runtimeClasspath.from(component.runtimeConfiguration.codeOwners)
             }
             addCodeDependency(component.compileConfiguration.name)
@@ -127,16 +122,16 @@ class CodeOwnersPlugin : Plugin<Project> {
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
                 tasks.named<AbstractCopyTask>("process${component.name.capitalize()}JavaRes")
-                    .addResources(sources)
+                    .addResources(extension)
             }
 
             if (defaultsTo != null) {
-                sources.enabled.convention(defaultsTo.enabled)
+                extension.enabled.convention(defaultsTo.enabled)
             }
-            return sources
+            return extension
         }
 
-        androidComponents.onVariants { variant ->
+        androidComponents.onVariants(androidComponents.selector().all()) { variant ->
             variant.packaging.resources.merges.add("**/*.codeowners")
 
             val sources = bind(variant)

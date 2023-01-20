@@ -53,7 +53,7 @@ class CodeOwnersPluginITest {
 
         assertEquals(TaskOutcome.UP_TO_DATE, build.task(":lib1:generateCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib1:generateTestCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib1:generateIntegrationTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib1:generateIntegrationTestCodeOwnersResources")?.outcome)
 
         lib1BuildPasses = true
     }
@@ -63,9 +63,9 @@ class CodeOwnersPluginITest {
     fun `lib2 tests passes`() {
         val build = runBuild(":lib2:test")
 
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib2:generateDebugUnitTestCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib2:generateReleaseUnitTestCodeOwnersResources")?.outcome)
 
         lib2TestPasses = true
@@ -77,10 +77,10 @@ class CodeOwnersPluginITest {
     fun `lib2 builds successfully`() {
         val build = runBuild(":lib2:build", ":lib2:packageDebugAndroidTest")
 
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib2:generateDebugUnitTestCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib2:generateDebugAndroidTestCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugAndroidTestCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib2:generateReleaseUnitTestCodeOwnersResources")?.outcome)
 
         lib2BuildPasses = true
@@ -122,7 +122,7 @@ class CodeOwnersPluginITest {
 
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":lib1:generateCodeOwnersResources")?.outcome)
-        assertEquals(TaskOutcome.SKIPPED, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
+        assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
     }
 
 }

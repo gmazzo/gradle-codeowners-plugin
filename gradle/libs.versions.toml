@@ -9,7 +9,7 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version = "j
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 [plugins]
-android = "com.android.application:7.3.1"
+android = "com.android.application:7.4.0"
 buildConfig = "com.github.gmazzo.buildconfig:3.1.0"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "kotlin" }
