@@ -95,31 +95,42 @@ abstract class CodeOwnersTask : DefaultTask() {
             }
         }
 
+        val written = mutableSetOf<Entry>()
         fun shouldWrite(path: String, entry: Entry): Boolean {
             if (entry.isExternal) return false
             if (entry.isFile || entry.hasFiles) {
-                val parent = ownership[File(path).parent ?: ""] ?: return true
-                return parent === entry || !parent.hasFiles || entry.owners != parent.owners
+                if (path == "") return true
+
+                var parent: File? = File(path).parentFile
+                do {
+                    val parentEntry = ownership[parent?.path ?: ""] ?: continue
+
+                    if (parentEntry.owners != entry.owners) return true
+                    if (parentEntry in written) return false
+
+                    parent = parent?.parentFile
+                } while (parent != null)
+                return true
             }
             return false
         }
 
         logger.info("Generating output from ${ownership.size} ownership information entries...")
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
-        var outputCount = 0
         ownership.entries.forEach { (path, entry) ->
             if (shouldWrite(path, entry)) {
+                written.add(entry)
+
                 val fileName = if (entry.isFile) "$path.codeowners" else "${path.ifEmpty { "." }}/.codeowners"
 
                 with(outputDir.file(fileName).asFile) {
                     parentFile.mkdirs()
                     writeText(entry.owners.sorted().joinToString(separator = "\n", postfix = "\n"))
                 }
-                outputCount++
             }
         }
 
-        logger.info("Generated $outputCount simplified ownership information entries.")
+        logger.info("Generated ${written.size} simplified ownership information entries.")
     }
 
     private data class Entry(

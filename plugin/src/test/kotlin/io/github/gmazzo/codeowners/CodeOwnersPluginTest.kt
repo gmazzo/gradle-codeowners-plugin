@@ -70,6 +70,7 @@ class CodeOwnersPluginTest {
             "admin/src/main/java/com/test/admin/Admin.java",
 
             "child1/src/main/java/com/test/child1/Piece1.java",
+            "child1/src/main/java/com/test/child1/data/dtos/Piece1DTO.java",
 
             "child2/src/main/java/com/test/child2/Piece2.java",
             "child2/src/main/groovy/Main.groovy",
