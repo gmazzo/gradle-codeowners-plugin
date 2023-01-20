@@ -16,7 +16,7 @@ data class CodeOwnersFile(
 
     constructor(
         lines: Sequence<String>,
-    ) : this(lines.mapNotNull(Companion::parseLine).toList())
+    ) : this(lines.map(Companion::parseLine).toList())
 
     sealed interface Part : Serializable
 
@@ -38,13 +38,17 @@ data class CodeOwnersFile(
         val comment: String,
     ) : Part
 
+    object EmptyLine : Part {
+        override fun toString() = "EmptyLine"
+    }
+
     private companion object {
 
         private val lineOrComment = "\\s*+((?!#).+?)?\\s*+(?:(?<!\\\\)#\\s*+(.*?))?\\s*+".toRegex()
 
         private val patternAndOwners = "(?<!\\\\)\\s+".toRegex()
 
-        fun parseLine(line: String): Part? {
+        fun parseLine(line: String): Part {
             val (_, rawLine, comment) = lineOrComment.matchEntire(line)!!.groupValues
 
             return when {
@@ -53,7 +57,7 @@ data class CodeOwnersFile(
                 }
 
                 comment.isNotBlank() -> Comment(comment)
-                else -> null
+                else -> EmptyLine
             }
         }
 

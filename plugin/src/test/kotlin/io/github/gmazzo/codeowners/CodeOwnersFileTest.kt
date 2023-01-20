@@ -54,11 +54,35 @@ class CodeOwnersFileTest {
         """.trimIndent(),
             CodeOwnersFile(
                 CodeOwnersFile.Comment("This is a comment."),
+                CodeOwnersFile.EmptyLine,
                 CodeOwnersFile.Entry("*", "@global-owner1", "@global-owner2"),
                 CodeOwnersFile.Entry("*.js", "@js-owner", comment = "This is an inline comment."),
                 CodeOwnersFile.Entry("*.go", "docs@example.com"),
                 CodeOwnersFile.Entry("/build/logs/", "@doctocat"),
                 CodeOwnersFile.Comment("A final comment"),
+                CodeOwnersFile.EmptyLine,
+            ),
+        )
+    }
+
+    @Test
+    fun `when file has entry without owners, should parse it anyway`() {
+        testParse(
+            """
+            # This is a comment.
+            
+            entryWithoutOwners
+            
+            *       @global-owner1 @global-owner2
+            *.js    @js-owner #This is an inline comment.
+        """.trimIndent(),
+            CodeOwnersFile(
+                CodeOwnersFile.Comment("This is a comment."),
+                CodeOwnersFile.EmptyLine,
+                CodeOwnersFile.Entry("entryWithoutOwners"),
+                CodeOwnersFile.EmptyLine,
+                CodeOwnersFile.Entry("*", "@global-owner1", "@global-owner2"),
+                CodeOwnersFile.Entry("*.js", "@js-owner", comment = "This is an inline comment."),
             ),
         )
     }
