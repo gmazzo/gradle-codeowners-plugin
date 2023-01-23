@@ -10,8 +10,13 @@ internal class CodeOwnersCompatibilityRule : AttributeCompatibilityRule<String> 
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
     }
 
+    private val javaResArtifacts = setOf(
+        JVM_RESOURCES_DIRECTORY,
+        "android-java-res" // com.android.build.gradle.internal.publishing.AndroidArtifacts.TYPE_JAVA_RES
+    )
+
     override fun execute(details: CompatibilityCheckDetails<String>) = with(details) {
-        if (consumerValue == ARTIFACT_TYPE_CODEOWNERS && producerValue == JVM_RESOURCES_DIRECTORY) {
+        if (consumerValue == ARTIFACT_TYPE_CODEOWNERS && producerValue in javaResArtifacts) {
             compatible()
         }
     }

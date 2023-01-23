@@ -4,7 +4,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 
-interface CodeOwnersExtension {
+interface CodeOwnersExtension : InspectDependencies {
 
      /**
       * The base path of the entries on the CODEOWNERS file

@@ -4,7 +4,7 @@ import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 
-interface CodeOwnersSourceSet : Named {
+interface CodeOwnersSourceSet : Named, InspectDependencies {
 
     /**
      * If it should compute the code owners for this source set
