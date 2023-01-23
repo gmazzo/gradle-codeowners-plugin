@@ -5,12 +5,7 @@ import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import java.net.URI
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import kotlin.io.path.pathString
-import kotlin.streams.asSequence
+import java.util.zip.ZipInputStream
 
 @CacheableTransform
 internal abstract class CodeOwnersTransform : TransformAction<TransformParameters.None> {
@@ -19,17 +14,10 @@ internal abstract class CodeOwnersTransform : TransformAction<TransformParameter
     @get:InputArtifact
     abstract val inputJar: Provider<FileSystemLocation>
 
-    private val inputUri get() = URI.create("jar:file:${inputJar.get().asFile.path}")
-
-    override fun transform(outputs: TransformOutputs) = FileSystems.newFileSystem(inputUri, emptyMap<String, Any>()).use { zip ->
-        zip.rootDirectories
-            .flatMap { Files.walk(it).asSequence() }
-            .filter { !Files.isDirectory(it) && it.fileName.endsWith(".codeowners") }
-            .forEach {
-                val target = outputs.file(it.root.relativize(it).pathString).toPath()
-
-                Files.copy(it, target, StandardCopyOption.COPY_ATTRIBUTES)
-            }
+    override fun transform(outputs: TransformOutputs) = ZipInputStream(inputJar.get().asFile.inputStream()).use { zip ->
+        generateSequence(zip.nextEntry) { zip.nextEntry }
+            .filter { !it.isDirectory && it.name.endsWith(".codeowners") }
+            .forEach { outputs.file(it.name).outputStream().use(zip::copyTo) }
     }
 
 }
