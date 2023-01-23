@@ -9,6 +9,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.AbstractCopyTask
@@ -62,6 +63,10 @@ class CodeOwnersPlugin : Plugin<Project> {
                 }))
                 .apply { disallowChanges() }
                 .finalizeValueOnRead()
+
+            inspectDependencies
+                .convention(InspectDependencies.Mode.LOCAL_PROJECTS)
+                .finalizeValueOnRead()
         }
 
         else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(extensionName, it) }
@@ -83,6 +88,7 @@ class CodeOwnersPlugin : Plugin<Project> {
 
         objects.newInstance<CodeOwnersSourceSetImpl>(name, generateTask).apply {
             enabled.convention(true).finalizeValueOnRead()
+            inspectDependencies.convention(extension.inspectDependencies).finalizeValueOnRead()
         }
     }
 
@@ -93,7 +99,7 @@ class CodeOwnersPlugin : Plugin<Project> {
             val extension = sourceSets.maybeCreate(ss.name)
             extension.generateTask {
                 sources.from(provider { ss.allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
-                runtimeClasspath.from(configurations[ss.runtimeClasspathConfigurationName].codeOwners)
+                addDependencies(extension, configurations[ss.runtimeClasspathConfigurationName])
             }
             addCodeDependency(ss.implementationConfigurationName)
 
@@ -114,7 +120,7 @@ class CodeOwnersPlugin : Plugin<Project> {
             val extension = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
             extension.generateTask {
                 sources.from(component.sources.java?.all, component.sources.kotlin?.all)
-                runtimeClasspath.from(component.runtimeConfiguration.codeOwners)
+                addDependencies(extension, component.runtimeConfiguration)
             }
             addCodeDependency(component.compileConfiguration.name)
             addCodeDependency(component.runtimeConfiguration.name)
@@ -140,10 +146,21 @@ class CodeOwnersPlugin : Plugin<Project> {
         }
     }
 
-    private val Configuration.codeOwners
-        get() = incoming
-            .artifactView { it.attributes.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS) }
-            .files
+    private fun CodeOwnersTask.addDependencies(
+        sourceSet: CodeOwnersSourceSet,
+        configuration: Configuration,
+    ) {
+        val mode = sourceSet.inspectDependencies.get()
+        if (mode == InspectDependencies.Mode.NONE) return
+
+        runtimeClasspath.from(configuration.incoming.artifactView { view ->
+            view.attributes.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
+
+            if (mode == InspectDependencies.Mode.LOCAL_PROJECTS) {
+                view.componentFilter { it is ProjectComponentIdentifier }
+            }
+        }.files)
+    }
 
     private fun TaskProvider<out AbstractCopyTask>.addResources(sources: CodeOwnersSourceSet) = configure { task ->
         task.from(sources.enabled.map {
