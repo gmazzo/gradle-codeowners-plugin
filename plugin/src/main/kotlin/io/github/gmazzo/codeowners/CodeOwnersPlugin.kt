@@ -101,7 +101,7 @@ class CodeOwnersPlugin : Plugin<Project> {
                 sources.from(provider { ss.allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
                 addDependencies(extension, configurations[ss.runtimeClasspathConfigurationName])
             }
-            addCodeDependency(ss.implementationConfigurationName)
+            addCodeDependency(extension, ss.implementationConfigurationName)
 
             ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, extension)
             tasks.named<AbstractCopyTask>(ss.processResourcesTaskName).addResources(extension)
@@ -122,8 +122,8 @@ class CodeOwnersPlugin : Plugin<Project> {
                 sources.from(component.sources.java?.all, component.sources.kotlin?.all)
                 addDependencies(extension, component.runtimeConfiguration)
             }
-            addCodeDependency(component.compileConfiguration.name)
-            addCodeDependency(component.runtimeConfiguration.name)
+            addCodeDependency(extension, component.compileConfiguration.name)
+            addCodeDependency(extension, component.runtimeConfiguration.name)
 
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
@@ -171,9 +171,14 @@ class CodeOwnersPlugin : Plugin<Project> {
     private val Project.includeCoreDependency
         get() = findProperty("codeowners.default.dependency")?.toString()?.toBoolean() != false
 
-    private fun Project.addCodeDependency(configurationName: String) {
+    private fun Project.addCodeDependency(
+        sourceSet: CodeOwnersSourceSet,
+        configurationName: String,
+    ) {
         if (includeCoreDependency) {
-            dependencies.add(configurationName, BuildConfig.CORE_DEPENDENCY)
+            dependencies.add(
+                configurationName,
+                sourceSet.enabled.map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
 
         } else {
             dependencies.constraints.add(configurationName, BuildConfig.CORE_DEPENDENCY)
