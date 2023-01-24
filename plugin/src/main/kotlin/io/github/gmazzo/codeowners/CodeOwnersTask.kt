@@ -103,10 +103,11 @@ abstract class CodeOwnersTask : DefaultTask() {
 
                 var parent: File? = File(path).parentFile
                 do {
-                    val parentEntry = ownership[parent?.path ?: ""] ?: continue
-
-                    if (parentEntry.owners != entry.owners) return true
-                    if (parentEntry in written) return false
+                    val parentEntry = ownership[parent?.path ?: ""]
+                    if (parentEntry != null) {
+                        if (parentEntry.owners != entry.owners) return true
+                        if (parentEntry in written) return false
+                    }
 
                     parent = parent?.parentFile
                 } while (parent != null)
