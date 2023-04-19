@@ -1,4 +1,3 @@
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.gmazzo.codeowners/core)](https://search.maven.org/artifact/io.github.gmazzo.codeowners/core)
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.gmazzo.codeowners)](https://plugins.gradle.org/plugin/io.github.gmazzo.codeowners)
 ![Build Status](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/build.yaml/badge.svg)

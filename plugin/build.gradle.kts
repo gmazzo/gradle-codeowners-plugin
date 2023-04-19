@@ -3,9 +3,8 @@
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.buildConfig)
-    `java-gradle-plugin`
+    alias(libs.plugins.gradle.pluginPublish)
     `maven-central-publish`
-    id("com.gradle.plugin-publish") version "1.1.0"
 }
 
 description = "CodeOwners Gradle Plugin"
