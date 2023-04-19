@@ -17,11 +17,12 @@ dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =
         plugin.map { create("${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}") }
 
-    implementation(gradleKotlinDsl())
-    implementation(libs.jgit)
-
+    compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.android))
 
+    implementation(libs.jgit)
+
+    testImplementation(gradleKotlinDsl())
     testRuntimeOnly(plugin(libs.plugins.kotlin))
 
     pluginUnderTestImplementation(projects.core)
