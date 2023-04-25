@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.7.20"
-junit = "5.9.1"
+junit = "5.9.2"
 
 [libraries]
 jgit = "org.eclipse.jgit:org.eclipse.jgit:5.13.1.202206130422-r"
