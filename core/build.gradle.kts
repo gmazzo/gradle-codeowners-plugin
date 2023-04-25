@@ -6,7 +6,7 @@ plugins {
 
 description = "CodeOwners Library"
 
-java.targetCompatibility = JavaVersion.VERSION_1_8
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 publishing.publications {
     create<MavenPublication>("java") { from(components["java"]) }

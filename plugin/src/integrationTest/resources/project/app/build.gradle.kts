@@ -7,6 +7,11 @@ plugins {
 android {
     namespace = "org.test.app"
     compileSdk = 30
+
+    compileOptions {
+        sourceCompatibility(java.sourceCompatibility)
+        targetCompatibility(java.targetCompatibility)
+    }
 }
 
 androidComponents.onVariants {

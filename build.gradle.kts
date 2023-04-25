@@ -30,16 +30,12 @@ allprojects {
     group = "io.github.gmazzo.codeowners"
 
     plugins.withId("java") {
-        configure<JavaPluginExtension> {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
-        }
 
         apply(plugin = "jacoco-report-aggregation")
 
         dependencies {
-            "testImplementation"(libs.junit)
-            "testImplementation"(libs.junit.params)
+            "testImplementation"(libs.kotlin.test)
+            "testImplementation"("org.junit.jupiter:junit-jupiter-params")
         }
 
         tasks.withType<Test>().configureEach {

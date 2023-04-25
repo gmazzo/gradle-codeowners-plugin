@@ -9,6 +9,8 @@ plugins {
 
 description = "CodeOwners Gradle Plugin"
 
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+
 val integrationTest by testing.suites.registering(JvmTestSuite::class)
 val pluginUnderTestImplementation by configurations.creating
 

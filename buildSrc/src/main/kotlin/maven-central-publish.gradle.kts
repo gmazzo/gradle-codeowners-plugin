@@ -44,10 +44,10 @@ tasks.named("publishToSonatype") {
 
 fun MavenPublication.setupMandatoryPOMAttributes() {
     pom {
-        val origin = Runtime.getRuntime()
-            .exec("git remote get-url origin")
-            .inputStream
-            .bufferedReader().use { it.readText().trim() }
+        val origin = providers
+            .exec { commandLine("git", "remote", "get-url", "origin") }
+            .standardOutput
+            .asText
 
         name.set("${rootProject.name}-${project.name}")
         description.set(project.description)
