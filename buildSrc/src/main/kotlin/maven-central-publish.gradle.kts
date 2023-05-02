@@ -55,8 +55,8 @@ fun MavenPublication.setupMandatoryPOMAttributes() {
 
         licenses {
             license {
-                name.set("GNU v3")
-                url.set("https://www.gnu.org/licenses/gpl-3.0")
+                name.set("MIT License")
+                url.set("https://opensource.org/license/mit/")
             }
         }
 
