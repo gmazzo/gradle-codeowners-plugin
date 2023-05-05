@@ -7,7 +7,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 
 [plugins]
 android = "com.android.application:7.4.0"
-buildConfig = "com.github.gmazzo.buildconfig:4.0.2"
+buildConfig = "com.github.gmazzo.buildconfig:4.0.4"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version = "1.8.10" }
 gitVersioning = { id = "me.qoomon.git-versioning", version = "6.4.2" }
