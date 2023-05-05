@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "org.test.app"
     compileSdk = 30
+    buildFeatures.buildConfig = true
 
     compileOptions {
         sourceCompatibility(java.sourceCompatibility)
