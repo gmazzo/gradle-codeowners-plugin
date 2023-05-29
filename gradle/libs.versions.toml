@@ -6,7 +6,7 @@ jgit = "org.eclipse.jgit:org.eclipse.jgit:6.5.0.202303070854-r"
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 [plugins]
-android = "com.android.application:8.0.1"
+android = "com.android.application:8.0.2"
 buildConfig = "com.github.gmazzo.buildconfig:4.0.4"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version = "1.8.10" }
