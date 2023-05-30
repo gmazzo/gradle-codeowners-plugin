@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.io.File
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CodeOwnersPluginTest {
@@ -105,16 +106,31 @@ class CodeOwnersPluginTest {
         "com/test/app/AppData.codeowners" to setOf("app-devs", "kotlin-devs"),
         "com/test/app/child1/.codeowners" to setOf("child1-devs"),
         "com/test/app/child2/.codeowners" to setOf("child2-devs", "app-devs"),
+        expectedMappings = """
+            com/test/app                app-devs
+            com/test/app/AppData        app-devs kotlin-devs
+            com/test/app/child1         child1-devs
+            com/test/app/child2         app-devs child2-devs
+            
+        """.trimIndent()
     )
 
     @Test
     fun `generates admin code package info correctly`() = admin.testGenerateCodeOwners(
         "com/test/admin/.codeowners" to setOf("app-devs", "admin-devs"),
+        expectedMappings = """
+            com/test/admin          admin-devs app-devs
+            
+        """.trimIndent()
     )
 
     @Test
     fun `generates child1 code package info correctly`() = child1.testGenerateCodeOwners(
         "com/test/child1/.codeowners" to setOf("child1-devs"),
+        expectedMappings = """
+            com/test/child1         child1-devs
+            
+        """.trimIndent()
     )
 
     @Test
@@ -122,6 +138,12 @@ class CodeOwnersPluginTest {
         "Main.codeowners" to setOf("child2-devs", "app-devs"),
         "com/test/child2/.codeowners" to setOf("child2-devs", "app-devs"),
         "env-dev/.codeowners" to setOf("scripting-devs"),
+        expectedMappings = """
+            Main                    app-devs child2-devs
+            com/test/child2         app-devs child2-devs
+            env-dev                 scripting-devs
+            
+        """.trimIndent()
     )
 
     @Test
@@ -131,18 +153,29 @@ class CodeOwnersPluginTest {
         "com/test/child3/Piece3Stubs.codeowners" to setOf("child3-kotlin"),
         "com/test/child3/a/.codeowners" to setOf("child3-java"),
         "com/test/child3/b/.codeowners" to setOf("child3-kotlin"),
+        expectedMappings = """
+            com/test/child3                     child3-java child3-kotlin
+            com/test/child3/Piece3Data          child3-java
+            com/test/child3/Piece3Stubs         child3-kotlin
+            com/test/child3/a                   child3-java
+            com/test/child3/b                   child3-kotlin
+            
+        """.trimIndent()
     )
 
-    private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, Set<String>>) {
+    private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, Set<String>>, expectedMappings: String) {
         tasks.withType<CodeOwnersTask>().all { it.generateCodeOwnersInfo() }
 
-        val actualInfos = layout.buildDirectory.dir("generated/codeOwners/main").get().let { dir ->
+        val actualInfos = layout.buildDirectory.dir("codeOwners/resources/main").get().let { dir ->
             dir.asFileTree.files
                 .sorted()
                 .map { it.toRelativeString(dir.asFile) to it.readLines().toSet() }
         }
 
         assertIterableEquals(expectedInfos.toList(), actualInfos)
+
+        val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main.CODEOWNERS").get().asFile.readText()
+        assertEquals(expectedMappings, actualMappings)
     }
 
 }

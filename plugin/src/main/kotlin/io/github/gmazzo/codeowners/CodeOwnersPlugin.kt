@@ -92,7 +92,8 @@ class CodeOwnersPlugin : Plugin<Project> {
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
             codeOwners.value(extension.codeOwners)
             rootDirectory.value(extension.rootDirectory)
-            outputDirectory.value(layout.buildDirectory.dir("generated/codeOwners/$name"))
+            outputDirectory.value(layout.buildDirectory.dir("codeOwners/resources/$name"))
+            mappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name.CODEOWNERS"))
         }
 
         objects.newInstance<CodeOwnersSourceSetImpl>(name, generateTask).apply {
@@ -187,7 +188,7 @@ class CodeOwnersPlugin : Plugin<Project> {
         extension: CodeOwnersExtension,
         sourceSet: CodeOwnersSourceSet,
         configurationName: String,
-    ) = afterEvaluate {
+    ) {
         dependencies.constraints.add(configurationName, BuildConfig.CORE_DEPENDENCY)
 
         dependencies.add(
