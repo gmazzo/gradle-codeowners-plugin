@@ -87,6 +87,43 @@ dependencies {
 }
 ```
 
+## Consuming the generated `mappedCodeOwnersFile`
+Each `CodeOwnersTask` produces a .CODEOWNERS like file which translates build directories to Java packages (in folder format, not '.').
+
+To explain this better, given a `.CODEOWNERS` file:
+```
+src/main/java       @java-devs
+src/main/kotlin     @koltin-devs
+```
+And some source files:
+```
+src/main/java/org/example/app/App.java
+src/main/java/org/example/foo/Foo.java
+src/main/kotlin/org/example/app/AppKt.kt
+src/main/kotlin/org/example/bar/Bar.kt
+```
+The generated `mappedCodeOwnersFile` will contain
+```
+org/example/app     @koltin-devs @java-devs
+org/example/foo     @java-devs
+org/example/bar     @koltin-devs
+```
+
+You could use these files up feed any observability service for instance, allowing to have owners attributions given a package name/path.
+
+In case you want to generate these but don't want to pollute/expose your production code with the ownership information, you use the `addCodeOwnershipAsResources` DSL to prevent the resources to be added (still generating the mapping files):
+```kotlin
+codeOwners.addCodeOwnershipAsResources.set(false)
+```
+
+To consume the `mappedCodeOwnersFile`, use the `.map`Property API, to ensure task dependencies are correctly computed, for instance:
+```kotlin
+tasks.register<Copy>("collectMappingFiles") {
+    from(tasks.named("generateCodeOwnersResources").flatMap { it.mappedCodeOwnersFile })
+    into(project.layout.buildDirectory.dir("mappings"))
+}
+```
+
 ## The CODEOWNERS file
 The expected format is the same as [GitHub's](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-syntax) and it can be located at any of the following paths:
 - `$rootDir/CODEOWNERS`

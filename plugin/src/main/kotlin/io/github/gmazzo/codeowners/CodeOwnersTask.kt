@@ -5,9 +5,12 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
+import kotlin.math.ceil
+import kotlin.math.max
 
 @CacheableTask
 @Suppress("LeakingThis")
@@ -48,6 +51,10 @@ abstract class CodeOwnersTask : DefaultTask() {
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
+
+    @get:OutputFile
+    @get:Optional
+    abstract val mappedCodeOwnersFile: RegularFileProperty
 
     init {
         outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
@@ -117,21 +124,37 @@ abstract class CodeOwnersTask : DefaultTask() {
         }
 
         logger.info("Generating output from ${ownership.size} ownership information entries...")
+        val mappings = mutableListOf<Pair<String, String>>()
+        var indent = 0
         val outputDir = outputDirectory.get().apply { asFile.deleteRecursively() }
         ownership.entries.forEach { (path, entry) ->
             if (shouldWrite(path, entry)) {
                 written.add(entry)
 
+                val owners = entry.owners.sorted()
+
+                mappings.add(path to owners.joinToString(separator = " "))
+                indent = max(indent, ceil(path.length / 4f).toInt() + 2)
+
                 val fileName = if (entry.isFile) "$path.codeowners" else "${path.ifEmpty { "." }}/.codeowners"
 
                 with(outputDir.file(fileName).asFile) {
                     parentFile.mkdirs()
-                    writeText(entry.owners.sorted().joinToString(separator = "\n", postfix = "\n"))
+                    writeText(owners.joinToString(separator = "\n", postfix = "\n"))
                 }
             }
         }
+        mappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }?.writeMappings(mappings, indent * 4)
 
         logger.info("Generated ${written.size} simplified ownership information entries.")
+    }
+
+    private fun File.writeMappings(mappings: List<Pair<String, String>>, indent: Int) = printWriter().use {
+        mappings.forEach { (path, owners) ->
+            it.print(path)
+            (path.length until indent).forEach { _ -> it.print(" ") }
+            it.println(owners)
+        }
     }
 
     private data class Entry(
