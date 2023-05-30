@@ -12,6 +12,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
@@ -30,8 +31,8 @@ class CodeOwnersPlugin : Plugin<Project> {
         val extension = createExtension()
         val sourceSets = createSourceSets(extension)
 
-        bindSourceSets(sourceSets)
-        setupAndroidSupport(sourceSets)
+        bindSourceSets(extension, sourceSets)
+        setupAndroidSupport(extension, sourceSets)
         setupArtifactTransform()
     }
 
@@ -67,6 +68,14 @@ class CodeOwnersPlugin : Plugin<Project> {
             inspectDependencies
                 .convention(InspectDependencies.Mode.LOCAL_PROJECTS)
                 .finalizeValueOnRead()
+
+            addCoreDependency
+                .convention(findProperty("codeowners.default.dependency")?.toString()?.toBoolean() != false)
+                .finalizeValueOnRead()
+
+            addCodeOwnershipAsResources
+                .convention(true)
+                .finalizeValueOnRead()
         }
 
         else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(extensionName, it) }
@@ -93,22 +102,25 @@ class CodeOwnersPlugin : Plugin<Project> {
     }
 
     private fun Project.bindSourceSets(
+        extension: CodeOwnersExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
         the<SourceSetContainer>().configureEach { ss ->
-            val extension = sourceSets.maybeCreate(ss.name)
-            extension.generateTask {
+            val sourceSet = sourceSets.maybeCreate(ss.name)
+            sourceSet.generateTask {
                 sources.from(provider { ss.allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
-                addDependencies(extension, configurations[ss.runtimeClasspathConfigurationName])
+                addDependencies(sourceSet, configurations[ss.runtimeClasspathConfigurationName])
             }
-            addCodeDependency(extension, ss.implementationConfigurationName)
+            addCodeDependency(extension, sourceSet, ss.implementationConfigurationName)
 
-            ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, extension)
-            tasks.named<AbstractCopyTask>(ss.processResourcesTaskName).addResources(extension)
+            ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sourceSet)
+            tasks.named<AbstractCopyTask>(ss.processResourcesTaskName)
+                .addResources(extension, sourceSet)
         }
     }
 
     private fun Project.setupAndroidSupport(
+        extension: CodeOwnersExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("com.android.base") {
         val androidComponents: AndroidComponentsExtension<*, *, *> by extensions
@@ -117,24 +129,24 @@ class CodeOwnersPlugin : Plugin<Project> {
             component: Component,
             defaultsTo: CodeOwnersSourceSet? = null,
         ): CodeOwnersSourceSet {
-            val extension = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
-            extension.generateTask {
+            val sourceSet = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
+            sourceSet.generateTask {
                 sources.from(component.sources.java?.all, component.sources.kotlin?.all)
-                addDependencies(extension, component.runtimeConfiguration)
+                addDependencies(sourceSet, component.runtimeConfiguration)
             }
-            addCodeDependency(extension, component.compileConfiguration.name)
-            addCodeDependency(extension, component.runtimeConfiguration.name)
+            addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
+            addCodeDependency(extension, sourceSet, component.runtimeConfiguration.name)
 
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
                 tasks.named<AbstractCopyTask>("process${component.name.capitalize()}JavaRes")
-                    .addResources(extension)
+                    .addResources(extension, sourceSet)
             }
 
             if (defaultsTo != null) {
-                extension.enabled.convention(defaultsTo.enabled)
+                sourceSet.enabled.convention(defaultsTo.enabled)
             }
-            return extension
+            return sourceSet
         }
 
         androidComponents.onVariants(androidComponents.selector().all()) { variant ->
@@ -162,27 +174,26 @@ class CodeOwnersPlugin : Plugin<Project> {
         }.files)
     }
 
-    private fun TaskProvider<out AbstractCopyTask>.addResources(sources: CodeOwnersSourceSet) = configure { task ->
-        task.from(sources.enabled.map {
+    private fun TaskProvider<out AbstractCopyTask>.addResources(
+        extension: CodeOwnersExtension,
+        sources: CodeOwnersSourceSet
+    ) = configure { task ->
+        task.from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
             if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else emptyList<Any>()
         })
     }
 
-    private val Project.includeCoreDependency
-        get() = findProperty("codeowners.default.dependency")?.toString()?.toBoolean() != false
-
     private fun Project.addCodeDependency(
+        extension: CodeOwnersExtension,
         sourceSet: CodeOwnersSourceSet,
         configurationName: String,
-    ) {
-        if (includeCoreDependency) {
-            dependencies.add(
-                configurationName,
-                sourceSet.enabled.map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
+    ) = afterEvaluate {
+        dependencies.constraints.add(configurationName, BuildConfig.CORE_DEPENDENCY)
 
-        } else {
-            dependencies.constraints.add(configurationName, BuildConfig.CORE_DEPENDENCY)
-        }
+        dependencies.add(
+            configurationName,
+            extension.addCoreDependency.and(extension.addCodeOwnershipAsResources, sourceSet.enabled)
+                .map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
     }
 
     private fun Project.setupArtifactTransform() = dependencies {
@@ -194,5 +205,8 @@ class CodeOwnersPlugin : Plugin<Project> {
             it.to.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
         }
     }
+
+    private fun Provider<Boolean>.and(vararg others: Provider<Boolean>) =
+        sequenceOf(this, *others).reduce { acc, it -> acc.zip(it, Boolean::and) }
 
 }
