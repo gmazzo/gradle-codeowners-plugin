@@ -3,7 +3,6 @@ package io.github.gmazzo.codeowners
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Component
 import com.android.build.api.variant.HasAndroidTest
-import io.github.gmazzo.codeowners.CodeOwnersCompatibilityRule.Companion.ARTIFACT_TYPE_CODEOWNERS
 import io.github.gmazzo.codeowners.plugin.BuildConfig
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
@@ -20,6 +19,10 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
 
 class CodeOwnersPlugin : Plugin<Project> {
+
+    private companion object {
+        const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
+    }
 
     private val extensionName = Component::codeOwners.name
 
@@ -198,9 +201,6 @@ class CodeOwnersPlugin : Plugin<Project> {
     }
 
     private fun Project.setupArtifactTransform() = dependencies {
-        attributesSchema.attribute(attributeArtifactType)
-            .compatibilityRules.add(CodeOwnersCompatibilityRule::class.java)
-
         registerTransform(CodeOwnersTransform::class) {
             it.from.attribute(attributeArtifactType, JAR_TYPE)
             it.to.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Files
+import kotlin.test.assertEquals
 
 class CodeOwnersTransformTest {
 
@@ -30,18 +31,17 @@ class CodeOwnersTransformTest {
     fun `transform, should process the input jar and generate the right output`() {
         transform.transform(outputs)
 
-        val outputFiles = outputsDir.walkTopDown()
-            .filter { it.isFile }
-            .sorted()
-            .map { it.toRelativeString(outputsDir) to it.readText().trim() }
-            .toList()
+        val outputContent = File(outputsDir, "${lib1Jar.nameWithoutExtension}.codeowners").readText()
 
-        assertIterableEquals(
-            listOf(
-                "org/test/lib/.codeowners" to "kotlin-devs",
-                "org/test/utils/.codeowners" to "kotlin-devs",
-            ),
-            outputFiles
+        assertEquals(
+            """
+                # Generated .codeowners for lib1.jar
+                
+                org/test/lib/       kotlin-devs java-devs
+                org/test/utils/     kotlin-devs
+                
+            """.trimIndent(),
+            outputContent
         )
     }
 
