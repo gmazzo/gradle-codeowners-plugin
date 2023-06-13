@@ -115,7 +115,7 @@ class CodeOwnersFileTest {
             # This is a comment.
             
             *                   @global-owner1 @global-owner2
-            *.js                @js-owner # This is an inline comment.
+            *.js                @js-owner                           # This is an inline comment.
             *.go                docs@example.com
             /build/logs/        @doctocat
             # A final comment

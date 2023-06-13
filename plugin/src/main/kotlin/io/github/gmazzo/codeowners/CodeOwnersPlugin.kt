@@ -9,9 +9,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
+import org.gradle.api.attributes.*
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
@@ -26,8 +30,6 @@ class CodeOwnersPlugin : Plugin<Project> {
 
     private val extensionName = Component::codeOwners.name
 
-    private val attributeArtifactType = Attribute.of("artifactType", String::class.java)
-
     override fun apply(target: Project): Unit = with(target) {
         rootProject.apply<CodeOwnersPlugin>()
 
@@ -36,7 +38,7 @@ class CodeOwnersPlugin : Plugin<Project> {
 
         bindSourceSets(extension, sourceSets)
         setupAndroidSupport(extension, sourceSets)
-        setupArtifactTransform()
+        setupArtifactTransform(objects)
     }
 
     private fun Project.createExtension() = when (project) {
@@ -96,6 +98,7 @@ class CodeOwnersPlugin : Plugin<Project> {
             codeOwners.value(extension.codeOwners)
             rootDirectory.value(extension.rootDirectory)
             outputDirectory.value(layout.buildDirectory.dir("codeOwners/resources/$name"))
+            mappedCodeOwnersFileHeader.value("Generated CODEOWNERS file for module `${project.name}`, source set `$name`\n")
             mappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name.CODEOWNERS"))
         }
 
@@ -109,13 +112,18 @@ class CodeOwnersPlugin : Plugin<Project> {
         extension: CodeOwnersExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
+
         the<SourceSetContainer>().configureEach {
             val sourceSet = sourceSets.maybeCreate(name)
             sourceSet.generateTask {
                 sources.from(provider { allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
-                addDependencies(sourceSet, configurations[runtimeClasspathConfigurationName])
+                addDependencies(objects, sourceSet, configurations[runtimeClasspathConfigurationName])
             }
             addCodeDependency(extension, sourceSet, implementationConfigurationName)
+
+            if (name == SourceSet.MAIN_SOURCE_SET_NAME) {
+                addOutgoingVariant(sourceSet, configurations[runtimeClasspathConfigurationName].attributes)
+            }
 
             extensions.add(CodeOwnersSourceSet::class.java, extensionName, sourceSet)
             tasks.named<AbstractCopyTask>(processResourcesTaskName)
@@ -136,7 +144,7 @@ class CodeOwnersPlugin : Plugin<Project> {
             val sourceSet = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
             sourceSet.generateTask {
                 sources.from(component.sources.java?.all, component.sources.kotlin?.all)
-                addDependencies(sourceSet, component.runtimeConfiguration)
+                addDependencies(objects, sourceSet, component.runtimeConfiguration)
             }
             addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
             addCodeDependency(extension, sourceSet, component.runtimeConfiguration.name)
@@ -157,20 +165,27 @@ class CodeOwnersPlugin : Plugin<Project> {
             variant.packaging.resources.merges.add("**/*.codeowners")
 
             val sources = bind(variant)
+
             variant.unitTest?.let { bind(component = it, defaultsTo = sources) }
             (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sources) }
+
+            addOutgoingVariant(sources, variant.runtimeConfiguration.attributes)
         }
     }
 
     private fun CodeOwnersTask.addDependencies(
+        objects: ObjectFactory,
         sourceSet: CodeOwnersSourceSet,
         configuration: Configuration,
     ) {
         val mode = sourceSet.inspectDependencies.get()
         if (mode == InspectDependencies.Mode.NONE) return
 
-        runtimeClasspath.from(configuration.incoming.artifactView {
-            attributes.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
+        transitiveCodeOwners.from(configuration.incoming.artifactView {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+            }
 
             if (mode == InspectDependencies.Mode.LOCAL_PROJECTS) {
                 componentFilter { it is ProjectComponentIdentifier }
@@ -200,10 +215,50 @@ class CodeOwnersPlugin : Plugin<Project> {
                 .map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
     }
 
-    private fun Project.setupArtifactTransform() = dependencies {
+    private fun Project.addOutgoingVariant(
+        sourceSet: CodeOwnersSourceSet,
+        attributes: AttributeContainer
+    ) = configurations.register("${sourceSet.name}CodeOwnersElements") {
+        isCanBeResolved = false
+        isCanBeConsumed = true
+        description = "CODEOWNERS information for the sourceSet $name"
+        attributes {
+            from(
+                attributes,
+                Usage.USAGE_ATTRIBUTE,
+                Category.CATEGORY_ATTRIBUTE,
+                LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                Bundling.BUNDLING_ATTRIBUTE
+            )
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(ARTIFACT_TYPE_CODEOWNERS))
+            attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+        }
+        outgoing {
+            artifacts(sourceSet.enabled.map { enabled ->
+                if (enabled) listOf(sourceSet.generateTask.map { it.mappedCodeOwnersFile })
+                else emptyList()
+            })
+        }
+    }
+
+    private fun Project.setupArtifactTransform(
+        objects: ObjectFactory,
+    ) = dependencies {
         registerTransform(CodeOwnersTransform::class) {
-            from.attribute(attributeArtifactType, JAR_TYPE)
-            to.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
+            from.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+            from.attribute(ARTIFACT_TYPE_ATTRIBUTE, JAR_TYPE)
+            to.attribute(Usage.USAGE_ATTRIBUTE, objects.named(ARTIFACT_TYPE_CODEOWNERS))
+            to.attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <Type : AttributeContainer> Type.from(
+        other: HasAttributes,
+        vararg except: Attribute<*>,
+    ) = apply {
+        (other.attributes.keySet() - except.toSet()).forEach {
+            attribute(it as Attribute<Any>, other.attributes.getAttribute(it)!!)
         }
     }
 
