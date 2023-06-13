@@ -23,7 +23,7 @@ public class AppOwnersTest {
 
     @Test
     public void ownerOfAppUtils() {
-        assertEquals(BuildConfig.DEBUG ? setOf("android-devs") : setOf("kotlin-devs"), getCodeOwners(AppUtils.class));
+        assertEquals(BuildConfig.DEBUG ? setOf("android-devs", "kotlin-devs") : setOf("kotlin-devs"), getCodeOwners(AppUtils.class));
     }
 
     /**

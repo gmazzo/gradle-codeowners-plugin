@@ -1,6 +1,7 @@
 package io.github.gmazzo.codeowners
 
 import java.io.Serializable
+import kotlin.math.max
 
 data class CodeOwnersFile(
     val entries: List<Part>,
@@ -65,14 +66,15 @@ data class CodeOwnersFile(
         }
 
         fun generateContent(entries: List<Part>) = buildString {
-            val indent = entries.asSequence()
+            val patterns = entries.asSequence()
                 .filterIsInstance<Entry>()
-                .map { it.pattern.length }
-                .max()
-                .let { ((it / 4) + 2) * 4 }
+
+            val (indent, commentsIndent) = patterns
+                .map { it.pattern.length.tabs(2) to it.owners.lengthOfAll.tabs(1) }
+                .fold(0 to 0) { (acc1, acc2), (it1, it2) -> max(acc1, it1) to max(acc2, it2) }
 
             entries.forEach {
-                when(it) {
+                when (it) {
                     is Entry -> {
                         append(it.pattern)
                         (it.pattern.length until indent).forEach { _ -> append(' ') }
@@ -81,19 +83,27 @@ data class CodeOwnersFile(
                             append(owner)
                         }
                         if (it.comment != null) {
-                            append(" # ")
+                            (it.pattern.length + it.owners.lengthOfAll until indent + commentsIndent).forEach { _ -> append(' ') }
+                            append("# ")
                             append(it.comment)
                         }
                         appendLine()
                     }
+
                     is Comment -> {
                         append("# ")
                         appendLine(it.comment)
                     }
+
                     is EmptyLine -> appendLine()
                 }
             }
         }
+
+        private val Collection<String>.lengthOfAll
+            get() = asSequence().map(String::length).max() + size - 1
+
+        private fun Int.tabs(extra: Int) = ((this / 4) + extra) * 4
 
     }
 

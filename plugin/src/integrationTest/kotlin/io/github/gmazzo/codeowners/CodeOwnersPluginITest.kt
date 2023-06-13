@@ -19,11 +19,16 @@ class CodeOwnersPluginITest {
     private fun runBuild(vararg args: String) = GradleRunner.create()
         .forwardOutput()
         .withPluginClasspath()
-        .withArguments(args.toList() + "-s")
+        .withArguments(args.toList() + "-s" + "--scan")
         .withProjectDir(buildDir)
-        .apply { withEnvironment(mapOf(
-            "ANDROID_HOME" to System.getenv("ANDROID_HOME"),
-            "pluginsClasspath" to pluginClasspath.joinToString(separator = File.pathSeparator))) }
+        .apply {
+            withEnvironment(
+                mapOf(
+                    "ANDROID_HOME" to System.getenv("ANDROID_HOME"),
+                    "pluginsClasspath" to pluginClasspath.joinToString(separator = File.pathSeparator)
+                )
+            )
+        }
         .build()
 
     var androidTestPasses = false
@@ -41,6 +46,13 @@ class CodeOwnersPluginITest {
 
         assertEquals(TaskOutcome.SUCCESS, build.task(":lib1:generateCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib1:generateTestCodeOwnersResources")?.outcome)
+        assertCodeOwners(
+            project = "lib1", sourceSet = "main", expectedContent = """
+                org/test/lib/       kotlin-devs
+                org/test/utils/     kotlin-devs
+            """.trimIndent()
+        )
+        assertCodeOwners(project = "lib1", sourceSet = "test", expectedContent = null)
 
         lib1TestPasses = true
     }
@@ -67,6 +79,8 @@ class CodeOwnersPluginITest {
         assertEquals(null, build.task(":lib2:generateDebugUnitTestCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateReleaseCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":lib2:generateReleaseUnitTestCodeOwnersResources")?.outcome)
+        assertCodeOwners(project = "lib2", sourceSet = "main", expectedContent = null)
+        assertCodeOwners(project = "lib2", sourceSet = "test", expectedContent = null)
 
         lib2TestPasses = true
     }
@@ -95,6 +109,13 @@ class CodeOwnersPluginITest {
         assertEquals(TaskOutcome.SUCCESS, build.task(":app:generateDebugUnitTestCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":app:generateReleaseCodeOwnersResources")?.outcome)
         assertEquals(null, build.task(":app:generateReleaseUnitTestCodeOwnersResources")?.outcome)
+        assertCodeOwners(project = "app", sourceSet = "debug", expectedContent = """
+            org/test/app/       android-devs
+            org/test/utils/     android-devs
+        """.trimIndent())
+        assertCodeOwners(project = "app", sourceSet = "debugUnitTest", expectedContent = """
+            org/test/app/       android-devs
+        """.trimIndent())
 
         androidTestPasses = true
     }
@@ -123,6 +144,21 @@ class CodeOwnersPluginITest {
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":app:generateDebugCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.FROM_CACHE, build.task(":lib1:generateCodeOwnersResources")?.outcome)
         assertEquals(TaskOutcome.NO_SOURCE, build.task(":lib2:generateDebugCodeOwnersResources")?.outcome)
+    }
+
+    private fun assertCodeOwners(
+        project: String,
+        sourceSet: String,
+        expectedContent: String?,
+    ) {
+        val actual = File(buildDir, "$project/build/codeOwners/mappings/$sourceSet.CODEOWNERS")
+            .takeIf { it.exists() }
+            ?.readText()
+
+        assertEquals(
+            expectedContent?.let { "# Generated CODEOWNERS file for module `$project`, source set `$sourceSet`\n\n$it\n" },
+            actual
+        )
     }
 
 }
