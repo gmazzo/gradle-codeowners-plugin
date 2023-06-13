@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.gradle.pluginPublish)
+    `java-integration-tests`
     `maven-central-publish`
 }
 
@@ -12,7 +13,6 @@ description = "CodeOwners Gradle Plugin"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 
-val integrationTest by testing.suites.registering(JvmTestSuite::class)
 val pluginUnderTestImplementation by configurations.creating
 
 samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
@@ -46,7 +46,7 @@ gradlePlugin {
         tags.addAll("codeowners", "ownership", "attribution")
     }
 
-    testSourceSets(sourceSets[integrationTest.name])
+    testSourceSets(sourceSets["integrationTest"])
 }
 
 buildConfig {
@@ -58,21 +58,11 @@ buildConfig {
     )
 }
 
-integrationTest {
-    targets.all {
-        testTask {
-            mustRunAfter(tasks.test)
-
-            // AGP 8 requires JDK 17 and we want to to be compatible with previous JDKs
-            javaLauncher.set(javaToolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(17))
-            })
-        }
-    }
-}
-
-tasks.check {
-    dependsOn(integrationTest)
+tasks.integrationTest {
+    // AGP 8 requires JDK 17, and we want to be compatible with previous JDKs
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
 }
 
 tasks.pluginUnderTestMetadata {
