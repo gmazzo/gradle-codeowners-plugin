@@ -14,10 +14,30 @@ internal abstract class CodeOwnersTransform : TransformAction<TransformParameter
     @get:InputArtifact
     abstract val inputJar: Provider<FileSystemLocation>
 
-    override fun transform(outputs: TransformOutputs) = ZipInputStream(inputJar.get().asFile.inputStream()).use { zip ->
-        generateSequence(zip.nextEntry) { zip.nextEntry }
-            .filter { !it.isDirectory && it.name.endsWith(".codeowners") }
-            .forEach { outputs.file(it.name).outputStream().use(zip::copyTo) }
+    override fun transform(outputs: TransformOutputs) {
+        val jar = inputJar.get().asFile
+
+        outputs.file(jar.nameWithoutExtension + ".codeowners").writer().use { out ->
+            out.append("# Generated .codeowners for ")
+            out.appendLine(jar.name)
+            out.appendLine()
+
+            ZipInputStream(jar.inputStream()).use { zip ->
+                val reader = zip.bufferedReader()
+                val entries = generateSequence(zip.nextEntry) { zip.nextEntry }
+                    .filter { !it.isDirectory && it.name.endsWith(".codeowners") }
+                    .map {
+                        CodeOwnersFile.Entry(
+                            pattern = it.name.removeSuffix(".codeowners"),
+                            owners = reader.lineSequence().toList(),
+                        )
+                    }
+                    .toList()
+                    .sortedBy { it.pattern }
+
+                out.append(CodeOwnersFile(entries).content)
+            }
+        }
     }
 
 }

@@ -2,6 +2,11 @@ package io.github.gmazzo.codeowners
 
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import kotlin.test.assertEquals
 
 class CodeOwnersFileTest {
 
@@ -91,6 +96,53 @@ class CodeOwnersFileTest {
         val parsed = CodeOwnersFile(content)
 
         assertIterableEquals(expected, parsed)
+    }
+
+    @Test
+    fun `given entries, should generate codeowners content`() {
+        val codeOwners = CodeOwnersFile(
+            CodeOwnersFile.Comment("This is a comment."),
+            CodeOwnersFile.EmptyLine,
+            CodeOwnersFile.Entry("*", "@global-owner1", "@global-owner2"),
+            CodeOwnersFile.Entry("*.js", "@js-owner", comment = "This is an inline comment."),
+            CodeOwnersFile.Entry("*.go", "docs@example.com"),
+            CodeOwnersFile.Entry("/build/logs/", "@doctocat"),
+            CodeOwnersFile.Comment("A final comment"),
+            CodeOwnersFile.EmptyLine,
+        )
+
+        assertEquals("""
+            # This is a comment.
+            
+            *                   @global-owner1 @global-owner2
+            *.js                @js-owner # This is an inline comment.
+            *.go                docs@example.com
+            /build/logs/        @doctocat
+            # A final comment
+            
+            
+        """.trimIndent(), codeOwners.content)
+    }
+
+    @Test
+    fun `entries can be serialized correctly`() {
+        val original = CodeOwnersFile(
+            CodeOwnersFile.Comment("This is a comment."),
+            CodeOwnersFile.EmptyLine,
+            CodeOwnersFile.Entry("*", "@global-owner1", "@global-owner2"),
+            CodeOwnersFile.Entry("*.js", "@js-owner", comment = "This is an inline comment."),
+            CodeOwnersFile.Entry("*.go", "docs@example.com"),
+            CodeOwnersFile.Entry("/build/logs/", "@doctocat"),
+            CodeOwnersFile.Comment("A final comment"),
+            CodeOwnersFile.EmptyLine,
+        )
+
+        val reSerialized = ObjectInputStream(ByteArrayInputStream(ByteArrayOutputStream()
+            .use { ObjectOutputStream(it).use { out -> out.writeObject(original) }; it.toByteArray() }))
+            .readObject() as CodeOwnersFile
+
+        assertIterableEquals(original, reSerialized)
+        assertEquals(original.content, reSerialized.content)
     }
 
 }

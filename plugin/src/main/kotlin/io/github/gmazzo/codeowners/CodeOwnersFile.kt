@@ -6,6 +6,8 @@ data class CodeOwnersFile(
     val entries: List<Part>,
 ) : Serializable, Iterable<CodeOwnersFile.Part> by entries {
 
+    val content: String by lazy { generateContent(entries) }
+
     constructor(
         vararg entries: Part,
     ) : this(entries.toList())
@@ -39,6 +41,7 @@ data class CodeOwnersFile(
     ) : Part
 
     object EmptyLine : Part {
+        override fun equals(other: Any?) = other is EmptyLine
         override fun toString() = "EmptyLine"
     }
 
@@ -58,6 +61,37 @@ data class CodeOwnersFile(
 
                 comment.isNotBlank() -> Comment(comment)
                 else -> EmptyLine
+            }
+        }
+
+        fun generateContent(entries: List<Part>) = buildString {
+            val indent = entries.asSequence()
+                .filterIsInstance<Entry>()
+                .map { it.pattern.length }
+                .max()
+                .let { ((it / 4) + 2) * 4 }
+
+            entries.forEach {
+                when(it) {
+                    is Entry -> {
+                        append(it.pattern)
+                        (it.pattern.length until indent).forEach { _ -> append(' ') }
+                        it.owners.forEachIndexed { i, owner ->
+                            if (i > 0) append(' ')
+                            append(owner)
+                        }
+                        if (it.comment != null) {
+                            append(" # ")
+                            append(it.comment)
+                        }
+                        appendLine()
+                    }
+                    is Comment -> {
+                        append("# ")
+                        appendLine(it.comment)
+                    }
+                    is EmptyLine -> appendLine()
+                }
             }
         }
 
