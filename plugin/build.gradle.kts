@@ -1,7 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.gradle.pluginPublish)
     `maven-central-publish`
@@ -14,6 +15,8 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 val integrationTest by testing.suites.registering(JvmTestSuite::class)
 val pluginUnderTestImplementation by configurations.creating
 
+samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
+
 dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =
         plugin.map { create("${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}") }
@@ -24,11 +27,11 @@ dependencies {
     implementation(libs.jgit)
 
     testImplementation(gradleKotlinDsl())
-    testRuntimeOnly(plugin(libs.plugins.kotlin))
+    testRuntimeOnly(plugin(libs.plugins.kotlin.jvm))
 
     pluginUnderTestImplementation(projects.core)
     pluginUnderTestImplementation(plugin(libs.plugins.android))
-    pluginUnderTestImplementation(plugin(libs.plugins.kotlin))
+    pluginUnderTestImplementation(plugin(libs.plugins.kotlin.jvm))
 }
 
 gradlePlugin {

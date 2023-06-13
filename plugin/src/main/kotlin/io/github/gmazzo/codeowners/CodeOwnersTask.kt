@@ -47,13 +47,12 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:IgnoreEmptyDirectories
     internal val runtimeClasspathCodeOwners: FileTree =
-        runtimeClasspath.asFileTree.matching { it.include("**/*.codeowners") }
+        runtimeClasspath.asFileTree.matching { include("**/*.codeowners") }
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
     @get:OutputFile
-    @get:Optional
     abstract val mappedCodeOwnersFile: RegularFileProperty
 
     init {
@@ -75,10 +74,10 @@ abstract class CodeOwnersTask : DefaultTask() {
         // scans dependency looking for external ownership information and merges it (to increase accuracy)
         logger.info("Scanning dependencies...")
         runtimeClasspathCodeOwners.visit {
-            if (it.file.isFile) {
-                val isFile = it.file.nameWithoutExtension.isNotEmpty()
-                val path = if (isFile) it.path.removePrefix(".codeowners") else it.relativePath.parent.pathString
-                val owners = it.file.readLines().toMutableSet()
+            if (file.isFile) {
+                val isFile = file.nameWithoutExtension.isNotEmpty()
+                val path = if (isFile) path.removePrefix(".codeowners") else relativePath.parent.pathString
+                val owners = file.readLines().toMutableSet()
 
                 ownership[path] = Entry(owners, isFile = isFile, isExternal = true, hasFiles = !isFile)
             }
@@ -87,18 +86,18 @@ abstract class CodeOwnersTask : DefaultTask() {
         // process all files/directories and sets their owners
         logger.info("Processing sources...")
         sourcesFiles.visit {
-            val rootPath = it.file.toRelativeString(root)
-            val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, it.isDirectory) } ?: return@visit
+            val rootPath = file.toRelativeString(root)
+            val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, isDirectory) } ?: return@visit
             val targetPath =
-                if (it.isDirectory) it.path
-                else it.path.substringBeforeLast(".")
+                if (isDirectory) path
+                else path.substringBeforeLast(".")
 
-            ownership.merge(targetPath, Entry(owners, isFile = !it.isDirectory)) { cur, new ->
+            ownership.merge(targetPath, Entry(owners, isFile = !isDirectory)) { cur, new ->
                 Entry(cur.owners + new.owners, isFile = new.isFile)
             }
 
-            if (!it.isDirectory) {
-                ownership[it.relativePath.parent.pathString]?.hasFiles = true
+            if (!isDirectory) {
+                ownership[relativePath.parent.pathString]?.hasFiles = true
             }
         }
 
@@ -144,7 +143,7 @@ abstract class CodeOwnersTask : DefaultTask() {
                 }
             }
         }
-        mappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }?.writeMappings(mappings, indent * 4)
+        mappedCodeOwnersFile.asFile.get().apply { parentFile.mkdirs() }.writeMappings(mappings, indent * 4)
 
         logger.info("Generated ${written.size} simplified ownership information entries.")
     }

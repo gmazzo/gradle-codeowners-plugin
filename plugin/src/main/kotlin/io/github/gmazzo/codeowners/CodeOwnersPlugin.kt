@@ -109,16 +109,16 @@ class CodeOwnersPlugin : Plugin<Project> {
         extension: CodeOwnersExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
-        the<SourceSetContainer>().configureEach { ss ->
-            val sourceSet = sourceSets.maybeCreate(ss.name)
+        the<SourceSetContainer>().configureEach {
+            val sourceSet = sourceSets.maybeCreate(name)
             sourceSet.generateTask {
-                sources.from(provider { ss.allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
-                addDependencies(sourceSet, configurations[ss.runtimeClasspathConfigurationName])
+                sources.from(provider { allJava.srcDirs }) // will contain srcDirs of groovy, kotlin, etc. too
+                addDependencies(sourceSet, configurations[runtimeClasspathConfigurationName])
             }
-            addCodeDependency(extension, sourceSet, ss.implementationConfigurationName)
+            addCodeDependency(extension, sourceSet, implementationConfigurationName)
 
-            ss.extensions.add(CodeOwnersSourceSet::class.java, extensionName, sourceSet)
-            tasks.named<AbstractCopyTask>(ss.processResourcesTaskName)
+            extensions.add(CodeOwnersSourceSet::class.java, extensionName, sourceSet)
+            tasks.named<AbstractCopyTask>(processResourcesTaskName)
                 .addResources(extension, sourceSet)
         }
     }
@@ -169,11 +169,11 @@ class CodeOwnersPlugin : Plugin<Project> {
         val mode = sourceSet.inspectDependencies.get()
         if (mode == InspectDependencies.Mode.NONE) return
 
-        runtimeClasspath.from(configuration.incoming.artifactView { view ->
-            view.attributes.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
+        runtimeClasspath.from(configuration.incoming.artifactView {
+            attributes.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
 
             if (mode == InspectDependencies.Mode.LOCAL_PROJECTS) {
-                view.componentFilter { it is ProjectComponentIdentifier }
+                componentFilter { it is ProjectComponentIdentifier }
             }
         }.files)
     }
@@ -181,8 +181,8 @@ class CodeOwnersPlugin : Plugin<Project> {
     private fun TaskProvider<out AbstractCopyTask>.addResources(
         extension: CodeOwnersExtension,
         sources: CodeOwnersSourceSet
-    ) = configure { task ->
-        task.from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
+    ) = configure {
+        from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
             if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else emptyList<Any>()
         })
     }
@@ -202,8 +202,8 @@ class CodeOwnersPlugin : Plugin<Project> {
 
     private fun Project.setupArtifactTransform() = dependencies {
         registerTransform(CodeOwnersTransform::class) {
-            it.from.attribute(attributeArtifactType, JAR_TYPE)
-            it.to.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
+            from.attribute(attributeArtifactType, JAR_TYPE)
+            to.attribute(attributeArtifactType, ARTIFACT_TYPE_CODEOWNERS)
         }
     }
 

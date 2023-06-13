@@ -48,13 +48,13 @@ class CodeOwnersPluginTest {
         root.rootDir.deleteRecursively()
 
         root.allprojects {
-            it.apply(plugin = "java")
-            it.apply<CodeOwnersPlugin>()
+            apply(plugin = "java")
+            apply<CodeOwnersPlugin>()
 
-            it.repositories.mavenCentral()
-            it.configurations.configureEach { conf ->
+            repositories.mavenCentral()
+            configurations.configureEach {
                 val (group, module) = BuildConfig.CORE_DEPENDENCY.split(':')
-                conf.exclude(group = group, module = module)
+                exclude(group = group, module = module)
             }
         }
         root.apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -164,7 +164,7 @@ class CodeOwnersPluginTest {
     )
 
     private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, Set<String>>, expectedMappings: String) {
-        tasks.withType<CodeOwnersTask>().all { it.generateCodeOwnersInfo() }
+        tasks.withType<CodeOwnersTask>().all { generateCodeOwnersInfo() }
 
         val actualInfos = layout.buildDirectory.dir("codeOwners/resources/main").get().let { dir ->
             dir.asFileTree.files
