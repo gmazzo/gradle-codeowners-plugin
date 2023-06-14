@@ -1,18 +1,32 @@
 package io.github.gmazzo.codeowners
 
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.util.PatternFilterable
 
-interface InspectDependencies {
+interface CodeOwnersConfig {
+
+    /**
+     * Whether to filter which classes to process by an include [PatternFilterable] pattern.
+     * Empty implies `all`
+     */
+    val includes: SetProperty<String>
+
+    /**
+     * Whether to filter which classes to process by an exclude [PatternFilterable] pattern.
+     * Empty implies `all`
+     */
+    val excludes: SetProperty<String>
 
     /**
      * Whether to inspect or not runtime dependencies of the module to detect package collisions and generate more
      * accurate ownership information.
      *
-     * Default to [Mode.LOCAL_PROJECTS] which has the best performance/accuracy ratio.
+     * Default to [DependenciesMode.LOCAL_PROJECTS] which has the best performance/accuracy ratio.
      */
-    val inspectDependencies: Property<Mode>
+    val inspectDependencies: Property<DependenciesMode>
 
-    enum class Mode {
+    enum class DependenciesMode {
 
         /**
          * Inspects both local (projects) and remote (modules) dependencies.

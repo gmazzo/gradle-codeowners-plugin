@@ -1,2 +1,3 @@
-/app    android-devs
-/lib*   kotlin-devs
+/app    app-devs
+/lib*   libs-devs
+/utils  utils-devs

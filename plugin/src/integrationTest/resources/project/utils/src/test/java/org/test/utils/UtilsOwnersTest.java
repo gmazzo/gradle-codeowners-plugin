@@ -1,24 +1,17 @@
-package org.test.lib;
+package org.test.utils;
 
 import org.junit.Test;
-import org.test.utils.LibUtils;
 import org.test.utils.more.MoreUtils;
 
 import static io.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
-
-import static kotlin.collections.SetsKt.setOf;
 import static org.junit.Assert.assertEquals;
+import static kotlin.collections.SetsKt.setOf;
 
-public class LibOwnersTest {
-
-    @Test
-    public void ownerOfLib() {
-        assertEquals(setOf("libs-devs"), getCodeOwners(LibClass.class));
-    }
+public class UtilsOwnersTest {
 
     @Test
     public void ownerOfUtils() {
-        assertEquals(setOf("libs-devs"), getCodeOwners(LibUtils.class));
+        assertEquals(setOf("utils-devs"), getCodeOwners(Utils.class));
     }
 
     @Test

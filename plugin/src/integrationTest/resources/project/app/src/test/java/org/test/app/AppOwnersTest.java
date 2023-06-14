@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.test.lib.LibClass;
 import org.test.utils.AppUtils;
 import org.test.utils.LibUtils;
+import org.test.utils.more.MoreUtils;
 
 import static io.github.gmazzo.codeowners.CodeOwners.getCodeOwners;
 import static org.junit.Assert.assertEquals;
@@ -18,12 +19,12 @@ public class AppOwnersTest {
 
     @Test
     public void ownerOfApp() {
-        assertEquals(BuildConfig.DEBUG ? setOf("android-devs") : null, getCodeOwners(AppClass.class));
+        assertEquals(BuildConfig.DEBUG ? setOf("app-devs") : null, getCodeOwners(AppClass.class));
     }
 
     @Test
     public void ownerOfAppUtils() {
-        assertEquals(BuildConfig.DEBUG ? setOf("android-devs", "kotlin-devs") : setOf("kotlin-devs"), getCodeOwners(AppUtils.class));
+        assertEquals(BuildConfig.DEBUG ? setOf("app-devs") : setOf("libs-devs", "utils-devs"), getCodeOwners(AppUtils.class));
     }
 
     /**
@@ -32,18 +33,23 @@ public class AppOwnersTest {
     @Test
     public void ownerOfAppUtilsPackage() {
         assertEquals(
-                BuildConfig.DEBUG ? setOf("android-devs", "kotlin-devs") : setOf("kotlin-devs"),
+                BuildConfig.DEBUG ? setOf("app-devs", "libs-devs", "utils-devs") : setOf("libs-devs", "utils-devs"),
                 getCodeOwners(AppUtils.class.getClassLoader(), AppUtils.class.getPackage().getName()));
     }
 
     @Test
     public void ownerOfLib() {
-        assertEquals(setOf("kotlin-devs"), getCodeOwners(LibClass.class));
+        assertEquals(setOf("libs-devs"), getCodeOwners(LibClass.class));
     }
 
     @Test
     public void ownerOfLibUtils() {
-        assertEquals(BuildConfig.DEBUG ? setOf("kotlin-devs", "android-devs") : setOf("kotlin-devs"), getCodeOwners(LibUtils.class));
+        assertEquals(setOf("libs-devs"), getCodeOwners(LibUtils.class));
+    }
+
+    @Test
+    public void ownerOfMoreUtils() {
+        assertEquals(setOf("utils-devs"), getCodeOwners(MoreUtils.class));
     }
 
 }
