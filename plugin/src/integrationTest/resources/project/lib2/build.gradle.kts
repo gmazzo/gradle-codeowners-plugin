@@ -14,6 +14,10 @@ android {
     }
 }
 
+dependencies {
+    implementation(project(":utils"))
+}
+
 androidComponents.onVariants {
     it.unitTest!!.codeOwners.enabled.set(false)
 }

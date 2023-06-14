@@ -35,4 +35,5 @@ include(
     "app",
     "lib1",
     "lib2",
+    "utils",
 )

@@ -11,8 +11,6 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
 import java.io.File
 import java.util.*
-import kotlin.math.ceil
-import kotlin.math.max
 
 @CacheableTask
 @Suppress("LeakingThis")
@@ -58,6 +56,10 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:OutputFile
     abstract val mappedCodeOwnersFile: RegularFileProperty
 
+    @get:Optional
+    @get:OutputFile
+    abstract val rawMappedCodeOwnersFile: RegularFileProperty
+
     init {
         outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
     }
@@ -66,29 +68,25 @@ abstract class CodeOwnersTask : DefaultTask() {
     fun generateCodeOwnersInfo() {
         val ownership = sortedMapOf<String, Entry>()
 
-        ownership.collectFromDependencies()
-        ownership.collectFromSources()
+        collectFromDependencies(ownership)
+        collectFromSources(ownership)
 
-        ownership.writeJavaResourcesOwnershipInfo()
-        ownership.writeMappedCodeOwnersFile()
+        writeCodeOwnersInfo(ownership)
     }
 
     /**
      * Scans dependency looking for external ownership information and merges it (to increase accuracy)
      */
-    private fun MutableMap<String, Entry>.collectFromDependencies() {
-        transitiveCodeOwners.files.asSequence()
+    private fun collectFromDependencies(ownership: MutableMap<String, Entry>) {
+        transitiveCodeOwners.asFileTree.files.asSequence()
             .flatMap { CodeOwnersFile(it.readText()) }
             .filterIsInstance<CodeOwnersFile.Entry>()
             .forEach {
-                val isFile = it.pattern.endsWith('/')
-
-                compute(path) { _, acc ->
+                ownership.compute(it.pattern) { _, acc ->
                     Entry(
                         owners = TreeSet(acc?.owners.orEmpty() + it.owners),
-                        isFile = isFile && acc?.isFile != false,
                         isExternal = true,
-                        hasFiles = !isFile || acc?.hasFiles == true,
+                        hasOwnFiles = true,
                     )
                 }
             }
@@ -97,7 +95,7 @@ abstract class CodeOwnersTask : DefaultTask() {
     /**
      * Process all files/directories and sets their owners
      */
-    private fun MutableMap<String, Entry>.collectFromSources() {
+    private fun collectFromSources(ownership: MutableMap<String, Entry>) {
         logger.info("Processing sources...")
 
         val root = rootDirectory.asFile.get()
@@ -110,107 +108,104 @@ abstract class CodeOwnersTask : DefaultTask() {
             val rootPath = file.toRelativeString(root)
             val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, isDirectory) } ?: return@visit
             val targetPath =
-                if (isDirectory) path
+                if (isDirectory) path.appendSuffix("/")
                 else path.substringBeforeLast(".")
 
-            compute(targetPath) { _, acc ->
+            ownership.compute(targetPath) { _, acc ->
                 Entry(
                     owners = TreeSet(acc?.owners.orEmpty() + owners),
-                    isFile = !isDirectory && acc?.isFile != false,
                     isExternal = false,
-                    hasFiles = acc?.hasFiles ?: false,
+                    hasOwnFiles = acc?.hasOwnFiles ?: !isDirectory,
                 )
             }
 
             if (!isDirectory) {
-                this@collectFromSources[relativePath.parent.pathString]?.hasFiles = true
+                ownership[relativePath.parent.pathString.appendSuffix("/")]?.hasOwnFiles = true
             }
         }
     }
 
-    /**
-     * Generates `resources` entries meant to be used by [io.github.gmazzo.codeowners.codeOwnersOf] function
-     */
-    private fun MutableMap<String, Entry>.writeJavaResourcesOwnershipInfo() {
-        val outputDir = outputDirectory.orNull?.apply { asFile.deleteRecursively() } ?: return
+    private fun writeCodeOwnersInfo(ownership: MutableMap<String, Entry>) {
+        val resourcesDir = outputDirectory.orNull?.apply { asFile.deleteRecursively() }
+        val rawFile = rawMappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }
+        val simplifiedFile = mappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }
 
-        val redundancy = RedundancyHelper(this, includeExternals = false)
+        val header = listOfNotNull(mappedCodeOwnersFileHeader.orNull?.let(CodeOwnersFile::Comment))
+        val rawEntries = LinkedList<CodeOwnersFile.Part>(header)
+        val simplifiedEntries = LinkedList<CodeOwnersFile.Part>(header)
 
-        logger.info("Generating output from $size ownership information entries...")
-        entries.forEach { (path, entry) ->
-            if (redundancy.shouldWrite(path, entry)) {
-                redundancy.written.add(entry)
+        val rawHelper = RedundancyHelper(ownership, simplified = false)
+        val simplifiedHelper = RedundancyHelper(ownership, simplified = true)
 
-                val fileName = if (entry.isFile) "$path.codeowners" else "${path.ifEmpty { "." }}/.codeowners"
+        fun RedundancyHelper.tryAdd(path: String, entry: Entry, into: MutableList<in CodeOwnersFile.Entry>): Boolean {
+            if (shouldWrite(path, entry)) {
+                written.add(entry)
 
-                with(outputDir.file(fileName).asFile) {
+                into.add(CodeOwnersFile.Entry(
+                    pattern = path,
+                    owners = entry.owners.toList()
+                ))
+                return true
+            }
+            return false
+        }
+
+        ownership.forEach { (path, entry) ->
+            rawHelper.tryAdd(path, entry, rawEntries)
+
+            if (simplifiedHelper.tryAdd(path, entry, simplifiedEntries)) {
+                resourcesDir?.file("$path.codeowners")?.asFile?.apply {
                     parentFile.mkdirs()
                     writeText(entry.owners.joinToString(separator = "\n", postfix = "\n"))
                 }
             }
         }
 
-        logger.info("Generated ${redundancy.written.size} simplified ownership information entries.")
-    }
-
-    /**
-     * Generates a new `.codeowners` file, where the ownership information is mapped to the relative path of the source folders
-     */
-    private fun MutableMap<String, Entry>.writeMappedCodeOwnersFile() {
-        val mappedFile = mappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() } ?: return
-
-        val entries = mutableListOf<CodeOwnersFile.Part>()
-
-        mappedCodeOwnersFileHeader.orNull?.let { entries.add(CodeOwnersFile.Comment(comment = it)) }
-
-        val redundancy = RedundancyHelper(this, includeExternals = true)
-        this@writeMappedCodeOwnersFile.forEach { (path, entry) ->
-            if (redundancy.shouldWrite(path, entry)) {
-                redundancy.written.add(entry)
-
-                entries.add(CodeOwnersFile.Entry(
-                    pattern = if (!entry.isFile && !path.endsWith('/')) "$path/" else path,
-                    owners = entry.owners.toList()
-                ))
-            }
-        }
-
-        mappedFile.writeText(CodeOwnersFile(entries).content)
+        rawFile?.writeText(CodeOwnersFile(rawEntries).content)
+        simplifiedFile?.writeText(CodeOwnersFile(simplifiedEntries).content)
     }
 
     private data class Entry(
         val owners: SortedSet<String>,
-        val isFile: Boolean,
         val isExternal: Boolean = false,
-        var hasFiles: Boolean = false,
+        var hasOwnFiles: Boolean = false,
     )
 
     private class RedundancyHelper(
         private val ownership: Map<String, Entry>,
-        private val includeExternals: Boolean,
+        private val simplified: Boolean,
     ) {
 
         val written = mutableSetOf<Entry>()
 
         fun shouldWrite(path: String, entry: Entry): Boolean {
-            if (!includeExternals && entry.isExternal) return false
-            if (entry.isFile || entry.hasFiles) {
+            if (entry.hasOwnFiles) {
                 if (path == "") return true
 
-                var parent: File? = File(path).parentFile
-                do {
-                    val parentEntry = ownership[parent?.path ?: ""]
-                    if (parentEntry != null) {
-                        if (parentEntry.owners != entry.owners) return true
-                        if (parentEntry in written) return false
-                    }
+                if (simplified) {
+                    var parent: File? = File(path).parentFile
+                    do {
+                        val parentEntry = ownership[parent?.path?.appendSuffix("/") ?: ""]
+                        if (parentEntry != null) {
+                            if (parentEntry.owners != entry.owners) return true
+                            if (parentEntry in written) return false
+                        }
 
-                    parent = parent?.parentFile
-                } while (parent != null)
+                        parent = parent?.parentFile
+                    } while (parent != null)
+                    return !entry.isExternal
+                }
                 return true
             }
             return false
         }
+
+    }
+
+    private companion object {
+
+        private fun String.appendSuffix(suffix: String) =
+            if (endsWith(suffix)) this else "$this$suffix"
 
     }
 

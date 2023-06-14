@@ -6,7 +6,6 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -183,7 +182,7 @@ class CodeOwnersPluginTest {
                 .map { it.toRelativeString(dir.asFile) to it.readLines().toSet() }
         }
 
-        assertIterableEquals(expectedInfos.toList(), actualInfos)
+        assertEquals(expectedInfos.toList(), actualInfos)
 
         val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main.CODEOWNERS").get().asFile.readText()
         assertEquals(expectedMappings, actualMappings)

@@ -11,6 +11,7 @@ sourceSets.test {
 
 dependencies {
     implementation("io.github.gmazzo.codeowners:core") // because we have `codeowners.default.dependency=false`
+    api(project(":utils"))
     testImplementation("junit:junit:4.13.2")
 }
 
