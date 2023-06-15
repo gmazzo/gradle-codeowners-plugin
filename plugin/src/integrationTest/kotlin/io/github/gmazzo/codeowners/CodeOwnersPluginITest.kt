@@ -259,7 +259,7 @@ class CodeOwnersPluginITest {
         expectedContent: String?,
         simplified: Boolean = true,
     ) {
-        val actual = File(buildDir, "$project/build/codeOwners/mappings/$sourceSet${if (simplified) "" else "-raw"}.CODEOWNERS")
+        val actual = File(buildDir, "$project/build/codeOwners/mappings/$sourceSet${if (simplified) "" else "-raw"}.codeowners")
             .takeIf { it.exists() }
             ?.readText()
 

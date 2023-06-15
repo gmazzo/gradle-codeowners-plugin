@@ -59,6 +59,8 @@ buildConfig {
 }
 
 tasks.integrationTest {
+    shouldRunAfter(tasks.test)
+
     // AGP 8 requires JDK 17, and we want to be compatible with previous JDKs
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))
