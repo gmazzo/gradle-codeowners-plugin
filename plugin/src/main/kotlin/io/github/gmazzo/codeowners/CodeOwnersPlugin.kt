@@ -23,6 +23,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
+import org.gradle.util.GradleVersion
 
 class CodeOwnersPlugin : Plugin<Project> {
 
@@ -34,6 +35,12 @@ class CodeOwnersPlugin : Plugin<Project> {
     private val extensionName = Component::codeOwners.name
 
     override fun apply(target: Project): Unit = with(target) {
+        GradleVersion.version("7.5").let { required ->
+            check(GradleVersion.current() >= required) {
+                "`io.github.gmazzo.codeowners` plugin requires $required or higher"
+            }
+        }
+
         rootProject.apply<CodeOwnersPlugin>()
 
         val extension = createExtension()
