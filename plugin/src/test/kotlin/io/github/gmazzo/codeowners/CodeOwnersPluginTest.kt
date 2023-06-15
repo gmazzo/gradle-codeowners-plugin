@@ -184,7 +184,7 @@ class CodeOwnersPluginTest {
 
         assertEquals(expectedInfos.toList(), actualInfos)
 
-        val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main.CODEOWNERS").get().asFile.readText()
+        val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main.codeowners").get().asFile.readText()
         assertEquals(expectedMappings, actualMappings)
     }
 
