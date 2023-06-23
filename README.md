@@ -8,12 +8,19 @@
 A Gradle plugin to propagate CODEOWNERS to JVM classes
 
 # Usage
-Apply the plugin at the **root** project and/or at **any child** project that uses it:
+This plugin is designed to work as a whole build plugin, but you can selectively apply it to target the modules where you actually care about CODEOWNERS propagation.
+
+The simplest setup is to apply the plugin at the root project, and then to each submodule. At root `build.gradle.kts` add:
 ```kotlin
 plugins {
     id("io.github.gmazzo.codeowners") version "<latest>"
 }
+
+subprojects {
+    apply(plugin = "io.github.gmazzo.codeowners")
+}
 ```
+
 Later, you can query a class's owner by:
 ```kotlin
 val ownersOfFoo = codeOwnersOf<Foo>()
