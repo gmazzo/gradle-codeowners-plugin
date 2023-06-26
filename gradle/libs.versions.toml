@@ -7,7 +7,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 
 [plugins]
 android = "com.android.application:8.0.2"
-buildConfig = "com.github.gmazzo.buildconfig:4.0.4"
+buildConfig = "com.github.gmazzo.buildconfig:4.1.1"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-samWithReceiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version = "1.8.20" }
