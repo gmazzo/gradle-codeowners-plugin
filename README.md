@@ -1,6 +1,6 @@
 ![GitHub](https://img.shields.io/github/license/gmazzo/gradle-codeowners-plugin)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.gmazzo.codeowners/core)](https://search.maven.org/artifact/io.github.gmazzo.codeowners/core)
-[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.gmazzo.codeowners)](https://plugins.gradle.org/plugin/io.github.gmazzo.codeowners)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.gmazzo.codeowners/core)
+![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.gmazzo.codeowners)
 ![Build Status](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/build.yaml/badge.svg)
 [![Coverage](https://codecov.io/gh/gmazzo/gradle-codeowners-plugin/branch/main/graph/badge.svg?token=ExYkP1Q9oE)](https://codecov.io/gh/gmazzo/gradle-codeowners-plugin)
 
