@@ -1,5 +1,4 @@
 plugins {
-    java
     `maven-publish`
     org.jetbrains.dokka
 }
@@ -19,17 +18,19 @@ if (signingKey != null && signingPassword != null) {
     logger.warn("Artifact signing disabled due lack of signing properties `signingKey` and `signingPassword`")
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
+plugins.withId("java") {
+    configure<JavaPluginExtension> {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    tasks.named<Jar>("javadocJar") {
+        from(tasks.dokkaJavadoc)
+    }
 }
 
 tasks.dokkaJavadoc {
     notCompatibleWithConfigurationCache("uses Task.project") // TODO dokka is not compatible with CC yet
-}
-
-tasks.named<Jar>("javadocJar") {
-    from(tasks.dokkaJavadoc)
 }
 
 publishing.publications.withType<MavenPublication>().configureEach {

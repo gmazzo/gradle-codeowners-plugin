@@ -1,15 +1,24 @@
 [versions]
 kotlin = "1.9.22"
+android = "8.2.0"
 
 [libraries]
+autoservice = "com.google.auto.service:auto-service:1.1.1"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r"
 junit-bom = "org.junit:junit-bom:5.10.1"
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-plugin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin" }
+kotlin-plugin-compiler-api = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 [plugins]
-android = "com.android.application:8.2.0"
+android-application = { id = "com.android.application", version.ref = "android" }
+android-library = { id = "com.android.library", version.ref = "android" }
 buildConfig = "com.github.gmazzo.buildconfig:5.1.0"
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-samWithReceiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version = "1.9.10" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
