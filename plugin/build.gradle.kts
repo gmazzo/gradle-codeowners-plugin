@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.gradle.pluginPublish)
     `java-integration-tests`
     `maven-central-publish`
+    jacoco
 }
 
 description = "CodeOwners Gradle Plugin"
@@ -29,9 +30,20 @@ dependencies {
     testImplementation(gradleKotlinDsl())
     testRuntimeOnly(plugin(libs.plugins.kotlin.jvm))
 
-    pluginUnderTestImplementation(projects.core)
     pluginUnderTestImplementation(plugin(libs.plugins.android))
     pluginUnderTestImplementation(plugin(libs.plugins.kotlin.jvm))
+}
+
+testing.suites.withType<JvmTestSuite> {
+    useKotlinTest(libs.versions.kotlin)
+    dependencies {
+        implementation(platform(libs.junit.bom))
+    }
+    targets.all {
+        testTask {
+            workingDir(provider { temporaryDir })
+        }
+    }
 }
 
 gradlePlugin {
@@ -60,6 +72,10 @@ buildConfig {
 
 tasks.integrationTest {
     shouldRunAfter(tasks.test)
+
+    val core = projects.core.dependencyProject
+    dependsOn("${core.path}:publishAllPublicationsToLocalRepository")
+    environment("LOCAL_REPO", core.layout.buildDirectory.dir("repo").get().asFile.toRelativeString(workingDir))
 
     // AGP 8 requires JDK 17, and we want to be compatible with previous JDKs
     javaLauncher.set(javaToolchains.launcherFor {

@@ -1,8 +1,9 @@
 import java.io.File
 
-val pluginsClasspath: String? by System.getenv().withDefault { null }
+val PLUGINS_CLASSPATH: String? by System.getenv().withDefault { null }
+val LOCAL_REPO: String? by System.getenv().withDefault { null }
 
-if (pluginsClasspath == null) {
+if (PLUGINS_CLASSPATH == null) {
     // meant to allow open this test project as a standalone project
     pluginManagement {
         repositories {
@@ -19,13 +20,7 @@ dependencyResolutionManagement {
         mavenLocal()
         mavenCentral()
         google()
-
-        // allows resolution of the local core dependency added by the plugin
-        pluginsClasspath?.split(File.pathSeparatorChar)?.let { paths ->
-            flatDir {
-                dir(paths.map { file(it).parentFile })
-            }
-        }
+        LOCAL_REPO?.let { maven(File(it)) }
     }
 }
 
