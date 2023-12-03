@@ -2,6 +2,8 @@ plugins {
     base
     `maven-publish`
     alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.gradle.nexusPublish)
     alias(libs.plugins.publicationsReport)
     `git-versioning`
@@ -24,10 +26,16 @@ allprojects {
 
         jacocoTasks.configureEach {
             reports.xml.required = true
-        }
+    }
 
         tasks.check {
             dependsOn(jacocoTasks)
+        }
+    }
+
+    plugins.withId("maven-publish") {
+        the<PublishingExtension>().repositories {
+            maven(layout.buildDirectory.dir("repo")) { name = "Local" }
         }
     }
 
@@ -42,9 +50,9 @@ tasks.check {
 }
 
 tasks.publish {
-    subprojects { dependsOn(tasks.named(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)) }
+    subprojects { dependsOn(tasks.publish) }
 }
 
 tasks.publishToMavenLocal {
-    subprojects { dependsOn(tasks.named(MavenPublishPlugin.PUBLISH_LOCAL_LIFECYCLE_TASK_NAME)) }
+    subprojects { dependsOn(tasks.publishToMavenLocal) }
 }

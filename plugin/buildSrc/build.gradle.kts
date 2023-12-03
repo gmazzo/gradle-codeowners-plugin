@@ -11,5 +11,6 @@ dependencies {
         create("$pluginId:$pluginId.gradle.plugin:$version")
     }
 
+    implementation(plugin(libs.plugins.buildConfig))
     implementation(plugin(libs.plugins.dokka))
 }
