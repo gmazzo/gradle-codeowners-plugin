@@ -33,3 +33,5 @@ jobs:
           report_paths: '**/build/test-results/*/TEST-*.xml'
       - name: Coverage report
         uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true

@@ -1,4 +1,5 @@
 plugins {
+    base
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.gradle.nexusPublish)
     `git-versioning`
@@ -14,31 +15,18 @@ nexusPublishing {
 }
 
 allprojects {
-
     group = "io.github.gmazzo.codeowners"
 
-    plugins.withId("java") {
+    plugins.withId("jacoco") {
+        val jacocoTasks = tasks.withType<JacocoReport>()
 
-        apply(plugin = "jacoco-report-aggregation")
-
-        dependencies {
-            "testImplementation"(libs.kotlin.test)
-            "testImplementation"("org.junit.jupiter:junit-jupiter-params")
+        jacocoTasks.configureEach {
+            reports.xml.required = true
         }
 
-        tasks.withType<Test>().configureEach {
-            useJUnitPlatform()
-            workingDir(provider { temporaryDir })
+        tasks.check {
+            dependsOn(jacocoTasks)
         }
-
-        tasks.withType<JacocoReport>().configureEach {
-            reports.xml.required.set(true)
-        }
-
-        tasks.named("check") {
-            dependsOn(tasks.withType<JacocoReport>())
-        }
-
     }
 
 }

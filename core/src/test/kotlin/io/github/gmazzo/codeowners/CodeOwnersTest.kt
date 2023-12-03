@@ -8,9 +8,9 @@ import foo.Foo
 import foo.bar.FooBar
 import foo.bar.impl.FooBarImpl
 import foo.impl.FooImpl
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import java.lang.reflect.Proxy
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class CodeOwnersTest {
 

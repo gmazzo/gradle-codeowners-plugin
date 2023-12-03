@@ -25,7 +25,8 @@ class CodeOwnersPluginITest {
             withEnvironment(
                 mapOf(
                     "ANDROID_HOME" to System.getenv("ANDROID_HOME"),
-                    "pluginsClasspath" to pluginClasspath.joinToString(separator = File.pathSeparator)
+                    "PLUGINS_CLASSPATH" to pluginClasspath.joinToString(separator = File.pathSeparator),
+                    "LOCAL_REPO" to System.getenv("LOCAL_REPO"),
                 )
             )
         }
