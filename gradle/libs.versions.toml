@@ -7,7 +7,7 @@ junit-bom = "org.junit:junit-bom:5.8.1"
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 [plugins]
-android = "com.android.application:8.1.4"
+android = "com.android.application:8.2.0"
 buildConfig = "com.github.gmazzo.buildconfig:4.2.0"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-samWithReceiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
