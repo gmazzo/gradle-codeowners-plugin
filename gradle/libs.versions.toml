@@ -2,7 +2,7 @@
 kotlin = "1.9.21"
 
 [libraries]
-jgit = "org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r"
 junit-bom = "org.junit:junit-bom:5.10.1"
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
