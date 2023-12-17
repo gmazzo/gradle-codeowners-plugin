@@ -2,6 +2,7 @@ plugins {
     base
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.gradle.nexusPublish)
+    alias(libs.plugins.publicationsReport)
     `git-versioning`
 }
 
