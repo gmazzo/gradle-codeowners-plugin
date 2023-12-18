@@ -1,33 +1,23 @@
 plugins {
     base
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.gradle.nexusPublish)
+    `maven-publish`
     alias(libs.plugins.publicationsReport)
-    `git-versioning`
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-        }
-    }
+val pluginBuild = gradle.includedBuild("plugin")
+
+tasks.build {
+    dependsOn(pluginBuild.task(":$name"))
 }
 
-allprojects {
-    group = "io.github.gmazzo.codeowners"
+tasks.check {
+    dependsOn(pluginBuild.task(":$name"))
+}
 
-    plugins.withId("jacoco") {
-        val jacocoTasks = tasks.withType<JacocoReport>()
+tasks.publish {
+    dependsOn(pluginBuild.task(":$name"))
+}
 
-        jacocoTasks.configureEach {
-            reports.xml.required = true
-        }
-
-        tasks.check {
-            dependsOn(jacocoTasks)
-        }
-    }
-
+tasks.publishToMavenLocal {
+    dependsOn(pluginBuild.task(":$name"))
 }
