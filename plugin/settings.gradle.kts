@@ -6,8 +6,15 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
     }
+
+    versionCatalogs {
+        create("libs") { from(files("../gradle/libs.versions.toml")) }
+    }
 }
 
-rootProject.name = "gradle-codeowners-plugin"
+rootProject.name = "root"
 
-includeBuild("plugin")
+include(
+    "jvm-core",
+    "jvm-plugin",
+)
