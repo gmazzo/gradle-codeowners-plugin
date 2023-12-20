@@ -1,6 +1,5 @@
 package io.github.gmazzo.codeowners
 
-import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -16,11 +15,6 @@ interface CodeOwnersExtension : CodeOwnersConfig {
       * The path to the CODEOWNERS file
       */
      val codeOwnersFile : RegularFileProperty
-
-     /**
-      * The parsed CODEOWNERS file (readonly)
-      */
-     val codeOwners : Property<CodeOwnersFile>
 
      /**
       * Where if code ownership info should be added as Java resources to be available at runtime.

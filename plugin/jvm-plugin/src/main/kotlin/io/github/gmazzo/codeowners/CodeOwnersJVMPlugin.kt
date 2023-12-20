@@ -20,6 +20,7 @@ import org.gradle.api.attributes.HasConfigurableAttributes
 import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.AbstractCopyTask
@@ -36,11 +37,13 @@ import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
 import org.gradle.util.GradleVersion
+import java.io.File
 
 class CodeOwnersJVMPlugin : Plugin<Project> {
 
@@ -60,41 +63,29 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
 
         rootProject.apply<CodeOwnersJVMPlugin>()
 
-        val extension = createExtension()
-        val sourceSets = createSourceSets(extension)
+        val defaultLocations = files(
+            "CODEOWNERS",
+            ".github/CODEOWNERS",
+            ".gitlab/CODEOWNERS",
+            "docs/CODEOWNERS",
+        )
+        val extension = createExtension(defaultLocations)
+        val codeOwners = computeCodeOwners(extension.codeOwnersFile.asFile, defaultLocations)
+        val sourceSets = createSourceSets(extension, codeOwners)
 
         bindSourceSets(extension, sourceSets)
         setupAndroidSupport(extension, sourceSets)
         setupArtifactTransform(objects)
     }
 
-    private fun Project.createExtension() = when (project) {
+    private fun Project.createExtension(defaultLocations: FileCollection) = when (project) {
         rootProject -> extensions.create<CodeOwnersExtension>(extensionName).apply {
             rootDirectory
                 .convention(layout.projectDirectory)
                 .finalizeValueOnRead()
 
-            val defaultLocations = files(
-                "CODEOWNERS",
-                ".github/CODEOWNERS",
-                ".gitlab/CODEOWNERS",
-                "docs/CODEOWNERS",
-            )
             codeOwnersFile
                 .convention(layout.file(provider { defaultLocations.asFileTree.singleOrNull() }))
-                .finalizeValueOnRead()
-
-            codeOwners
-                .value(codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } }.orElse(provider {
-                    error(
-                        defaultLocations.joinToString(
-                            prefix = "No CODEOWNERS file found! Default locations:\n",
-                            separator = "\n"
-                        ) {
-                            "- ${it.toRelativeString(rootDir)}"
-                        })
-                }))
-                .apply { disallowChanges() }
                 .finalizeValueOnRead()
 
             includes.finalizeValueOnRead()
@@ -117,8 +108,24 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
         else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(extensionName, it) }
     }
 
+    private fun Project.computeCodeOwners(
+        codeOwnersFile: Provider<File>,
+        defaultLocations: FileCollection,
+    ) = objects.property<CodeOwnersFile>()
+        .value(codeOwnersFile.map { file -> file.useLines { CodeOwnersFile(it) } }.orElse(provider {
+            error(
+                defaultLocations.joinToString(
+                    prefix = "No CODEOWNERS file found! Default locations:\n",
+                    separator = "\n"
+                ) {
+                    "- ${it.toRelativeString(rootDir)}"
+                })
+        }))
+        .apply { disallowChanges(); finalizeValueOnRead() }
+
     private fun Project.createSourceSets(
         extension: CodeOwnersExtension,
+        codeOwnersFile: Provider<CodeOwnersFile>,
     ) = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
         val prefix = when (name) {
             SourceSet.MAIN_SOURCE_SET_NAME -> ""
@@ -126,7 +133,7 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
         }
 
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
-            codeOwners.value(extension.codeOwners)
+            codeOwners.value(codeOwnersFile)
             rootDirectory.value(extension.rootDirectory)
             outputDirectory.value(layout.buildDirectory.dir("codeOwners/resources/$name"))
             mappedCodeOwnersFileHeader.value("Generated CODEOWNERS file for module `${project.name}`, source set `$name`\n")
