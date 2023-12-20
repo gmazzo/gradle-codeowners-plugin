@@ -1,0 +1,4 @@
+# Generated CODEOWNERS file for module `utils`, source set `test`
+
+org/test/utils/                     utils-devs
+org/test/utils/UtilsOwnersTest      utils-devs
