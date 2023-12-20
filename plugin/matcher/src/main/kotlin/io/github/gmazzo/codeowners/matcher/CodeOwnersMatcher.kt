@@ -13,10 +13,10 @@ class CodeOwnersMatcher(
         .reversed()
         .map { it.owners.toSet() to FastIgnoreRule(it.pattern) }
 
-    fun ownerOf(file: File): Set<String>? = matchers.find { (_, ignore) ->
-        val path = file.toRelativeString(rootDir)
+    fun ownerOf(file: File, isDirectory: Boolean = file.isDirectory): Set<String>? =
+        ownerOf(file.toRelativeString(rootDir), isDirectory)
 
-        ignore.isMatch(path, path.endsWith('/'))
-    }?.first
+    fun ownerOf(relativePath: String, isDirectory: Boolean = relativePath.endsWith('/')): Set<String>? =
+        matchers.find { (_, ignore) -> ignore.isMatch(relativePath, isDirectory) }?.first
 
 }

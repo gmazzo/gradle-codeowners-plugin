@@ -8,10 +8,9 @@ import io.github.gmazzo.codeowners.BuildConfig.COMPILER_DEPENDENCY
 import io.github.gmazzo.codeowners.BuildConfig.COMPILER_PLUGIN_ID
 import io.github.gmazzo.codeowners.BuildConfig.CORE_DEPENDENCY
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.codeOwners
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
@@ -25,7 +24,13 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
-class CodeOwnersKotlinPlugin : KotlinCompilerPluginSupportPlugin {
+class CodeOwnersKotlinPlugin :
+    CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwnersExtension::class.java),
+    KotlinCompilerPluginSupportPlugin {
+
+    override fun apply(target: Project) {
+        super<CodeOwnersBasePlugin>.apply(target)
+    }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = true
 
@@ -45,8 +50,16 @@ class CodeOwnersKotlinPlugin : KotlinCompilerPluginSupportPlugin {
             }
         }
 
-    override fun apply(target: Project): Unit = with(target) {
-        val extension = createExtension()
+    override fun Project.configure(
+        extension: CodeOwnersExtension,
+        parent: CodeOwnersExtension?,
+        defaultLocations: FileCollection
+    ) {
+        extension.enableRuntimeSupport
+            .valueIfNotNull(parent?.enableRuntimeSupport)
+            .convention(true)
+            .finalizeValueOnRead()
+
         configureKotlinExtension(extension)
     }
 
@@ -106,44 +119,6 @@ class CodeOwnersKotlinPlugin : KotlinCompilerPluginSupportPlugin {
         when (val kotlin = extensions.getByName("kotlin")) {
             is KotlinSingleTargetExtension<*> -> kotlin.target.configure(single = true)
             is KotlinTargetsContainer -> kotlin.targets.configureEach { configure(single = false) }
-        }
-    }
-
-    private fun Project.createExtension(): CodeOwnersExtension {
-        val parentExtension = generateSequence(parent) { it.parent }
-            .mapNotNull { it.extensions.findByType<CodeOwnersExtension>() }
-            .firstOrNull()
-
-        return extensions.create<CodeOwnersExtension>("codeOwners").apply {
-
-            rootDirectory
-                .value(parentExtension?.rootDirectory?.orNull)
-                .convention(layout.projectDirectory)
-                .finalizeValueOnRead()
-
-            val defaultLocations = files(
-                "CODEOWNERS",
-                ".github/CODEOWNERS",
-                ".gitlab/CODEOWNERS",
-                "docs/CODEOWNERS",
-            )
-
-            val defaultFile = lazy {
-                defaultLocations.asFileTree.singleOrNull() ?: error(defaultLocations.joinToString(
-                    prefix = "No CODEOWNERS file found! Default locations:\n",
-                    separator = "\n"
-                ) { "- ${it.toRelativeString(rootDir)}" })
-            }
-
-            codeOwnersFile
-                .value(parentExtension?.codeOwnersFile?.orNull)
-                .convention(layout.file(provider(defaultFile::value)))
-                .finalizeValueOnRead()
-
-            enableRuntimeSupport
-                .value(parentExtension?.enableRuntimeSupport?.orNull)
-                .convention(true)
-                .finalizeValueOnRead()
         }
     }
 

@@ -5,9 +5,9 @@ package io.github.gmazzo.codeowners
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Component
 import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasUnitTest
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
@@ -29,7 +29,6 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.codeOwners
-import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.get
@@ -37,24 +36,24 @@ import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
 import org.gradle.util.GradleVersion
-import java.io.File
 
-class CodeOwnersJVMPlugin : Plugin<Project> {
+class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwnersExtension::class.java) {
 
     private companion object {
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
         private const val ARTIFACT_TYPE_ANDROID_JAVA_RES = "android-java-res"
     }
 
-    private val extensionName = Component::codeOwners.name
-
-    override fun apply(target: Project): Unit = with(target) {
+    override fun Project.configure(
+        extension: CodeOwnersExtension,
+        parent: CodeOwnersExtension?,
+        defaultLocations: FileCollection
+    ) {
         GradleVersion.version("7.5").let { required ->
             check(GradleVersion.current() >= required) {
                 "`io.github.gmazzo.codeowners.jvm` plugin requires $required or higher"
@@ -63,14 +62,8 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
 
         rootProject.apply<CodeOwnersJVMPlugin>()
 
-        val defaultLocations = files(
-            "CODEOWNERS",
-            ".github/CODEOWNERS",
-            ".gitlab/CODEOWNERS",
-            "docs/CODEOWNERS",
-        )
-        val extension = createExtension(defaultLocations)
-        val codeOwners = computeCodeOwners(extension.codeOwnersFile.asFile, defaultLocations)
+        configureExtension(extension, parent)
+        val codeOwners = extension.codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } }
         val sourceSets = createSourceSets(extension, codeOwners)
 
         bindSourceSets(extension, sourceSets)
@@ -78,50 +71,27 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
         setupArtifactTransform(objects)
     }
 
-    private fun Project.createExtension(defaultLocations: FileCollection) = when (project) {
-        rootProject -> extensions.create<CodeOwnersExtension>(extensionName).apply {
-            rootDirectory
-                .convention(layout.projectDirectory)
-                .finalizeValueOnRead()
-
-            codeOwnersFile
-                .convention(layout.file(provider { defaultLocations.asFileTree.singleOrNull() }))
-                .finalizeValueOnRead()
-
+    private fun Project.configureExtension(extension: CodeOwnersExtension, parent: CodeOwnersExtension?) =
+        with(extension) {
             includes.finalizeValueOnRead()
             excludes.add("hilt_aggregated_deps/**")
             excludes.finalizeValueOnRead()
 
             inspectDependencies
+                .valueIfNotNull(parent?.inspectDependencies)
                 .convention(CodeOwnersConfig.DependenciesMode.LOCAL_PROJECTS)
                 .finalizeValueOnRead()
 
             addCoreDependency
+                .valueIfNotNull(parent?.addCoreDependency)
                 .convention(findProperty("codeowners.default.dependency")?.toString()?.toBoolean() != false)
                 .finalizeValueOnRead()
 
             addCodeOwnershipAsResources
+                .valueIfNotNull(parent?.addCodeOwnershipAsResources)
                 .convention(true)
                 .finalizeValueOnRead()
         }
-
-        else -> rootProject.the<CodeOwnersExtension>().also { extensions.add(extensionName, it) }
-    }
-
-    private fun Project.computeCodeOwners(
-        codeOwnersFile: Provider<File>,
-        defaultLocations: FileCollection,
-    ) = objects.property<CodeOwnersFile>()
-        .value(codeOwnersFile.map { file -> file.useLines { CodeOwnersFile(it) } }.orElse(provider {
-            error(
-                defaultLocations.joinToString(
-                    prefix = "No CODEOWNERS file found! Default locations:\n",
-                    separator = "\n"
-                ) {
-                    "- ${it.toRelativeString(rootDir)}"
-                })
-        }))
-        .apply { disallowChanges(); finalizeValueOnRead() }
 
     private fun Project.createSourceSets(
         extension: CodeOwnersExtension,
@@ -155,7 +125,6 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
         extension: CodeOwnersExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
-
         the<SourceSetContainer>().configureEach {
             val sourceSet = sourceSets.maybeCreate(name)
 
@@ -170,9 +139,8 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
                 addOutgoingVariant(sourceSet, configurations[runtimeClasspathConfigurationName])
             }
 
-            extensions.add(CodeOwnersSourceSet::class.java, extensionName, sourceSet)
-            tasks.named<AbstractCopyTask>(processResourcesTaskName)
-                .addResources(extension, sourceSet)
+            extensions.add(CodeOwnersSourceSet::class.java, Component::codeOwners.name, sourceSet)
+            tasks.named<AbstractCopyTask>(processResourcesTaskName).addResources(extension, sourceSet)
         }
     }
 
@@ -211,7 +179,7 @@ class CodeOwnersJVMPlugin : Plugin<Project> {
 
             val sources = bind(variant)
 
-            variant.unitTest?.let { bind(component = it, defaultsTo = sources) }
+            (variant as? HasUnitTest)?.unitTest?.let { bind(component = it, defaultsTo = sources) }
             (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sources) }
 
             addOutgoingVariant(sources, variant.runtimeConfiguration).configure {

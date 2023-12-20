@@ -181,7 +181,11 @@ class CodeOwnersJVMPluginTest {
                 .map { it.toRelativeString(dir.asFile) to it.readLines().toSet() }
         }
 
-        assertEquals(expectedInfos.toList(), actualInfos)
+        fun List<Pair<String, Set<String>>>.asText() = joinToString(separator = "\n") { (path, owners) ->
+            "$path -> ${owners.sorted().joinToString(separator = " ")}"
+        }
+
+        assertEquals(expectedInfos.toList().asText(), actualInfos.asText())
 
         val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main.codeowners").get().asFile.readText()
         assertEquals(expectedMappings, actualMappings)

@@ -1,3 +1,5 @@
+import com.android.build.api.variant.HasUnitTest
+
 plugins {
     id("com.android.library")
     id("io.github.gmazzo.codeowners.jvm")
@@ -19,5 +21,5 @@ dependencies {
 }
 
 androidComponents.onVariants {
-    it.unitTest!!.codeOwners.enabled.set(false)
+    (it as HasUnitTest).unitTest!!.codeOwners.enabled.set(false)
 }

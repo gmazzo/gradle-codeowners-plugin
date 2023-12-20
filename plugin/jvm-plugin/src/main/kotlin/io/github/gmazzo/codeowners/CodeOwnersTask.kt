@@ -1,7 +1,7 @@
 package io.github.gmazzo.codeowners
 
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
-import org.eclipse.jgit.ignore.FastIgnoreRule
+import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -112,14 +112,10 @@ abstract class CodeOwnersTask : DefaultTask() {
         logger.info("Processing sources...")
 
         val root = rootDirectory.asFile.get()
-        val entries = codeOwners.get()
-            .filterIsInstance<CodeOwnersFile.Entry>()
-            .reversed()
-            .map { it.owners.toSet() to FastIgnoreRule(it.pattern) }
+        val matcher = CodeOwnersMatcher(root, codeOwners.get())
 
         sourcesFiles.visit {
-            val rootPath = file.toRelativeString(root)
-            val (owners) = entries.find { (_, ignore) -> ignore.isMatch(rootPath, isDirectory) } ?: return@visit
+            val owners = matcher.ownerOf(file, isDirectory) ?: return@visit
             val targetPath =
                 if (isDirectory) path.appendSuffix("/")
                 else path.substringBeforeLast(".")
