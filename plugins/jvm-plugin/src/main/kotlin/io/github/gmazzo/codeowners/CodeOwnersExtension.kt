@@ -12,13 +12,4 @@ interface CodeOwnersExtension : CodeOwnersBaseExtension, CodeOwnersConfig {
       */
      val addCodeOwnershipAsResources: Property<Boolean>
 
-     /**
-      * Where if `core` dependency (providing the [io.github.gmazzo.codeowners.codeOwnersOf] API) should be added to
-      * the `implementation` classpath.
-      *
-      * Defaults to `codeowners.default.dependency` Gradle property (`true` if missing).
-      * The dependency won't be added if [addCodeOwnershipAsResources] is set to `false` regardless the value of this property
-      */
-     val addCoreDependency: Property<Boolean>
-
 }

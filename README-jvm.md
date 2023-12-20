@@ -84,16 +84,6 @@ androidComponents.onVariants {
 }
 ```
 
-## Excluding default `io.github.gmazzo.codeowners:jvm-core` dependency
-By default, a dependency to this plugin runtime DSL (the `.codeOwners` functions) will be added to those `SourceSet`s where CodeOwners are computed.
-
-You can opt out of this behavior by adding `codeowners.default.dependency=false` to your `gradle.properties` file and then manually add it on the `Configuration` that fits better for your build:
-```kotlin
-dependencies {
-    implementation("io.github.gmazzo.codeowners:jvm-core")
-}
-```
-
 ## Consuming the generated `mappedCodeOwnersFile`
 Each `CodeOwnersTask` produces a .CODEOWNERS like file which translates build directories to Java packages (in folder format, not '.').
 
