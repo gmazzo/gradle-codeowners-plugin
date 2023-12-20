@@ -1,5 +1,6 @@
 package io.github.gmazzo.codeowners
 
+import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.gradle.api.artifacts.transform.CacheableTransform
 import org.gradle.api.artifacts.transform.InputArtifact
 import org.gradle.api.artifacts.transform.TransformAction

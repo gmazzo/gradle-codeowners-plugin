@@ -3,6 +3,7 @@ package io.github.gmazzo.codeowners
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.exclude
+import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -11,11 +12,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-<<<<<<<< HEAD:plugin/jvm-plugin/src/test/kotlin/io/github/gmazzo/codeowners/CodeOwnersJVMPluginTest.kt
 class CodeOwnersJVMPluginTest {
-========
-class CodeOwnersKotlinPluginTest {
->>>>>>>> 91353a5 (Changed plugin id to `io.github.gmazzo.codeowners.kotlin`):plugin/kotlin-plugin/src/test/kotlin/io/github/gmazzo/codeowners/CodeOwnersKotlinPluginTest.kt
 
     private val root = ProjectBuilder.builder()
         .withName("root")
@@ -51,11 +48,7 @@ class CodeOwnersKotlinPluginTest {
 
         root.allprojects {
             apply(plugin = "java")
-<<<<<<<< HEAD:plugin/jvm-plugin/src/test/kotlin/io/github/gmazzo/codeowners/CodeOwnersJVMPluginTest.kt
             apply<CodeOwnersJVMPlugin>()
-========
-            apply<CodeOwnersKotlinPlugin>()
->>>>>>>> 91353a5 (Changed plugin id to `io.github.gmazzo.codeowners.kotlin`):plugin/kotlin-plugin/src/test/kotlin/io/github/gmazzo/codeowners/CodeOwnersKotlinPluginTest.kt
 
             repositories.mavenCentral()
             configurations.configureEach {

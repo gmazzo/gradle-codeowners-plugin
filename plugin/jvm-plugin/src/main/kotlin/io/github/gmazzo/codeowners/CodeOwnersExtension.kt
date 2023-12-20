@@ -1,5 +1,6 @@
 package io.github.gmazzo.codeowners
 
+import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property

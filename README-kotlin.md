@@ -13,19 +13,11 @@ This plugin is designed to work as a whole build plugin, but you can selectively
 The simplest setup is to apply the plugin at the root project, and then to each submodule. At root `build.gradle.kts` add:
 ```kotlin
 plugins {
-<<<<<<<< HEAD:README-jvm.md
-    id("io.github.gmazzo.codeowners.jvm") version "<latest>"
-}
-
-subprojects {
-    apply(plugin = "io.github.gmazzo.codeowners.jvm")
-========
     id("io.github.gmazzo.codeowners.kotlin") version "<latest>"
 }
 
 subprojects {
     apply(plugin = "io.github.gmazzo.codeowners.kotlin")
->>>>>>>> 91353a5 (Changed plugin id to `io.github.gmazzo.codeowners.kotlin`):README-kotlin.md
 }
 ```
 
@@ -64,11 +56,7 @@ try {
 At root's `build.gradle.kts` add:
 ```kotlin
 plugins {
-<<<<<<<< HEAD:README-jvm.md
-    id("io.github.gmazzo.codeowners.jvm") version "<latest>"
-========
     id("io.github.gmazzo.codeowners.kotlin") version "<latest>"
->>>>>>>> 91353a5 (Changed plugin id to `io.github.gmazzo.codeowners.kotlin`):README-kotlin.md
 }
 
 subprojects {

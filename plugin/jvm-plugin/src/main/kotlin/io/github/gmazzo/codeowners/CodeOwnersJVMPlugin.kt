@@ -5,6 +5,7 @@ package io.github.gmazzo.codeowners
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Component
 import com.android.build.api.variant.HasAndroidTest
+import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
