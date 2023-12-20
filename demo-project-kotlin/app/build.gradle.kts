@@ -35,10 +35,10 @@ android {
 }
 
 dependencies {
-    "jvmCommonMainImplementation"(projects.demoProject.lib1)
-    "jvmCommonMainImplementation"(projects.demoProject.utils)
+    "jvmCommonMainImplementation"(projects.demoProjectKotlin.lib1)
+    "jvmCommonMainImplementation"(projects.demoProjectKotlin.utils)
 
-    "androidMainImplementation"(projects.demoProject.lib2)
+    "androidMainImplementation"(projects.demoProjectKotlin.lib2)
 
     commonTestImplementation(libs.kotlin.test)
 }

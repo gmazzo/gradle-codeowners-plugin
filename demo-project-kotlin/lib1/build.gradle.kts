@@ -10,7 +10,7 @@ kotlin {
 }
 
 dependencies {
-    api(projects.demoProject.utils)
+    api(projects.demoProjectKotlin.utils)
 
     testImplementation(libs.kotlin.test)
 }

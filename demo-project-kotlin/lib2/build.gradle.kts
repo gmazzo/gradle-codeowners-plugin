@@ -16,7 +16,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.demoProject.lib1)
+    implementation(projects.demoProjectKotlin.lib1)
 
     testImplementation(libs.kotlin.test)
 }
