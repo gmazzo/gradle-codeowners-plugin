@@ -25,7 +25,8 @@ dependencies {
     compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.android.application))
 
-    implementation(libs.jgit)
+    implementation(projects.basePlugin)
+    implementation(projects.matcher)
 
     testImplementation(gradleKotlinDsl())
     testRuntimeOnly(plugin(libs.plugins.kotlin.jvm))

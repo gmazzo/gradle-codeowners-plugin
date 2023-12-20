@@ -15,6 +15,7 @@ dependencyResolutionManagement {
 rootProject.name = "root"
 
 include(
+    "base-plugin",
     "jvm-core",
     "jvm-plugin",
     "kotlin-compiler",

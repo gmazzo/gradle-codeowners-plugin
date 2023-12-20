@@ -28,6 +28,7 @@ dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =
         plugin.map { create("${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}") }
 
+    implementation(projects.basePlugin)
     implementation(projects.matcher)
 
     compileOnlyWithTests(gradleKotlinDsl())
@@ -54,11 +55,11 @@ gradlePlugin {
     website.set("https://github.com/gmazzo/gradle-codeowners-plugin")
     vcsUrl.set("https://github.com/gmazzo/gradle-codeowners-plugin")
 
-    plugins.create("codeOwners") {
+    plugins.create("codeOwnersKotlin") {
         id = "io.github.gmazzo.codeowners.kotlin"
         displayName = name
         implementationClass = "io.github.gmazzo.codeowners.CodeOwnersKotlinPlugin"
-        description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
+        description = "A Gradle plugin to propagate CODEOWNERS to Kotlin classes"
         tags.addAll("codeowners", "ownership", "attribution")
     }
 }
