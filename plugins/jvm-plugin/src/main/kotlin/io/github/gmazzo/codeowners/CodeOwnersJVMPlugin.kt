@@ -96,12 +96,15 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
         }
 
         val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
-            codeOwners.value(codeOwnersFile)
-            rootDirectory.value(extension.rootDirectory)
-            outputDirectory.value(layout.buildDirectory.dir("codeOwners/resources/$name"))
-            mappedCodeOwnersFileHeader.value("Generated CODEOWNERS file for module `${project.name}`, source set `$name`\n")
-            mappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name-simplified.$ARTIFACT_TYPE_CODEOWNERS"))
-            rawMappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name-raw.$ARTIFACT_TYPE_CODEOWNERS"))
+            group = TASK_GROUP
+            description = "Process CODEOWNERS entries for source set '$name'"
+
+            codeOwners.set(codeOwnersFile)
+            rootDirectory.set(extension.rootDirectory)
+            outputDirectory.set(layout.buildDirectory.dir("codeOwners/resources/$name"))
+            mappedCodeOwnersFileHeader.set("Generated CODEOWNERS file for module '${project.path}', source set '$name'\n")
+            mappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/$name-simplified.codeowners"))
+            rawMappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/$name-raw.codeowners"))
         }
 
         objects.newInstance<CodeOwnersSourceSetImpl>(name, generateTask).apply {

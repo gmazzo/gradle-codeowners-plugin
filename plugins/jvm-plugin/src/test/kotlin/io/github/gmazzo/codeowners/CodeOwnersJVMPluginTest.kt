@@ -106,7 +106,7 @@ class CodeOwnersJVMPluginTest {
         "com/test/app/child1/.codeowners" to setOf("child1-devs"),
         "com/test/app/child2/.codeowners" to setOf("child2-devs", "app-devs"),
         expectedMappings = """
-            # Generated CODEOWNERS file for module `root`, source set `main`
+            # Generated CODEOWNERS file for module ':', source set 'main'
             
             com/test/app/               app-devs
             com/test/app/AppData        app-devs kotlin-devs
@@ -120,7 +120,7 @@ class CodeOwnersJVMPluginTest {
     fun `generates admin code package info correctly`() = admin.testGenerateCodeOwners(
         "com/test/admin/.codeowners" to setOf("app-devs", "admin-devs"),
         expectedMappings = """
-            # Generated CODEOWNERS file for module `admin`, source set `main`
+            # Generated CODEOWNERS file for module ':admin', source set 'main'
             
             com/test/admin/     admin-devs app-devs
             
@@ -131,7 +131,7 @@ class CodeOwnersJVMPluginTest {
     fun `generates child1 code package info correctly`() = child1.testGenerateCodeOwners(
         "com/test/child1/.codeowners" to setOf("child1-devs"),
         expectedMappings = """
-            # Generated CODEOWNERS file for module `child1`, source set `main`
+            # Generated CODEOWNERS file for module ':child1', source set 'main'
             
             com/test/child1/        child1-devs
             
@@ -144,7 +144,7 @@ class CodeOwnersJVMPluginTest {
         "com/test/child2/.codeowners" to setOf("child2-devs", "app-devs"),
         "env-dev/.codeowners" to setOf("scripting-devs"),
         expectedMappings = """
-            # Generated CODEOWNERS file for module `child2`, source set `main`
+            # Generated CODEOWNERS file for module ':child2', source set 'main'
             
             Main                    app-devs child2-devs
             com/test/child2/        app-devs child2-devs
@@ -161,7 +161,7 @@ class CodeOwnersJVMPluginTest {
         "com/test/child3/a/.codeowners" to setOf("child3-java"),
         "com/test/child3/b/.codeowners" to setOf("child3-kotlin"),
         expectedMappings = """
-            # Generated CODEOWNERS file for module `child3`, source set `main`
+            # Generated CODEOWNERS file for module ':child3', source set 'main'
             
             com/test/child3/                child3-java child3-kotlin
             com/test/child3/Piece3Data      child3-java
@@ -187,7 +187,7 @@ class CodeOwnersJVMPluginTest {
 
         assertEquals(expectedInfos.toList().asText(), actualInfos.asText())
 
-        val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main.codeowners").get().asFile.readText()
+        val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main-simplified.codeowners").get().asFile.readText()
         assertEquals(expectedMappings, actualMappings)
     }
 

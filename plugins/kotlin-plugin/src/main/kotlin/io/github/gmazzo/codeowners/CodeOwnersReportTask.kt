@@ -20,8 +20,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
-import org.jetbrains.kotlin.konan.file.use
-import java.util.Properties
 
 @CacheableTask
 @Suppress("LeakingThis")
@@ -66,20 +64,23 @@ abstract class CodeOwnersReportTask : DefaultTask() {
             root,
             codeOwnersFile.asFile.get().useLines { CodeOwnersFile(it) }
         )
-        val report = Properties()
+        val entries = mutableMapOf<String, MutableSet<String>>()
 
-        sourcesFiles.forEach { file ->
-            val owners = matcher.ownerOf(file)
+        sourcesFiles.visit {
+            if (!isDirectory) {
+                val owners = matcher.ownerOf(file, isDirectory)
 
-            if (owners != null) {
-                val relativePath = file.toRelativeString(root)
-
-                // FIXME output is not the wanted one
-                report[relativePath] = owners.joinToString(separator = ",")
+                if (owners != null) {
+                    entries.computeIfAbsent(path) { mutableSetOf() }.addAll(owners)
+                }
             }
         }
 
-        codeOwnersReportFile.asFile.get().writer().use { report.store(it, codeOwnersReportHeader.orNull) }
+        val header = listOfNotNull(codeOwnersReportHeader.orNull?.let(CodeOwnersFile::Comment))
+        val file = CodeOwnersFile(header + entries.map { (key, value) ->
+            CodeOwnersFile.Entry(pattern = key, owners = value.toList()) })
+
+        codeOwnersReportFile.asFile.get().writeText(file.content)
     }
 
 }
