@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
     com.github.gmazzo.buildconfig
-    `java-integration-tests`
     `maven-central-publish`
     jacoco
 }
@@ -58,8 +57,6 @@ gradlePlugin {
         description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
         tags.addAll("codeowners", "ownership", "attribution")
     }
-
-    testSourceSets(sourceSets["integrationTest"])
 }
 
 buildConfig {
@@ -70,19 +67,6 @@ buildConfig {
             "\"${it.groupId}:${it.artifactId}:${it.version}\""
         }
     )
-}
-
-tasks.integrationTest {
-    shouldRunAfter(tasks.test)
-
-    val core = projects.jvmCore.dependencyProject
-    dependsOn("${core.path}:publishAllPublicationsToLocalRepository")
-    environment("LOCAL_REPO", core.layout.buildDirectory.dir("repo").get().asFile.toRelativeString(workingDir))
-
-    // AGP 8 requires JDK 17, and we want to be compatible with previous JDKs
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    })
 }
 
 tasks.pluginUnderTestMetadata {

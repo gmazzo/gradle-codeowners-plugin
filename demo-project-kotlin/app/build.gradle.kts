@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 
@@ -20,6 +21,12 @@ kotlin {
 
         getByName("jvmMain") { dependsOn(jvmCommonMain) }
         getByName("androidMain") { dependsOn(jvmCommonMain) }
+    }
+
+    targets.named<KotlinAndroidTarget>("android") {
+        compilations.configureEach {
+            codeOwners.enabled = androidVariant.buildType.name != "release"
+        }
     }
 }
 
