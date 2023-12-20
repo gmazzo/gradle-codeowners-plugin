@@ -89,6 +89,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
         extension: CodeOwnersExtension,
         codeOwnersFile: Provider<CodeOwnersFile>,
     ) = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
+        @Suppress("DEPRECATION")
         val prefix = when (name) {
             SourceSet.MAIN_SOURCE_SET_NAME -> ""
             else -> name.capitalize()
@@ -156,6 +157,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
 
             // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
             afterEvaluate {
+                @Suppress("DEPRECATION")
                 tasks.named<AbstractCopyTask>("process${component.name.capitalize()}JavaRes")
                     .addResources(extension, sourceSet)
             }

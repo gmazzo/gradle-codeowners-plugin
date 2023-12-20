@@ -1,4 +1,4 @@
-@file:JvmName("CodeOwners")
+@file:JvmName("CodeOwnersUtils")
 
 package io.github.gmazzo.codeowners
 
