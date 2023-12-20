@@ -1,3 +1,0 @@
-# Generated CODEOWNERS file for module `utils`, source set `main`
-
-org/test/utils/     utils-devs

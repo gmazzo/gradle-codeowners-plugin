@@ -1,5 +1,4 @@
 import io.github.gmazzo.codeowners.CodeOwnersTask
-import org.gradle.configurationcache.extensions.capitalized
 import kotlin.test.assertEquals
 
 plugins {
@@ -18,27 +17,26 @@ buildscript {
 allprojects {
     val expectedDir = layout.projectDirectory.dir("src/test/expectedMappings")
 
-    afterEvaluate {
-        tasks.withType<CodeOwnersTask>().names.forEach { taskName ->
-            val expectedRaw = expectedDir.file("${taskName}-raw.txt").asFile
-            val expectedSimplified = expectedDir.file("${taskName}-simplified.txt").asFile
+    val filesToVerify = objects.mapProperty<RegularFile, RegularFile>()
+    tasks.withType<CodeOwnersTask>().configureEach {
+        filesToVerify.put(expectedDir.file("${name}-raw.codeowners"), rawMappedCodeOwnersFile)
+        filesToVerify.put(expectedDir.file("${name}-simplified.codeowners"), mappedCodeOwnersFile)
+    }
 
-            val mappingTask = tasks.named<CodeOwnersTask>(taskName)
-            val actualRaw = mappingTask.flatMap { it.rawMappedCodeOwnersFile.asFile }
-            val actualSimplified = mappingTask.flatMap { it.mappedCodeOwnersFile.asFile }
+    val verifyTask = tasks.register("verifyCodeOwnersMappings") {
+        inputs.files(filesToVerify.keySet(), filesToVerify.map { it.values })
+        doLast {
+            fun File.readTextIfExist() = if (exists()) readText() else null
 
-            val verifyTask = tasks.register("verify${taskName.capitalized()}Mappings") {
-                inputs.files(expectedSimplified, expectedRaw, actualSimplified, actualRaw)
-                dependsOn(mappingTask)
-                doLast {
-                    assertEquals(expectedRaw.readText(), actualRaw.get().readText())
-                    assertEquals(expectedSimplified.readText(), actualSimplified.get().readText())
-                }
+            filesToVerify.get().forEach { (expected, actual) ->
+                assertEquals(expected.asFile.readTextIfExist(), actual.asFile.readTextIfExist())
             }
+        }
+    }
 
-            tasks.named("check") {
-                dependsOn(verifyTask)
-            }
+    plugins.withId("base") {
+        tasks.named("check") {
+            dependsOn(verifyTask)
         }
     }
 }

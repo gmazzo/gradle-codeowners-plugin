@@ -1,0 +1,3 @@
+# Generated CODEOWNERS file for module ':demo-project-jvm:utils', source set 'main'
+
+org/test/utils/     utils-devs

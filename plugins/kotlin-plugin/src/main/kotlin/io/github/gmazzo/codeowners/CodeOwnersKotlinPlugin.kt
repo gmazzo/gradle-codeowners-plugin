@@ -66,14 +66,14 @@ class CodeOwnersKotlinPlugin :
     private fun Project.configureKotlinExtension(
         extension: CodeOwnersExtension,
     ) = plugins.withType<KotlinBasePlugin> {
-        val reportTask = tasks.register<CodeOwnersReportTask>("codeOwnersReport") {
-            group = "CodeOwners"
-            description = "Generate CODEOWNERS report for all targets"
+        val reportTask = tasks.register<CodeOwnersReportTask>("processCodeOwners") {
+            group = TASK_GROUP
+            description = "Process CODEOWNERS entries for all targets"
 
             rootDirectory.set(extension.rootDirectory)
             codeOwnersFile.set(extension.codeOwnersFile)
-            codeOwnersReportHeader.set("CodeOwners of module ${project.name}")
-            codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeowners/${pathAsFileName}.properties"))
+            codeOwnersReportHeader.set("Generated CODEOWNERS file for module `${project.path}`, source set `$name`\n")
+            codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${pathAsFileName}.codeowners"))
         }
 
         fun KotlinTarget.configure(single: Boolean) {
@@ -82,13 +82,13 @@ class CodeOwnersKotlinPlugin :
             val targetReportTask =
                 if (single) null
                 else tasks.register<CodeOwnersReportTask>("${targetName}CodeOwnersReport") {
-                    group = "CodeOwners"
-                    description = "Generate CODEOWNERS report for '$targetName' target"
+                    group = TASK_GROUP
+                    description = "Generates CODEOWNERS report for '$targetName' target"
 
                     rootDirectory.set(extension.rootDirectory)
                     codeOwnersFile.set(extension.codeOwnersFile)
-                    codeOwnersReportHeader.set("CodeOwners of $targetName of module ${project.path}")
-                    codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeowners/${project.pathAsFileName}/$targetName.properties"))
+                    codeOwnersReportHeader.set("CodeOwners of '$targetName' of module '${project.path}'")
+                    codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.pathAsFileName}/$targetName.codeowners"))
                 }
 
             val targetExtension = objects.newInstance<CodeOwnersCompilationExtension>()

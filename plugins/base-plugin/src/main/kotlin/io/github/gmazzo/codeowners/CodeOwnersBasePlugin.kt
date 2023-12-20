@@ -11,6 +11,10 @@ open class CodeOwnersBasePlugin<Extension : CodeOwnersBaseExtension>(
     private val extensionClass: Class<out Extension> = CodeOwnersBaseExtension::class.java as Class<Extension>,
 ) : Plugin<Project> {
 
+    companion object {
+        const val TASK_GROUP = "CodeOwners"
+    }
+
     open fun Project.configure(extension: Extension, parent: Extension?, defaultLocations: FileCollection) {}
 
     override fun apply(target: Project): Unit = with(target) {

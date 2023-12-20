@@ -1,0 +1,10 @@
+# Generated CODEOWNERS file for module ':demo-project-jvm:lib2', source set 'debug'
+
+org/test/lib/                       libs-devs
+org/test/lib/LibClass               libs-devs
+org/test/utils/                     libs-devs utils-devs
+org/test/utils/AndroidLibUtils      libs-devs
+org/test/utils/LibUtils             libs-devs
+org/test/utils/Utils                utils-devs
+org/test/utils/more/                utils-devs
+org/test/utils/more/MoreUtils       utils-devs
