@@ -27,7 +27,6 @@ import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.domainObjectContainer
@@ -60,8 +59,6 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
             }
         }
 
-        rootProject.apply<CodeOwnersJVMPlugin>()
-
         configureExtension(extension, parent)
         val codeOwners = extension.codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } }
         val sourceSets = createSourceSets(extension, codeOwners)
@@ -80,11 +77,6 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
             inspectDependencies
                 .valueIfNotNull(parent?.inspectDependencies)
                 .convention(CodeOwnersConfig.DependenciesMode.LOCAL_PROJECTS)
-                .finalizeValueOnRead()
-
-            addCoreDependency
-                .valueIfNotNull(parent?.addCoreDependency)
-                .convention(findProperty("codeowners.default.dependency")?.toString()?.toBoolean() != false)
                 .finalizeValueOnRead()
 
             addCodeOwnershipAsResources
@@ -248,14 +240,10 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
         sourceSet: CodeOwnersSourceSet,
         configurationName: String,
     ) {
-        dependencies.constraints.add(configurationName, BuildConfig.CORE_DEPENDENCY)
-
-        afterEvaluate {
-            dependencies.add(
-                configurationName,
-                extension.addCoreDependency.and(extension.addCodeOwnershipAsResources, sourceSet.enabled)
-                    .map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
-        }
+        dependencies.add(
+            configurationName,
+            extension.addCodeOwnershipAsResources.and(sourceSet.enabled)
+                .map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
     }
 
     private fun Project.addOutgoingVariant(
