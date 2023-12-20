@@ -100,7 +100,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
             rootDirectory.value(extension.rootDirectory)
             outputDirectory.value(layout.buildDirectory.dir("codeOwners/resources/$name"))
             mappedCodeOwnersFileHeader.value("Generated CODEOWNERS file for module `${project.name}`, source set `$name`\n")
-            mappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name.$ARTIFACT_TYPE_CODEOWNERS"))
+            mappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name-simplified.$ARTIFACT_TYPE_CODEOWNERS"))
             rawMappedCodeOwnersFile.value(layout.buildDirectory.file("codeOwners/mappings/$name-raw.$ARTIFACT_TYPE_CODEOWNERS"))
         }
 
