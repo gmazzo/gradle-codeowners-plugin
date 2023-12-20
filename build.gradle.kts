@@ -4,20 +4,20 @@ plugins {
     alias(libs.plugins.publicationsReport)
 }
 
-val pluginBuild = gradle.includedBuild("plugin")
+val pluginsBuild = gradle.includedBuild("plugins")
 
 tasks.build {
-    dependsOn(pluginBuild.task(":$name"))
+    dependsOn(pluginsBuild.task(":$name"))
 }
 
 tasks.check {
-    dependsOn(pluginBuild.task(":$name"))
+    dependsOn(pluginsBuild.task(":$name"))
 }
 
 tasks.publish {
-    dependsOn(pluginBuild.task(":$name"))
+    dependsOn(pluginsBuild.task(":$name"))
 }
 
 tasks.publishToMavenLocal {
-    dependsOn(pluginBuild.task(":$name"))
+    dependsOn(pluginsBuild.task(":$name"))
 }

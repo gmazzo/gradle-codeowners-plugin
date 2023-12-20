@@ -12,7 +12,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "root"
+rootProject.name = "plugins"
 
 include(
     "base-plugin",
