@@ -18,7 +18,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "gradle-codeowners-plugin"
 
-includeBuild("plugin")
+includeBuild("plugins")
 include(
     "demo-project",
     "demo-project:app",
