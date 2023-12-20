@@ -20,9 +20,9 @@ rootProject.name = "gradle-codeowners-plugin"
 
 includeBuild("plugins")
 include(
-    "demo-project",
-    "demo-project:app",
-    "demo-project:lib1",
-    "demo-project:lib2",
-    "demo-project:utils",
+    "demo-project-kotlin",
+    "demo-project-kotlin:app",
+    "demo-project-kotlin:lib1",
+    "demo-project-kotlin:lib2",
+    "demo-project-kotlin:utils",
 )
