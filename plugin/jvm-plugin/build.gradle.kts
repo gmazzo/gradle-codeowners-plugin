@@ -3,8 +3,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.samWithReceiver)
-    alias(libs.plugins.buildConfig)
     alias(libs.plugins.gradle.pluginPublish)
+    com.github.gmazzo.buildconfig
     `java-integration-tests`
     `maven-central-publish`
     jacoco
@@ -23,14 +23,14 @@ dependencies {
         plugin.map { create("${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}") }
 
     compileOnly(gradleKotlinDsl())
-    compileOnly(plugin(libs.plugins.android))
+    compileOnly(plugin(libs.plugins.android.application))
 
     implementation(libs.jgit)
 
     testImplementation(gradleKotlinDsl())
     testRuntimeOnly(plugin(libs.plugins.kotlin.jvm))
 
-    pluginUnderTestImplementation(plugin(libs.plugins.android))
+    pluginUnderTestImplementation(plugin(libs.plugins.android.application))
     pluginUnderTestImplementation(plugin(libs.plugins.kotlin.jvm))
 }
 

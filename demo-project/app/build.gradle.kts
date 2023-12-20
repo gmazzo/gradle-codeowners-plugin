@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.multiplatform)
@@ -38,4 +41,11 @@ dependencies {
     "androidMainImplementation"(projects.demoProject.lib2)
 
     commonTestImplementation(libs.kotlin.test)
+}
+
+tasks.withType<KotlinJsIrLink>().configureEach {
+    notCompatibleWithConfigurationCache("uses Task.project")
+}
+tasks.withType<KotlinNativeLink>().configureEach {
+    notCompatibleWithConfigurationCache("uses Task.project")
 }

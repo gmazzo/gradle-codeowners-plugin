@@ -1,5 +1,6 @@
 package io.github.gmazzo.codeowners
 
+import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.eclipse.jgit.ignore.FastIgnoreRule
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection

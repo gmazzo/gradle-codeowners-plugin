@@ -1,9 +1,17 @@
 package io.github.gmazzo.codeowners
 
-import org.test.*
+import org.test.AnotherBaz
+import org.test.Bar
+import org.test.BarImpl
+import org.test.Baz
+import org.test.Foo
+import org.test.FooImpl
+import org.test.baz
+import java.lang.reflect.Proxy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+// it only applies to JVM as annotations are not available on other targets
 class CodeOwnersTest {
 
     @Test
@@ -16,7 +24,7 @@ class CodeOwnersTest {
     fun reports_Bar_owners_correctly() {
         assertEquals(setOf("bar"), codeOwnersOf<Bar>())
         assertEquals(setOf("bar"), BarImpl::class.codeOwners)
-        assertEquals(setOf("bar"), codeOwnersOf<BarImpl.Inner>())
+        assertEquals(setOf("bar-inner"), codeOwnersOf<BarImpl.Inner>())
     }
 
     @Test
@@ -31,7 +39,19 @@ class CodeOwnersTest {
 
         val exception = runCatching { myFun() }.exceptionOrNull()
 
-        assertEquals(setOf("bar"), exception?.codeOwners)
+        assertEquals(setOf("bar-inner"), exception?.codeOwners)
+    }
+
+    @Test
+    fun `reports_proxy_of_Foo_owners_correctly`() {
+        val proxy = Proxy.newProxyInstance(javaClass.classLoader, arrayOf(Foo::class.java)) { _, _, _ -> }
+
+        assertEquals(setOf("foo"), proxy::class.codeOwners)
+    }
+
+    @Test
+    fun `reports_baz_function_owners_correctly`() {
+        assertEquals(setOf("baz"), ::baz.codeOwners)
     }
 
 }
