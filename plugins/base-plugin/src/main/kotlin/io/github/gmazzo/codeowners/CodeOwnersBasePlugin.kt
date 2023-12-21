@@ -52,8 +52,19 @@ open class CodeOwnersBasePlugin<Extension : CodeOwnersBaseExtension>(
         }
 
         afterEvaluate {
-            check(plugins.hasPlugin("io.github.gmazzo.codeowners.kotlin") || plugins.hasPlugin("io.github.gmazzo.codeowners.jvm")) {
-                "'io.github.gmazzo.codeowners' plugin is deprecated, use either 'io.github.gmazzo.codeowners.kotlin' or 'io.github.gmazzo.codeowners.jvm' instead"
+            val expectedPlugins = listOf(
+                "io.github.gmazzo.codeowners.jvm",
+                "io.github.gmazzo.codeowners.kotlin",
+                "io.github.gmazzo.codeowners.report",
+            )
+
+            check(expectedPlugins.any(plugins::hasPlugin)) {
+                expectedPlugins.joinToString(
+                    prefix = "'io.github.gmazzo.codeowners' plugin is deprecated, use either ",
+                    separator = " or ",
+                    postfix = " instead",
+                    transform = { "'$it'" }
+                )
             }
         }
     }
