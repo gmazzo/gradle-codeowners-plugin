@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 class CodeOwnersKotlinPlugin :
-    CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwnersExtension::class.java),
+    CodeOwnersBasePlugin<CodeOwnersKotlinExtension>(CodeOwnersKotlinExtension::class.java),
     KotlinCompilerPluginSupportPlugin {
 
     override fun apply(target: Project) {
@@ -41,7 +41,7 @@ class CodeOwnersKotlinPlugin :
     }
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> =
-        with(kotlinCompilation.project.the<CodeOwnersExtension>()) {
+        with(kotlinCompilation.project.the<CodeOwnersKotlinExtension>()) {
             rootDirectory.asFile.zip(codeOwnersFile.asFile, ::Pair).map { (root, file) ->
                 listOf(
                     SubpluginOption(ARG_CODEOWNERS_ROOT, root.absolutePath),
@@ -51,8 +51,8 @@ class CodeOwnersKotlinPlugin :
         }
 
     override fun Project.configure(
-        extension: CodeOwnersExtension,
-        parent: CodeOwnersExtension?,
+        extension: CodeOwnersKotlinExtension,
+        parent: CodeOwnersKotlinExtension?,
         defaultLocations: FileCollection
     ) {
         extension.enableRuntimeSupport
@@ -64,7 +64,7 @@ class CodeOwnersKotlinPlugin :
     }
 
     private fun Project.configureKotlinExtension(
-        extension: CodeOwnersExtension,
+        extension: CodeOwnersKotlinExtension,
     ) = plugins.withType<KotlinBasePlugin> {
         val reportTask = tasks.register<CodeOwnersReportTask>("processCodeOwners") {
             group = TASK_GROUP
@@ -91,7 +91,7 @@ class CodeOwnersKotlinPlugin :
                     codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.pathAsFileName}/$targetName.codeowners"))
                 }
 
-            val targetExtension = objects.newInstance<CodeOwnersCompilationExtension>()
+            val targetExtension = objects.newInstance<CodeOwnersKotlinCompilationExtension>()
                 .also(::codeOwners.setter)
 
             targetExtension.enabled
@@ -99,7 +99,7 @@ class CodeOwnersKotlinPlugin :
                 .finalizeValueOnRead()
 
             compilations.configureEach {
-                val compilationExtension = objects.newInstance<CodeOwnersCompilationExtension>()
+                val compilationExtension = objects.newInstance<CodeOwnersKotlinCompilationExtension>()
                     .also(::codeOwners.setter)
 
                 compilationExtension.enabled
@@ -123,7 +123,7 @@ class CodeOwnersKotlinPlugin :
     }
 
     private fun Project.addCodeDependency(
-        target: CodeOwnersCompilationExtension,
+        target: CodeOwnersKotlinCompilationExtension,
         configurationName: String,
     ) {
         dependencies.addProvider(

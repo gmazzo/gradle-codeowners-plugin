@@ -33,3 +33,4 @@ include(
     "demo-project-kotlin:lib2",
     "demo-project-kotlin:utils",
 )
+include("demo-project-tests")

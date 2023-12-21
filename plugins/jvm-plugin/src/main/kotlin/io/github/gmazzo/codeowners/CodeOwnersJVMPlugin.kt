@@ -41,7 +41,7 @@ import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
 import org.gradle.util.GradleVersion
 
-class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwnersExtension::class.java) {
+class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersJVMExtension>(CodeOwnersJVMExtension::class.java) {
 
     private companion object {
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
@@ -49,8 +49,8 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
     }
 
     override fun Project.configure(
-        extension: CodeOwnersExtension,
-        parent: CodeOwnersExtension?,
+        extension: CodeOwnersJVMExtension,
+        parent: CodeOwnersJVMExtension?,
         defaultLocations: FileCollection
     ) {
         GradleVersion.version("7.5").let { required ->
@@ -68,7 +68,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
         setupArtifactTransform(objects)
     }
 
-    private fun Project.configureExtension(extension: CodeOwnersExtension, parent: CodeOwnersExtension?) =
+    private fun Project.configureExtension(extension: CodeOwnersJVMExtension, parent: CodeOwnersJVMExtension?) =
         with(extension) {
             includes.finalizeValueOnRead()
             excludes.add("hilt_aggregated_deps/**")
@@ -86,7 +86,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
         }
 
     private fun Project.createSourceSets(
-        extension: CodeOwnersExtension,
+        extension: CodeOwnersJVMExtension,
         codeOwnersFile: Provider<CodeOwnersFile>,
     ) = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
         @Suppress("DEPRECATION")
@@ -118,7 +118,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
     }
 
     private fun Project.bindSourceSets(
-        extension: CodeOwnersExtension,
+        extension: CodeOwnersJVMExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("java-base") {
         the<SourceSetContainer>().configureEach {
@@ -141,7 +141,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
     }
 
     private fun Project.setupAndroidSupport(
-        extension: CodeOwnersExtension,
+        extension: CodeOwnersJVMExtension,
         sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
     ) = plugins.withId("com.android.base") {
         val androidComponents: AndroidComponentsExtension<*, *, *> by extensions
@@ -232,7 +232,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
     }
 
     private fun TaskProvider<out AbstractCopyTask>.addResources(
-        extension: CodeOwnersExtension,
+        extension: CodeOwnersJVMExtension,
         sources: CodeOwnersSourceSet
     ) = configure {
         from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
@@ -241,7 +241,7 @@ class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersExtension>(CodeOwners
     }
 
     private fun Project.addCodeDependency(
-        extension: CodeOwnersExtension,
+        extension: CodeOwnersJVMExtension,
         sourceSet: CodeOwnersSourceSet,
         configurationName: String,
     ) {
