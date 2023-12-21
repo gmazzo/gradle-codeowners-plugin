@@ -2,7 +2,7 @@ package io.github.gmazzo.codeowners
 
 import org.gradle.api.provider.Property
 
-interface CodeOwnersCompilationExtension {
+interface CodeOwnersKotlinCompilationExtension {
 
     /**
      * If it should compute the code owners for this compilation target

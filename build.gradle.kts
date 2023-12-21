@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.publicationsReport)
+    id("io.github.gmazzo.codeowners.jvm") apply false
+    id("io.github.gmazzo.codeowners.kotlin") apply false
 }
 
 val pluginsBuild = gradle.includedBuild("plugins")
