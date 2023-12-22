@@ -13,7 +13,13 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
 
 dependencies {
+    fun plugin(dep: Provider<PluginDependency>) = with(dep.get()) {
+        create("$pluginId:$pluginId.gradle.plugin:$version")
+    }
+
     compileOnly(gradleKotlinDsl())
+    compileOnly(plugin(libs.plugins.kotlin.jvm))
+    implementation(projects.matcher)
 }
 
 gradlePlugin {
@@ -23,8 +29,8 @@ gradlePlugin {
     plugins.create("codeOwners") {
         id = "io.github.gmazzo.codeowners"
         displayName = name
-        implementationClass = "io.github.gmazzo.codeowners.CodeOwnersBasePlugin"
-        description = "DEPRECATED: Use either `io.github.gmazzo.codeowners.kotlin` or `io.github.gmazzo.codeowners.jvm` instead"
+        implementationClass = "io.github.gmazzo.codeowners.CodeOwnersPlugin"
+        description = "Computes the codeowners of the project's classes"
         tags.addAll("codeowners", "ownership", "attribution")
     }
 }

@@ -3,7 +3,7 @@ package io.github.gmazzo.codeowners
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 
-interface CodeOwnersBaseExtension {
+interface CodeOwnersExtension {
 
      /**
       * The base path of the entries on the CODEOWNERS file

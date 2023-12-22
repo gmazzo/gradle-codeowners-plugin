@@ -2,7 +2,7 @@ package io.github.gmazzo.codeowners
 
 import org.gradle.api.provider.Property
 
-interface CodeOwnersJVMExtension : CodeOwnersBaseExtension, CodeOwnersConfig {
+interface CodeOwnersJVMExtension : CodeOwnersExtension, CodeOwnersConfig {
 
      /**
       * Where if code ownership info should be added as Java resources to be available at runtime.

@@ -2,7 +2,7 @@ package io.github.gmazzo.codeowners
 
 import org.gradle.api.provider.Property
 
-interface CodeOwnersKotlinExtension : CodeOwnersBaseExtension {
+interface CodeOwnersKotlinExtension : CodeOwnersExtension {
 
      /**
       * If Kotlin classes runtime available (accessed from [io.github.gmazzo.codeowners.codeOwnersOf] API).
