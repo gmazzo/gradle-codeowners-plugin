@@ -41,7 +41,7 @@ import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
 import org.gradle.util.GradleVersion
 
-class CodeOwnersJVMPlugin : CodeOwnersBasePlugin<CodeOwnersJVMExtension>(CodeOwnersJVMExtension::class.java) {
+class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJVMExtension::class.java) {
 
     private companion object {
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"

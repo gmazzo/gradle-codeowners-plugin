@@ -12,7 +12,6 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
@@ -25,11 +24,11 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 class CodeOwnersKotlinPlugin :
-    CodeOwnersBasePlugin<CodeOwnersKotlinExtension>(CodeOwnersKotlinExtension::class.java),
+    CodeOwnersPlugin<CodeOwnersKotlinExtension>(CodeOwnersKotlinExtension::class.java),
     KotlinCompilerPluginSupportPlugin {
 
     override fun apply(target: Project) {
-        super<CodeOwnersBasePlugin>.apply(target)
+        super<CodeOwnersPlugin>.apply(target)
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = true
@@ -66,31 +65,7 @@ class CodeOwnersKotlinPlugin :
     private fun Project.configureKotlinExtension(
         extension: CodeOwnersKotlinExtension,
     ) = plugins.withType<KotlinBasePlugin> {
-        val reportTask = tasks.register<CodeOwnersReportTask>("processCodeOwners") {
-            group = TASK_GROUP
-            description = "Process CODEOWNERS entries for all targets"
-
-            rootDirectory.set(extension.rootDirectory)
-            codeOwnersFile.set(extension.codeOwnersFile)
-            codeOwnersReportHeader.set("Generated CODEOWNERS file for module `${project.path}`, source set `$name`\n")
-            codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${pathAsFileName}.codeowners"))
-        }
-
-        fun KotlinTarget.configure(single: Boolean) {
-            val targetName = this@configure.name
-
-            val targetReportTask =
-                if (single) null
-                else tasks.register<CodeOwnersReportTask>("${targetName}CodeOwnersReport") {
-                    group = TASK_GROUP
-                    description = "Generates CODEOWNERS report for '$targetName' target"
-
-                    rootDirectory.set(extension.rootDirectory)
-                    codeOwnersFile.set(extension.codeOwnersFile)
-                    codeOwnersReportHeader.set("CodeOwners of '$targetName' of module '${project.path}'")
-                    codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.pathAsFileName}/$targetName.codeowners"))
-                }
-
+        fun KotlinTarget.configure() {
             val targetExtension = objects.newInstance<CodeOwnersKotlinCompilationExtension>()
                 .also(::codeOwners.setter)
 
@@ -107,18 +82,12 @@ class CodeOwnersKotlinPlugin :
                     .finalizeValueOnRead()
 
                 addCodeDependency(compilationExtension, defaultSourceSet.implementationConfigurationName)
-
-                listOfNotNull(reportTask, targetReportTask).forEach {
-                    it.configure {
-                        sources.from(allKotlinSourceSets.map { it.kotlin })
-                    }
-                }
             }
         }
 
         when (val kotlin = extensions.getByName("kotlin")) {
-            is KotlinSingleTargetExtension<*> -> kotlin.target.configure(single = true)
-            is KotlinTargetsContainer -> kotlin.targets.configureEach { configure(single = false) }
+            is KotlinSingleTargetExtension<*> -> kotlin.target.configure()
+            is KotlinTargetsContainer -> kotlin.targets.configureEach { configure() }
         }
     }
 
@@ -130,8 +99,5 @@ class CodeOwnersKotlinPlugin :
             configurationName,
             target.enabled.map { if (it) CORE_DEPENDENCY else files() })
     }
-
-    private val Project.pathAsFileName
-        get() = path.removePrefix(":").replace(':', '-')
 
 }
