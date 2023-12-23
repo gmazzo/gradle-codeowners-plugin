@@ -8,18 +8,12 @@ import io.github.gmazzo.codeowners.BuildConfig.COMPILER_DEPENDENCY
 import io.github.gmazzo.codeowners.BuildConfig.COMPILER_PLUGIN_ID
 import io.github.gmazzo.codeowners.BuildConfig.CORE_DEPENDENCY
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.the
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
@@ -49,50 +43,29 @@ class CodeOwnersKotlinPlugin :
             }
         }
 
-    override fun Project.configure(
-        extension: CodeOwnersKotlinExtension,
-        parent: CodeOwnersKotlinExtension?,
-        defaultLocations: FileCollection
-    ) {
-        extension.enableRuntimeSupport
-            .valueIfNotNull(parent?.enableRuntimeSupport)
-            .convention(true)
-            .finalizeValueOnRead()
-
-        configureKotlinExtension(extension)
-    }
-
-    private fun Project.configureKotlinExtension(
-        extension: CodeOwnersKotlinExtension,
-    ) = plugins.withType<KotlinBasePlugin> {
-        fun KotlinTarget.configure() {
-            val targetExtension = objects.newInstance<CodeOwnersKotlinCompilationExtension>()
-                .also(::codeOwners.setter)
+    override fun Project.configureExtension(extension: CodeOwnersKotlinExtension) =
+        KotlinSupport(this).configureTargets target@{
+            val targetExtension = objects.newInstance<CodeOwnersKotlinTargetExtension>()
+            this@target.codeOwners = targetExtension
 
             targetExtension.enabled
-                .convention(extension.enableRuntimeSupport)
+                .convention(true)
                 .finalizeValueOnRead()
 
-            compilations.configureEach {
-                val compilationExtension = objects.newInstance<CodeOwnersKotlinCompilationExtension>()
-                    .also(::codeOwners.setter)
+            compilations.configureEach compilation@{
+                val sourceSet = extension.sourceSets.maybeCreate(name)
+                 this@compilation.codeOwners = sourceSet
 
-                compilationExtension.enabled
+                sourceSet.enabled
                     .convention(targetExtension.enabled)
                     .finalizeValueOnRead()
 
-                addCodeDependency(compilationExtension, defaultSourceSet.implementationConfigurationName)
+                addCodeDependency(sourceSet, defaultSourceSet.implementationConfigurationName)
             }
         }
 
-        when (val kotlin = extensions.getByName("kotlin")) {
-            is KotlinSingleTargetExtension<*> -> kotlin.target.configure()
-            is KotlinTargetsContainer -> kotlin.targets.configureEach { configure() }
-        }
-    }
-
     private fun Project.addCodeDependency(
-        target: CodeOwnersKotlinCompilationExtension,
+        target: CodeOwnersKotlinTargetExtension,
         configurationName: String,
     ) {
         dependencies.addProvider(

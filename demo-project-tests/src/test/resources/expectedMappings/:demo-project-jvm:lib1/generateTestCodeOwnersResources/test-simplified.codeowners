@@ -1,4 +1,0 @@
-# Generated CODEOWNERS file for module ':demo-project-jvm:lib1', source set 'test'
-
-org/test/lib/       libs-devs
-org/test/utils/     utils-devs

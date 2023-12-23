@@ -58,21 +58,17 @@ abstract class CodeOwnersTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val transitiveCodeOwners: ConfigurableFileCollection
 
-    @get:Input
-    @get:Optional
-    abstract val mappedCodeOwnersFileHeader: Property<String>
-
     @get:Optional
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
     @get:Optional
     @get:OutputFile
-    abstract val mappedCodeOwnersFile: RegularFileProperty
+    abstract val rawMappedCodeOwnersFile: RegularFileProperty
 
     @get:Optional
     @get:OutputFile
-    abstract val rawMappedCodeOwnersFile: RegularFileProperty
+    abstract val simplifiedMappedCodeOwnersFile: RegularFileProperty
 
     init {
         outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
@@ -138,11 +134,10 @@ abstract class CodeOwnersTask : DefaultTask() {
     private fun writeCodeOwnersInfo(ownership: MutableMap<String, Entry>) {
         val resourcesDir = outputDirectory.orNull?.apply { asFile.deleteRecursively() }
         val rawFile = rawMappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }
-        val simplifiedFile = mappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }
+        val simplifiedFile = simplifiedMappedCodeOwnersFile.asFile.orNull?.apply { parentFile.mkdirs() }
 
-        val header = listOfNotNull(mappedCodeOwnersFileHeader.orNull?.let(CodeOwnersFile::Comment))
-        val rawEntries = LinkedList<CodeOwnersFile.Part>(header)
-        val simplifiedEntries = LinkedList<CodeOwnersFile.Part>(header)
+        val rawEntries = LinkedList<CodeOwnersFile.Part>()
+        val simplifiedEntries = LinkedList<CodeOwnersFile.Part>()
 
         val rawHelper = RedundancyHelper(ownership, simplified = false)
         val simplifiedHelper = RedundancyHelper(ownership, simplified = true)

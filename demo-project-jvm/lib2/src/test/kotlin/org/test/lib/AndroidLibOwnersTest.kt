@@ -8,6 +8,11 @@ import kotlin.test.assertEquals
 class AndroidLibOwnersTest {
 
     @Test
+    fun ownerOfSelf() {
+        assertEquals(setOf("test-devs"), codeOwnersOf<AndroidLibOwnersTest>())
+    }
+
+    @Test
     fun ownerOfAndroidLib() {
         assertEquals(setOf("libs-devs"), codeOwnersOf<AndroidLibUtils>())
         assertEquals(setOf("libs-devs"), codeOwnersOf<AndroidLibUtils.Impl>())

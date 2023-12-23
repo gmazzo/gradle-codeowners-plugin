@@ -9,6 +9,11 @@ import kotlin.test.assertEquals
 class LibOwnersTest {
 
     @Test
+    fun ownerOfSelf() {
+        assertEquals(setOf("libs-devs"), LibOwnersTest::class.java.codeOwners)
+    }
+
+    @Test
     fun ownerOfLib() {
         assertEquals(setOf("libs-devs"), LibClass::class.java.codeOwners)
     }

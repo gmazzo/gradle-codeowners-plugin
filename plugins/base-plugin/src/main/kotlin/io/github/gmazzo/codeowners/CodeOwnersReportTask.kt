@@ -37,8 +37,9 @@ abstract class CodeOwnersReportTask : DefaultTask() {
      * [Incorrect use of the `@Input` annotation](https://docs.gradle.org/7.6/userguide/validation_problems.html#incorrect_use_of_input_annotation)
      */
     @get:Input
-    internal val rootDirectoryPath =
-        rootDirectory.map { it.asFile.toRelativeString(project.rootDir) }
+    internal val rootDirectoryPath = project.rootDir.let { rootDir ->
+        rootDirectory.map { it.asFile.toRelativeString(rootDir) }
+    }
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)

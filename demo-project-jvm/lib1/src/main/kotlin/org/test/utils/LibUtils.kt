@@ -1,4 +1,5 @@
 package org.test.utils
 
-object LibUtils {
-}
+import org.test.utils.more.MoreUtils
+
+object LibUtils : MoreUtils()

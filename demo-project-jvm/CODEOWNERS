@@ -1,3 +1,4 @@
-/app    app-devs
-/lib*   libs-devs
-/utils  utils-devs
+/app        app-devs
+/lib*       libs-devs
+/utils      utils-devs
+**Test.*    test-devs

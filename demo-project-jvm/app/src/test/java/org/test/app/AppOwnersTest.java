@@ -18,6 +18,11 @@ import static kotlin.collections.SetsKt.setOf;
 public class AppOwnersTest {
 
     @Test
+    public void ownerOfSelf() {
+        assertEquals(BuildConfig.DEBUG ? setOf("test-devs") : null, getCodeOwners(AppOwnersTest.class));
+    }
+
+    @Test
     public void ownerOfApp() {
         assertEquals(BuildConfig.DEBUG ? setOf("app-devs") : null, getCodeOwners(AppClass.class));
     }

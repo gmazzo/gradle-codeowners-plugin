@@ -1,8 +1,12 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    java
     id("io.github.gmazzo.codeowners.jvm")
 }
 
 dependencies {
-    testImplementation(libs.kotlin.test)
+    testImplementation(platform(libs.junit.bom))
+}
+
+testing.suites.withType<JvmTestSuite>().configureEach {
+    useJUnitJupiter()
 }
