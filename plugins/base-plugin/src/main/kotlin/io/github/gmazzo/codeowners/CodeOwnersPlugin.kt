@@ -9,19 +9,20 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
-import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
+import javax.inject.Inject
 
 open class CodeOwnersPlugin<Extension : CodeOwnersExtension>(
-    @Suppress("UNCHECKED_CAST")
-    private val extensionClass: Class<out Extension> = CodeOwnersExtension::class.java as Class<Extension>,
+    private val extensionClass: Class<out Extension>,
 ) : Plugin<Project> {
 
     companion object {
         const val TASK_GROUP = "CodeOwners"
     }
+
+    @Inject
+    @Suppress("UNCHECKED_CAST")
+    constructor() : this(CodeOwnersExtension::class.java as Class<Extension>)
 
     open fun Project.configure(extension: Extension, parent: Extension?, defaultLocations: FileCollection) {}
 
@@ -72,8 +73,13 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension>(
                 }
             }
 
+            // TODO add android support
             when {
-                extensions.findByName("kotlin") != null -> configureReportTasksByKotlinTargets(extension, reportAllTask)
+                extensions.findByName("kotlin") != null -> configureReportTasksByKotlinTargets(
+                    extension,
+                    reportAllTask
+                )
+
                 plugins.hasPlugin("java-base") -> configureReportTasksByJavaSourceSets(extension, reportAllTask)
             }
         }
@@ -90,22 +96,16 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension>(
     private fun Project.configureReportTasksByKotlinTargets(
         extension: Extension,
         reportAllTask: TaskProvider<CodeOwnersReportTask>,
-    ) {
-        fun KotlinTarget.configureReports() {
-            val reportTask = createReportTask(name, "target", extension)
+    ) = KotlinSupport(this).configureTargets {
+        val reportTask = createReportTask(name, "target", extension)
 
-            compilations.configureEach {
-                sequenceOf(reportAllTask, reportTask).forEach {
-                    it.configure {
-                        sources.from(allKotlinSourceSets.map(KotlinSourceSet::kotlin))
-                    }
+        compilations.configureEach {
+            sequenceOf(reportAllTask, reportTask).forEach {
+                it.configure {
+                    sources.from(allKotlinSourceSets.map(KotlinSourceSet::kotlin))
+                    classes.from(output.classesDirs)
                 }
             }
-        }
-
-        when (val kotlin = extensions.findByName("kotlin")) {
-            is KotlinSingleTargetExtension<*> -> kotlin.target.configureReports()
-            is KotlinTargetsContainer -> kotlin.targets.configureEach(KotlinTarget::configureReports)
         }
     }
 
@@ -118,7 +118,9 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension>(
 
             sequenceOf(reportAllTask, reportTask).forEach {
                 it.configure {
+                    // TODO add android support
                     sources.from(allJava.sourceDirectories)
+                    classes.from(output.classesDirs)
                 }
             }
         }
