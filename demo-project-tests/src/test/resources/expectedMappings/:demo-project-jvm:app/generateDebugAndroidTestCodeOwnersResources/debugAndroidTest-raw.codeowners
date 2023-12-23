@@ -1,4 +1,0 @@
-# Generated CODEOWNERS file for module ':demo-project-jvm:app', source set 'debugAndroidTest'
-
-org/test/app/test/                  app-devs
-org/test/app/test/BuildConfig       app-devs

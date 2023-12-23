@@ -1,3 +1,4 @@
+import io.github.gmazzo.codeowners.CodeOwnersReportTask
 import io.github.gmazzo.codeowners.CodeOwnersTask
 
 // This should not be considered part of the demo project
@@ -10,11 +11,10 @@ plugins {
 dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.kotlin.test)
-    testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
-tasks.test {
-    useJUnitPlatform()
+testing.suites.withType<JvmTestSuite>().configureEach {
+    useJUnitJupiter()
 }
 
 val collectSources = copySpec()
@@ -25,12 +25,18 @@ val collectTask = tasks.register<Sync>("collectMappings") {
 
 rootProject.allprojects project@{
     tasks.withType<CodeOwnersTask>().all task@{
-        collectSources.from(files(mappedCodeOwnersFile, rawMappedCodeOwnersFile)) {
-            into("actualMappings/${project.path}/$name")
+        collectSources.from(files(simplifiedMappedCodeOwnersFile, rawMappedCodeOwnersFile)) {
+            into("actualMappings/${project.path}")
         }
     }
 }
 
 sourceSets.test {
     resources.srcDirs(collectTask)
+}
+
+tasks.check {
+    rootProject.allprojects {
+        dependsOn(tasks.withType<CodeOwnersReportTask>())
+    }
 }

@@ -2,12 +2,11 @@
 
 package io.github.gmazzo.codeowners
 
-import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Component
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasUnitTest
+import io.github.gmazzo.codeowners.CodeOwnersInspectDependencies.DependenciesMode
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
@@ -20,7 +19,6 @@ import org.gradle.api.attributes.HasConfigurableAttributes
 import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
-import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.AbstractCopyTask
@@ -29,17 +27,13 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.domainObjectContainer
+import org.gradle.kotlin.dsl.generateTask
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
-import org.gradle.util.GradleVersion
 
 class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJVMExtension::class.java) {
 
@@ -48,85 +42,58 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
         private const val ARTIFACT_TYPE_ANDROID_JAVA_RES = "android-java-res"
     }
 
-    override fun Project.configure(
-        extension: CodeOwnersJVMExtension,
-        parent: CodeOwnersJVMExtension?,
-        defaultLocations: FileCollection
-    ) {
-        GradleVersion.version("7.5").let { required ->
-            check(GradleVersion.current() >= required) {
-                "`io.github.gmazzo.codeowners.jvm` plugin requires $required or higher"
-            }
-        }
-
-        configureExtension(extension, parent)
+    override fun Project.configureExtension(extension: CodeOwnersJVMExtension) {
         val codeOwners = extension.codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } }
-        val sourceSets = createSourceSets(extension, codeOwners)
 
-        bindSourceSets(extension, sourceSets)
-        setupAndroidSupport(extension, sourceSets)
+        extension.inspectDependencies
+            .convention(DependenciesMode.LOCAL_PROJECTS)
+            .finalizeValueOnRead()
+
+        extension.addCodeOwnershipAsResources
+            .convention(true)
+            .finalizeValueOnRead()
+
+        configureSourceSets(extension, codeOwners)
         setupArtifactTransform(objects)
     }
 
-    private fun Project.configureExtension(extension: CodeOwnersJVMExtension, parent: CodeOwnersJVMExtension?) =
-        with(extension) {
-            includes.finalizeValueOnRead()
-            excludes.add("hilt_aggregated_deps/**")
-            excludes.finalizeValueOnRead()
-
-            inspectDependencies
-                .valueIfNotNull(parent?.inspectDependencies)
-                .convention(CodeOwnersConfig.DependenciesMode.LOCAL_PROJECTS)
-                .finalizeValueOnRead()
-
-            addCodeOwnershipAsResources
-                .valueIfNotNull(parent?.addCodeOwnershipAsResources)
-                .convention(true)
-                .finalizeValueOnRead()
-        }
-
-    private fun Project.createSourceSets(
+    private fun Project.configureSourceSets(
         extension: CodeOwnersJVMExtension,
         codeOwnersFile: Provider<CodeOwnersFile>,
-    ) = objects.domainObjectContainer(CodeOwnersSourceSet::class) { name ->
+    ) = extension.sourceSets.configureEach ss@{
+
+        enabled
+            .convention(true)
+            .finalizeValueOnRead()
+
+        inspectDependencies
+            .convention(extension.inspectDependencies)
+            .finalizeValueOnRead()
+
         @Suppress("DEPRECATION")
         val prefix = when (name) {
             SourceSet.MAIN_SOURCE_SET_NAME -> ""
             else -> name.capitalize()
         }
 
-        val generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
+        generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
             group = TASK_GROUP
-            description = "Process CODEOWNERS entries for source set '$name'"
+            description = "Process CODEOWNERS entries for source set '${this@ss.name}'"
 
+            sources.from(this@ss.sources)
             codeOwners.set(codeOwnersFile)
             rootDirectory.set(extension.rootDirectory)
-            outputDirectory.set(layout.buildDirectory.dir("codeOwners/resources/$name"))
-            mappedCodeOwnersFileHeader.set("Generated CODEOWNERS file for module '${project.path}', source set '$name'\n")
-            mappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/$name-simplified.codeowners"))
-            rawMappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/$name-raw.codeowners"))
-        }
-
-        objects.newInstance<CodeOwnersSourceSetImpl>(name, generateTask).apply {
-            enabled.convention(true).finalizeValueOnRead()
-            includes.addAll(extension.includes)
-            includes.finalizeValueOnRead()
-            excludes.addAll(extension.excludes)
-            excludes.finalizeValueOnRead()
-            inspectDependencies.convention(extension.inspectDependencies).finalizeValueOnRead()
+            outputDirectory.set(layout.buildDirectory.dir("codeOwners/resources/${this@ss.name}"))
+            rawMappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/${this@ss.name}-raw.codeowners"))
+            simplifiedMappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/${this@ss.name}-simplified.codeowners"))
         }
     }
 
-    private fun Project.bindSourceSets(
-        extension: CodeOwnersJVMExtension,
-        sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
-    ) = plugins.withId("java-base") {
-        the<SourceSetContainer>().configureEach {
-            val sourceSet = sourceSets.maybeCreate(name)
+    override fun Project.configureBySourceSet(extension: CodeOwnersJVMExtension) {
+        the<SourceSetContainer>().configureEach ss@{
+            val sourceSet = extension.sourceSets.maybeCreate(this@ss.name)
 
             sourceSet.generateTask {
-                // will contain srcDirs of groovy, kotlin, etc. too
-                sources.from(filteredSourceFiles(sourceSet, provider { allJava.srcDirs }))
                 addDependencies(objects, sourceSet, configurations[runtimeClasspathConfigurationName])
             }
             addCodeDependency(extension, sourceSet, implementationConfigurationName)
@@ -135,24 +102,22 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
                 addOutgoingVariant(sourceSet, configurations[runtimeClasspathConfigurationName])
             }
 
-            extensions.add(CodeOwnersSourceSet::class.java, Component::codeOwners.name, sourceSet)
+            this@ss.extensions.add(CodeOwnersJVMSourceSet::class.java, Component::codeOwners.name, sourceSet)
             tasks.named<AbstractCopyTask>(processResourcesTaskName).addResources(extension, sourceSet)
         }
     }
 
-    private fun Project.setupAndroidSupport(
-        extension: CodeOwnersJVMExtension,
-        sourceSets: NamedDomainObjectContainer<CodeOwnersSourceSet>,
-    ) = plugins.withId("com.android.base") {
-        val androidComponents: AndroidComponentsExtension<*, *, *> by extensions
+    override fun Project.configureByAndroidVariants(extension: CodeOwnersJVMExtension) {
+        plugins.withId("com.android.base") {
 
         fun bind(
             component: Component,
-            defaultsTo: CodeOwnersSourceSet? = null,
-        ): CodeOwnersSourceSet {
-            val sourceSet = sourceSets.maybeCreate(component.name).also(component::codeOwners.setter)
+            defaultsTo: CodeOwnersJVMSourceSet? = null,
+        ): CodeOwnersJVMSourceSet {
+            val sourceSet = extension.sourceSets.maybeCreate(component.name)
+            component.codeOwners = sourceSet
             sourceSet.generateTask {
-                sources.from(filteredSourceFiles(sourceSet, component.sources.java?.all, component.sources.kotlin?.all))
+                sources.from(component.sources.java?.all, component.sources.kotlin?.all)
                 addDependencies(objects, sourceSet, component.runtimeConfiguration)
             }
             addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
@@ -171,15 +136,16 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
             return sourceSet
         }
 
-        androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+        AndroidSupport(project).configureVariants {
+            val variant = this@configureVariants
             variant.packaging.resources.merges.add("**/*.codeowners")
 
-            val sources = bind(variant)
+            val sourceSet = bind(variant)
 
-            (variant as? HasUnitTest)?.unitTest?.let { bind(component = it, defaultsTo = sources) }
-            (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sources) }
+            (variant as? HasUnitTest)?.unitTest?.let { bind(component = it, defaultsTo = sourceSet) }
+            (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sourceSet) }
 
-            addOutgoingVariant(sources, variant.runtimeConfiguration).configure {
+            addOutgoingVariant(sourceSet, variant.runtimeConfiguration).configure {
                 val attrs = variant.runtimeConfiguration.attributes
 
                 // copies variant attributes
@@ -193,24 +159,16 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
                 }
             }
         }
-    }
-
-    private fun Project.filteredSourceFiles(
-        sourceSet: CodeOwnersSourceSet,
-        vararg files: Provider<*>?,
-    ) = files(files).asFileTree.matching {
-        includes += sourceSet.includes.get()
-        excludes += sourceSet.excludes.get()
-    }
+    }}
 
     private fun CodeOwnersTask.addDependencies(
         objects: ObjectFactory,
-        sourceSet: CodeOwnersSourceSet,
+        sourceSet: CodeOwnersJVMSourceSet,
         configuration: Configuration,
     ) {
         val mode = sourceSet.inspectDependencies.get()
 
-        if (mode != CodeOwnersConfig.DependenciesMode.NONE) {
+        if (mode != DependenciesMode.NONE) {
             transitiveCodeOwners.from(configuration.incoming.artifactView {
                 /**
                  * [configuration] is `runtimeClasspath`, and we want to allow the `codeowners` outgoing variant to be picked
@@ -224,7 +182,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
                     attribute(ARTIFACT_TYPE_ATTRIBUTE, ARTIFACT_TYPE_CODEOWNERS)
                 }
 
-                if (mode == CodeOwnersConfig.DependenciesMode.LOCAL_PROJECTS) {
+                if (mode == DependenciesMode.LOCAL_PROJECTS) {
                     componentFilter { it is ProjectComponentIdentifier }
                 }
             }.files)
@@ -233,7 +191,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
 
     private fun TaskProvider<out AbstractCopyTask>.addResources(
         extension: CodeOwnersJVMExtension,
-        sources: CodeOwnersSourceSet
+        sources: CodeOwnersJVMSourceSet
     ) = configure {
         from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
             if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else emptyList<Any>()
@@ -242,7 +200,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
 
     private fun Project.addCodeDependency(
         extension: CodeOwnersJVMExtension,
-        sourceSet: CodeOwnersSourceSet,
+        sourceSet: CodeOwnersJVMSourceSet,
         configurationName: String,
     ) {
         dependencies.add(
@@ -252,7 +210,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
     }
 
     private fun Project.addOutgoingVariant(
-        sourceSet: CodeOwnersSourceSet,
+        sourceSet: CodeOwnersJVMSourceSet,
         base: Configuration,
     ) = configurations.register("${sourceSet.name}CodeOwnersElements") {
         isCanBeResolved = false

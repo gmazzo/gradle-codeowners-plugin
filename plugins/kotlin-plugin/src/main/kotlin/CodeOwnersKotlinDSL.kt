@@ -1,14 +1,15 @@
 package org.gradle.kotlin.dsl
 
-import io.github.gmazzo.codeowners.CodeOwnersKotlinCompilationExtension
+import io.github.gmazzo.codeowners.CodeOwnersKotlinSourceSet
+import io.github.gmazzo.codeowners.CodeOwnersKotlinTargetExtension
 import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
-var KotlinTarget.codeOwners: CodeOwnersKotlinCompilationExtension
-    get() = (this as ExtensionAware).extensions.getByName<CodeOwnersKotlinCompilationExtension>(KotlinTarget::codeOwners.name)
-    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinCompilationExtension>(KotlinTarget::codeOwners.name, value)
+var KotlinTarget.codeOwners: CodeOwnersKotlinTargetExtension
+    get() = (this as ExtensionAware).extensions.getByName<CodeOwnersKotlinTargetExtension>(KotlinTarget::codeOwners.name)
+    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinTargetExtension>(KotlinTarget::codeOwners.name, value)
 
-var KotlinCompilation<*>.codeOwners: CodeOwnersKotlinCompilationExtension
-    get() = (this as ExtensionAware).extensions.getByName<CodeOwnersKotlinCompilationExtension>(KotlinCompilation<*>::codeOwners.name)
-    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinCompilationExtension>(KotlinCompilation<*>::codeOwners.name, value)
+var KotlinCompilation<*>.codeOwners: CodeOwnersKotlinSourceSet
+    get() = (this as ExtensionAware).extensions.getByName<CodeOwnersKotlinSourceSet>(KotlinCompilation<*>::codeOwners.name)
+    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinSourceSet>(KotlinCompilation<*>::codeOwners.name, value)

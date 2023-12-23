@@ -13,10 +13,12 @@ class KotlinSupport(private val project: Project) {
 
     val kotlin: KotlinProjectExtension by project.extensions
 
-    fun configureTargets(action: KotlinTarget.() -> Unit) = project.plugins.withType<KotlinBasePlugin> {
-        when (val kotlin = kotlin) {
-            is KotlinSingleTargetExtension<*> -> action(kotlin.target)
-            is KotlinTargetsContainer -> kotlin.targets.configureEach(action::invoke)
+    fun configureTargets(action: KotlinTarget.() -> Unit) {
+        project.plugins.withType<KotlinBasePlugin> {
+            when (val kotlin = kotlin) {
+                is KotlinSingleTargetExtension<*> -> action(kotlin.target)
+                is KotlinTargetsContainer -> kotlin.targets.configureEach(action::invoke)
+            }
         }
     }
 
