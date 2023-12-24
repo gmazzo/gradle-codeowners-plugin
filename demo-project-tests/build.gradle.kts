@@ -1,5 +1,5 @@
 import io.github.gmazzo.codeowners.CodeOwnersReportTask
-import io.github.gmazzo.codeowners.CodeOwnersTask
+import io.github.gmazzo.codeowners.CodeOwnersResourcesTask
 
 // This should not be considered part of the demo project
 // It was added to be able to create test tasks for the generated mapping files
@@ -24,7 +24,7 @@ val collectTask = tasks.register<Sync>("collectTaskOutputs") {
 }
 
 rootProject.allprojects project@{
-    tasks.withType<CodeOwnersTask>().all task@{
+    tasks.withType<CodeOwnersResourcesTask>().all task@{
         collectTaskOutputs.from(files(simplifiedMappedCodeOwnersFile, rawMappedCodeOwnersFile)) {
             into("actualMappings/${project.path}")
         }

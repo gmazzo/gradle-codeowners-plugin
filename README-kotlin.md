@@ -85,7 +85,7 @@ androidComponents.onVariants {
 ```
 
 ## Consuming the generated `mappedCodeOwnersFile`
-Each `CodeOwnersTask` produces a .CODEOWNERS like file which translates build directories to Java packages (in folder format, not '.').
+Each `CodeOwnersResourcesTask` produces a .CODEOWNERS like file which translates build directories to Java packages (in folder format, not '.').
 
 To explain this better, given a `.CODEOWNERS` file:
 ```
