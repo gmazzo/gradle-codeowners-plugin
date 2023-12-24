@@ -163,7 +163,7 @@ class CodeOwnersJVMPluginTest {
     )
 
     private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, Set<String>>, expectedMappings: String) {
-        tasks.withType<CodeOwnersTask>().all { generateCodeOwnersInfo() }
+        tasks.withType<CodeOwnersResourcesTask>().all { generateCodeOwnersInfo() }
 
         val actualInfos = layout.buildDirectory.dir("codeOwners/resources/main").get().let { dir ->
             check(dir.asFile.isDirectory) { "'${dir.asFile}' is not a directory" }

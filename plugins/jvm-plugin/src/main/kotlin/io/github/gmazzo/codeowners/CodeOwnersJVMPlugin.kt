@@ -76,7 +76,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
             else -> name.capitalize()
         }
 
-        generateTask = tasks.register<CodeOwnersTask>("generate${prefix}CodeOwnersResources") {
+        generateTask = tasks.register<CodeOwnersResourcesTask>("generate${prefix}CodeOwnersResources") {
             group = TASK_GROUP
             description = "Process CODEOWNERS entries for source set '${this@ss.name}'"
 
@@ -160,7 +160,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
         }
     }}
 
-    private fun CodeOwnersTask.addDependencies(
+    private fun CodeOwnersResourcesTask.addDependencies(
         objects: ObjectFactory,
         sourceSet: CodeOwnersJVMSourceSet,
         configuration: Configuration,
@@ -193,7 +193,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
         sources: CodeOwnersJVMSourceSet
     ) = configure {
         from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
-            if (it) sources.generateTask.map(CodeOwnersTask::outputDirectory) else emptyList<Any>()
+            if (it) sources.generateTask.map(CodeOwnersResourcesTask::outputDirectory) else emptyList<Any>()
         })
     }
 

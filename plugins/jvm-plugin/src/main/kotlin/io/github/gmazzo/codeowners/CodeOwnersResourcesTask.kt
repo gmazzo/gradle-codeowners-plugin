@@ -27,7 +27,7 @@ import java.util.TreeSet
 
 @CacheableTask
 @Suppress("LeakingThis")
-abstract class CodeOwnersTask : DefaultTask() {
+abstract class CodeOwnersResourcesTask : DefaultTask() {
 
     @get:Internal
     abstract val rootDirectory: DirectoryProperty
