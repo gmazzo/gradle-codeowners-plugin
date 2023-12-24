@@ -62,9 +62,9 @@ gradlePlugin {
 buildConfig {
     useKotlinOutput { internalVisibility = true }
     packageName = "io.github.gmazzo.codeowners"
-    buildConfigField("String", "CORE_DEPENDENCY", projects.jvmCore.dependencyProject
+    buildConfigField("CORE_DEPENDENCY", projects.jvmCore.dependencyProject
         .publishing.publications.named<MavenPublication>("java").map {
-            "\"${it.groupId}:${it.artifactId}:${it.version}\""
+            "${it.groupId}:${it.artifactId}:${it.version}"
         }
     )
 }

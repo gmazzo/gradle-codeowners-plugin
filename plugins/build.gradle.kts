@@ -26,7 +26,7 @@ allprojects {
 
         jacocoTasks.configureEach {
             reports.xml.required = true
-    }
+        }
 
         tasks.check {
             dependsOn(jacocoTasks)

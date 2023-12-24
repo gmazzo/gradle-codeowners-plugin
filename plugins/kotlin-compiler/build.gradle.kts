@@ -7,7 +7,11 @@ plugins {
 
 description = "CodeOwners Kotlin Compiler Plugin"
 
-buildConfig.packageName = "io.github.gmazzo.codeowners.compiler"
+buildConfig {
+    packageName = "io.github.gmazzo.codeowners.compiler"
+
+    buildConfigField("EXPECTED_KOTLIN_VERSION", libs.kotlin.plugin.compiler.api.map { it.version!! })
+}
 
 dependencies {
     compileOnly(libs.kotlin.plugin.compiler.api)
