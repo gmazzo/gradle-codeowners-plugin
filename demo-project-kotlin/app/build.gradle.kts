@@ -31,7 +31,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.test.app"
+    namespace = "org.test.kotlin.app"
     compileSdk = 30
     buildFeatures.buildConfig = true
 
