@@ -12,6 +12,7 @@ import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.register
@@ -50,8 +51,18 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
 
         val extension = extensions.create("codeOwners", extensionClass)
 
+        val reportAllTask = tasks.register<CodeOwnersReportTask>("codeOwnersReport") {
+            group = TASK_GROUP
+            description = "Generates CODEOWNERS report for all classes of this project"
+
+            rootDirectory.set(extension.rootDirectory)
+            codeOwnersFile.set(extension.codeOwnersFile)
+            codeOwnersReportHeader.set("CodeOwners of module '${project.path}'\n")
+            codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}.codeowners"))
+        }
+
         configureExtensionInternal(extension)
-        configureSourceSets(extension)
+        configureSourceSets(extension, reportAllTask)
         configureExtension(extension)
 
         // configures collaborating plugin's specifics
@@ -64,7 +75,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
             configureByKotlinTargets(extension)
         }
         plugins.withId("com.android.base") {
-            configureByAndroidVariantsInternal(extension)
+            configureByAndroidVariantsInternal(extension, reportAllTask)
             configureByAndroidVariants(extension)
         }
     }
@@ -103,25 +114,17 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
             .finalizeValueOnRead()
     }
 
-    private fun Project.configureSourceSets(extension: Extension) {
-        val reportAllTask by lazy {
-            tasks.register<CodeOwnersReportTask>("codeOwnersReport") {
-                group = TASK_GROUP
-                description = "Generates CODEOWNERS report for all classes of this project"
-
-                rootDirectory.set(extension.rootDirectory)
-                codeOwnersFile.set(extension.codeOwnersFile)
-                codeOwnersReportHeader.set("CodeOwners of module '${project.path}'\n")
-                codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}.codeowners"))
-            }
-        }
-
+    private fun Project.configureSourceSets(
+        extension: Extension,
+        reportAllTask: TaskProvider<CodeOwnersReportTask>,
+    ) {
         extension.sourceSets.configureEach ss@{
             check(name.isNotBlank()) { "Source set name cannot be empty" }
 
             reportAllTask.configure {
                 sources.from(this@ss.sources)
                 classes.from(this@ss.classes)
+                mappings.from(this@ss.mappings)
             }
 
             reportTask = tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.capitalized()}Report") {
@@ -130,6 +133,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
 
                 sources.from(this@ss.sources)
                 classes.from(this@ss.classes)
+                mappings.from(this@ss.mappings)
                 rootDirectory.set(extension.rootDirectory)
                 codeOwnersFile.set(extension.codeOwnersFile)
                 codeOwnersReportHeader.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
@@ -158,7 +162,10 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
             }
         }
 
-    private fun Project.configureByAndroidVariantsInternal(extension: Extension) = with(AndroidSupport(project)) {
+    private fun Project.configureByAndroidVariantsInternal(
+        extension: Extension,
+        reportAllTask: TaskProvider<CodeOwnersReportTask>,
+    ) = with(AndroidSupport(project)) {
         configureComponents {
             val kotlinAwareSourceSetName =
                 if (plugins.hasPlugin("org.jetbrains.kotlin.multiplatform"))
@@ -173,6 +180,10 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
 
             sourceSet.sources.from(sources.java?.all, sources.kotlin?.all)
             sourceSet.classes.from(classes, jars)
+
+            artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
+                .use(reportAllTask)
+                .toGet(ScopedArtifact.CLASSES, { classes }, { jars })
 
             artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
                 .use(sourceSet.reportTask)

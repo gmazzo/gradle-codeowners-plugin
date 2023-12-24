@@ -8,5 +8,6 @@ org/test/kotlin/app/AppOwnersTest                                               
 org/test/kotlin/app/AppOwnersTest$ownerFromExceptionStacktrace$exception$1$1        app-devs
 org/test/kotlin/app/BuildConfig                                                     app-devs
 org/test/kotlin/app/RethrowKt                                                       app-devs
+org/test/kotlin/app/RethrowUtils                                                    app-devs
 org/test/kotlin/app/test/BuildConfig                                                app-devs
 org/test/kotlin/utils/AppUtils                                                      app-devs

@@ -13,7 +13,6 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.reportTask
 import org.gradle.kotlin.dsl.the
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
@@ -72,9 +71,7 @@ class CodeOwnersKotlinPlugin :
                         .convention(targetExtension.enabled)
                         .finalizeValueOnRead()
 
-                    sourceSet.reportTask.configure {
-                        mappings.from(outputMappingsFile)
-                    }
+                    sourceSet.mappings.from(outputMappingsFile)
 
                     addCodeDependency(sourceSet.enabled, defaultSourceSet.implementationConfigurationName)
                 }

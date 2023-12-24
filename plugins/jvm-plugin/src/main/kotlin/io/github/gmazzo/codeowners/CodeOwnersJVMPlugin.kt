@@ -117,7 +117,6 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
             val sourceSet = extension.sourceSets.maybeCreate(component.name)
             component.codeOwners = sourceSet
             sourceSet.generateTask {
-                sources.from(component.sources.java?.all, component.sources.kotlin?.all)
                 addDependencies(objects, sourceSet, component.runtimeConfiguration)
             }
             addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
