@@ -21,6 +21,15 @@ nexusPublishing {
 allprojects {
     group = "io.github.gmazzo.codeowners"
 
+    plugins.withId("jvm-test-suite") {
+        the<TestingExtension>().suites.withType<JvmTestSuite> {
+            useKotlinTest(libs.versions.kotlin)
+            dependencies {
+                implementation(platform(libs.junit.bom))
+            }
+        }
+    }
+
     plugins.withId("jacoco") {
         val jacocoTasks = tasks.withType<JacocoReport>()
 

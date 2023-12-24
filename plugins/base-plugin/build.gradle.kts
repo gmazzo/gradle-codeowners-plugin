@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
+    `java-test-fixtures`
+    `plugin-compatibility-test`
     `maven-central-publish`
     jacoco
 }
@@ -24,8 +26,9 @@ dependencies {
     implementation(projects.matcher)
     implementation(libs.apache.bcel)
 
-    testImplementation(gradleTestKit())
-    testImplementation(libs.kotlin.test)
+    testFixturesImplementation(gradleTestKit())
+    testFixturesApi(platform(libs.junit.bom))
+    testFixturesApi("org.junit.jupiter:junit-jupiter-params")
 }
 
 gradlePlugin {
@@ -39,10 +42,6 @@ gradlePlugin {
         description = "Computes the codeowners of the project's classes"
         tags.addAll("codeowners", "ownership", "attribution")
     }
-}
-
-tasks.test {
-    workingDir(temporaryDir)
 }
 
 // makes sure to publish to mavenCentral first, before doing it to Plugins Portal

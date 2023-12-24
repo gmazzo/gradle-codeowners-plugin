@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
     com.github.gmazzo.buildconfig
+    `plugin-compatibility-test`
     `maven-central-publish`
     jacoco
 }
@@ -28,22 +29,16 @@ dependencies {
     implementation(projects.matcher)
 
     testImplementation(gradleKotlinDsl())
+    testImplementation(testFixtures(projects.basePlugin))
+
     testRuntimeOnly(plugin(libs.plugins.kotlin.jvm))
 
     pluginUnderTestImplementation(plugin(libs.plugins.android.application))
     pluginUnderTestImplementation(plugin(libs.plugins.kotlin.jvm))
 }
 
-testing.suites.withType<JvmTestSuite> {
-    useKotlinTest(libs.versions.kotlin)
-    dependencies {
-        implementation(platform(libs.junit.bom))
-    }
-    targets.all {
-        testTask {
-            workingDir(provider { temporaryDir })
-        }
-    }
+tasks.test {
+    workingDir(temporaryDir)
 }
 
 gradlePlugin {

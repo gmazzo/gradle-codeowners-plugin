@@ -49,6 +49,12 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     abstract val sources: ConfigurableFileCollection
 
     @get:InputFiles
+    @get:IgnoreEmptyDirectories
+    @get:SkipWhenEmpty
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    internal val sourcesFiles = sources.asFileTree
+
+    @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val classes: ConfigurableFileCollection
 
