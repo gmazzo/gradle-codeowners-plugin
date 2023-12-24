@@ -2,6 +2,7 @@ package io.github.gmazzo.codeowners
 
 import com.android.build.api.artifact.ScopedArtifact
 import com.android.build.api.variant.ScopedArtifacts
+import io.github.gmazzo.codeowners.KotlinSupport.Companion.codeOwnersSourceSetName
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -11,12 +12,16 @@ import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.reportTask
 import org.gradle.kotlin.dsl.the
+import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import javax.inject.Inject
 
 open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
@@ -107,7 +112,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 rootDirectory.set(extension.rootDirectory)
                 codeOwnersFile.set(extension.codeOwnersFile)
                 codeOwnersReportHeader.set("CodeOwners of module '${project.path}'\n")
-                codeOwnersReportFile.set(layout.buildDirectory.file("reports/${project.name}.codeowners"))
+                codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}.codeowners"))
             }
         }
 
@@ -128,7 +133,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 rootDirectory.set(extension.rootDirectory)
                 codeOwnersFile.set(extension.codeOwnersFile)
                 codeOwnersReportHeader.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
-                codeOwnersReportFile.set(layout.buildDirectory.file("reports/${project.name}-${this@ss.name}.codeowners"))
+                codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}-${this@ss.name}.codeowners"))
             }
         }
     }
@@ -143,17 +148,26 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
 
     private fun Project.configureByKotlinTargetsInternal(extension: Extension) =
         KotlinSupport(this).configureTargets {
-            compilations.configureEach {
-                val sourceSet = extension.sourceSets.maybeCreate(name)
+            if (this !is KotlinMetadataTarget) {
+                compilations.configureEach {
+                    val sourceSet = extension.sourceSets.maybeCreate(codeOwnersSourceSetName)
 
-                sourceSet.sources.from(allKotlinSourceSets.map(KotlinSourceSet::kotlin))
-                sourceSet.classes.from(output.classesDirs)
+                    sourceSet.sources.from(provider { allKotlinSourceSets.map { it.kotlin.sourceDirectories } })
+                    sourceSet.classes.from(output.classesDirs)
+                }
             }
         }
 
-    private fun Project.configureByAndroidVariantsInternal(extension: Extension) =
-        AndroidSupport(project).configureComponents {
-            val sourceSet = extension.sourceSets.maybeCreate(name)
+    private fun Project.configureByAndroidVariantsInternal(extension: Extension) = with(AndroidSupport(project)) {
+        configureComponents {
+            val kotlinAwareSourceSetName =
+                if (plugins.hasPlugin("org.jetbrains.kotlin.multiplatform"))
+                    the<KotlinTargetsContainer>()
+                        .targets.withType<KotlinAndroidTarget>()
+                        .firstOrNull()?.name?.let { "${it}${name.capitalized()}" }
+                else null
+
+            val sourceSet = extension.sourceSets.maybeCreate(kotlinAwareSourceSetName ?: name)
             val classes = objects.listProperty<RegularFile>()
             val jars = objects.listProperty<Directory>()
 
@@ -164,6 +178,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 .use(sourceSet.reportTask)
                 .toGet(ScopedArtifact.CLASSES, { classes }, { jars })
         }
+    }
 
     private val Project.pathAsFileName
         get() = path.removePrefix(":").replace(':', '-')

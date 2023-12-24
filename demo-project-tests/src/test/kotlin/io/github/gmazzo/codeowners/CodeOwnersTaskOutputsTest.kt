@@ -9,16 +9,27 @@ import java.io.File
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CodeOwnersTaskMappingsTest {
+class CodeOwnersTaskOutputsTest {
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("mappings")
-    fun `verify generated mappings matches the expected one`(path: String, expected: File?, actual: File?) {
+    @MethodSource("collectMappings")
+    fun `verify CodeOwnersTask output`(path: String, expected: File?, actual: File?) {
         assertEquals(expected?.readText(), actual?.readText(),
             "Generated mappings for '$path' do not match the expected one")
     }
 
-    private fun mappings(): Collection<Arguments> {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("collectReports")
+    fun `verify CodeOwnersReportTask output`(path: String, expected: File?, actual: File?) {
+        assertEquals(expected?.readText(), actual?.readText(),
+            "Generated report for '$path' do not match the expected one")
+    }
+
+    private fun collectMappings() = collect("Mappings")
+
+    private fun collectReports() = collect("Reports")
+
+    private fun collect(type: String): Collection<Arguments> {
         val mappings = sortedMapOf<String, Array<File?>>()
 
         fun collectFromResources(baseResourceDir: String, mapper: (acc: Array<File?>, it: File) -> Unit) {
@@ -35,8 +46,8 @@ class CodeOwnersTaskMappingsTest {
             }
         }
 
-        collectFromResources("/expectedMappings") { acc, it -> acc[0] = it }
-        collectFromResources("/actualMappings") { acc, it -> acc[1] = it }
+        collectFromResources("/expected$type") { acc, it -> acc[0] = it }
+        collectFromResources("/actual$type") { acc, it -> acc[1] = it }
         return mappings.map { (path, files) -> arguments(path, *files) }
     }
 

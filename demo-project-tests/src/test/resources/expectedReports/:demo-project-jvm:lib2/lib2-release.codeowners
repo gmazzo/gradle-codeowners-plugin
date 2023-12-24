@@ -1,0 +1,4 @@
+# CodeOwners of module ':demo-project-jvm:lib2' (source set 'release')
+
+org/test/jvm/utils/AndroidLibUtils          libs-devs
+org/test/jvm/utils/AndroidLibUtils$Impl     libs-devs

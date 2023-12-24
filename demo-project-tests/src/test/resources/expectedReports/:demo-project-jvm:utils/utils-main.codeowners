@@ -1,0 +1,5 @@
+# CodeOwners of module ':demo-project-jvm:utils' (source set 'main')
+
+org/test/jvm/utils/Utils                        utils-devs
+org/test/jvm/utils/more/MoreUtils               utils-devs
+org/test/jvm/utils/more/MoreUtils$Companion     utils-devs

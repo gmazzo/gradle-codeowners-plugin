@@ -1,0 +1,4 @@
+# CodeOwners of module ':demo-project-kotlin:lib1' (source set 'main')
+
+org/test/kotlin/lib/LibClass        libs-devs
+org/test/kotlin/utils/LibUtils      libs-devs

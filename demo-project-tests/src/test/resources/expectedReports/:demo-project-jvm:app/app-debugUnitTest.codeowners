@@ -1,0 +1,3 @@
+# CodeOwners of module ':demo-project-jvm:app' (source set 'debugUnitTest')
+
+org/test/jvm/app/AppOwnersTest      test-devs

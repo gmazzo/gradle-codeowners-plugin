@@ -1,0 +1,12 @@
+# CodeOwners of module ':demo-project-kotlin:app'
+
+org/test/kotlin/app/AppClass                                                        app-devs
+org/test/kotlin/app/AppException                                                    app-devs
+org/test/kotlin/app/AppOwnersJVMTest                                                app-devs
+org/test/kotlin/app/AppOwnersJVMTest$ownerOfUtilFunctions$1                         app-devs
+org/test/kotlin/app/AppOwnersTest                                                   app-devs
+org/test/kotlin/app/AppOwnersTest$ownerFromExceptionStacktrace$exception$1$1        app-devs
+org/test/kotlin/app/BuildConfig                                                     app-devs
+org/test/kotlin/app/RethrowKt                                                       app-devs
+org/test/kotlin/app/test/BuildConfig                                                app-devs
+org/test/kotlin/utils/AppUtils                                                      app-devs

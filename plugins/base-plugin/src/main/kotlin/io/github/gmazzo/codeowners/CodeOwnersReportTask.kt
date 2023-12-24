@@ -23,6 +23,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.util.TreeMap
 
 @CacheableTask
 @Suppress("LeakingThis")
@@ -63,6 +64,11 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     @get:SkipWhenEmpty
     internal val classesFiles: FileTree = classes.asFileTree
 
+    @get:InputFiles
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val mappings: ConfigurableFileCollection
+
     @get:Input
     @get:Optional
     abstract val codeOwnersReportHeader: Property<String>
@@ -75,6 +81,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
         val sourceEntries = resolveCodeOwnersOfSourceFiles()
         val classEntries = expandCodeOwnersFromFilesToClasses(sourceEntries)
 
+        collectFromExternalMappings(classEntries)
         generateCodeOwnersFile(classEntries)
     }
 
@@ -101,7 +108,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     private fun expandCodeOwnersFromFilesToClasses(
         sourceEntries: Map<String, MutableSet<String>>,
     ): MutableMap<String, MutableSet<String>> {
-        val classEntries = mutableMapOf<String, MutableSet<String>>()
+        val classEntries = TreeMap<String, MutableSet<String>>()
         val repository = ClassPathRepository(ClassPath(classes.asPath))
 
         classesFiles.matching { include("**/*.class") }.visit {
@@ -116,6 +123,14 @@ abstract class CodeOwnersReportTask : DefaultTask() {
         }
         return classEntries
     }
+
+    private fun collectFromExternalMappings(entries: MutableMap<String, MutableSet<String>>) = mappings
+        .asFileTree.asSequence()
+        .flatMap { file -> file.useLines { CodeOwnersFile(it) }.entries }
+        .filterIsInstance<CodeOwnersFile.Entry>()
+        .forEach {
+            entries.computeIfAbsent(it.pattern) { mutableSetOf() }.addAll(it.owners)
+        }
 
     private fun generateCodeOwnersFile(entries: MutableMap<String, MutableSet<String>>) {
         val header = listOfNotNull(codeOwnersReportHeader.orNull?.let(CodeOwnersFile::Comment))

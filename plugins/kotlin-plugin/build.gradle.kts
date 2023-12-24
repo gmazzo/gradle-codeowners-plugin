@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
-    `build-constants`
+    `compiler-arguments`
     `maven-central-publish`
     jacoco
 }
