@@ -124,7 +124,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 classes.from(this@ss.classes)
             }
 
-            reportTask = tasks.register<CodeOwnersReportTask>("${this@ss.name}CodeOwnersReport") {
+            reportTask = tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.capitalized()}Report") {
                 group = TASK_GROUP
                 description = "Generates CODEOWNERS report for '${this@ss.name}'"
 
