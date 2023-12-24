@@ -65,11 +65,11 @@ gradlePlugin {
 }
 
 buildConfig {
-    fun ProjectDependency.dependencyNotation() = "\"${group}:${name}:${version}\""
+    fun ProjectDependency.dependencyNotation() = "${group}:${name}:${version}"
 
     packageName = "io.github.gmazzo.codeowners"
-    buildConfigField("String", "CORE_DEPENDENCY", projects.kotlinCore.dependencyNotation())
-    buildConfigField("String", "COMPILER_DEPENDENCY", projects.kotlinCompiler.dependencyNotation())
+    buildConfigField("CORE_DEPENDENCY", projects.kotlinCore.dependencyNotation())
+    buildConfigField("COMPILER_DEPENDENCY", projects.kotlinCompiler.dependencyNotation())
 }
 
 tasks.pluginUnderTestMetadata {
