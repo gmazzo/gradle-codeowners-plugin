@@ -1,2 +1,2 @@
-org/test/utils/                     utils-devs
-org/test/utils/UtilsOwnersTest      test-devs
+org/test/jvm/utils/                     utils-devs
+org/test/jvm/utils/UtilsOwnersTest      test-devs

@@ -1,4 +1,4 @@
-org/test/utils/                     utils-devs
-org/test/utils/Utils                utils-devs
-org/test/utils/more/                utils-devs
-org/test/utils/more/MoreUtils       utils-devs
+org/test/jvm/utils/                     utils-devs
+org/test/jvm/utils/Utils                utils-devs
+org/test/jvm/utils/more/                utils-devs
+org/test/jvm/utils/more/MoreUtils       utils-devs

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "org.test.lib2"
+    namespace = "org.test.jvm.lib2"
     compileSdk = 30
     buildFeatures.buildConfig = false
 
