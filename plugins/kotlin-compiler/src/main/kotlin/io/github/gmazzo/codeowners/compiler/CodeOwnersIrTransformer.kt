@@ -1,8 +1,12 @@
 package io.github.gmazzo.codeowners.compiler
 
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.jvm.ir.getKtFile
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
+import org.jetbrains.kotlin.ir.IrElementBase
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.utils.nameWithoutExtension
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
@@ -12,6 +16,7 @@ import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.createBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrVararg
@@ -29,6 +34,7 @@ import org.jetbrains.kotlin.ir.types.starProjectedType
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.addChild
+import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.createImplicitParameterDeclarationWithWrappedDescriptor
 import org.jetbrains.kotlin.ir.util.fileOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
@@ -38,9 +44,11 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.isJs
 import org.jetbrains.kotlin.platform.konan.isNative
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName.byClassId
 
 internal class CodeOwnersIrTransformer(
     private val context: IrPluginContext,
+    private val mappings: MutableMap<String, MutableSet<String>>?,
 ) : IrElementTransformer<Set<String>> {
 
     private val isJS = context.platform?.isJs() == true
@@ -70,6 +78,12 @@ internal class CodeOwnersIrTransformer(
         fileCodeOwnersProviders.clear()
     }
 
+    override fun visitSimpleFunction(declaration: IrSimpleFunction, data: Set<String>): IrStatement {
+        (declaration.parent as? IrFile)?.exportMapping(data)
+
+        return super.visitFunction(declaration, data)
+    }
+
     override fun visitClass(declaration: IrClass, data: Set<String>) = declaration.apply {
         val ownersValue = addAnnotation(data)
 
@@ -81,6 +95,7 @@ internal class CodeOwnersIrTransformer(
             }
         }
 
+        exportMapping(data)
         super.visitClass(declaration, data)
     }
 
@@ -184,6 +199,20 @@ internal class CodeOwnersIrTransformer(
                 )
             )
         }
+    }
+
+    private fun IrElementBase.exportMapping(owners: Set<String>) {
+        if (mappings != null) {
+            val name = jvmName() ?: return
+
+            mappings.computeIfAbsent(name) { mutableSetOf() }.addAll(owners)
+        }
+    }
+
+    private fun IrElementBase.jvmName(): String? = when (this) {
+        is IrFile -> getKtFile()?.let(JvmFileClassUtil::getFileClassInternalName)
+        is IrClass -> classId?.let(::byClassId)?.internalName
+        else -> null
     }
 
 }

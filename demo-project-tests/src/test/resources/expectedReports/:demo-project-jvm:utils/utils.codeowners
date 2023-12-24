@@ -1,0 +1,6 @@
+# CodeOwners of module ':demo-project-jvm:utils'
+
+org/test/jvm/utils/Utils                        utils-devs
+org/test/jvm/utils/UtilsOwnersTest              test-devs
+org/test/jvm/utils/more/MoreUtils               utils-devs
+org/test/jvm/utils/more/MoreUtils$Companion     utils-devs

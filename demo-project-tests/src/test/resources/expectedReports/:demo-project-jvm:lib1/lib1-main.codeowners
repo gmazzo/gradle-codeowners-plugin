@@ -1,0 +1,4 @@
+# CodeOwners of module ':demo-project-jvm:lib1' (source set 'main')
+
+org/test/jvm/lib/LibClass       libs-devs
+org/test/jvm/utils/LibUtils     libs-devs

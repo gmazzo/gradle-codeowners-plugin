@@ -1,0 +1,7 @@
+# CodeOwners of module ':demo-project-kotlin:utils'
+
+org/test/kotlin/utils/RethrowKt                     utils-devs
+org/test/kotlin/utils/Utils                         utils-devs
+org/test/kotlin/utils/UtilsOwnersTest               utils-devs
+org/test/kotlin/utils/more/MoreUtils                utils-devs
+org/test/kotlin/utils/more/MoreUtils$Companion      utils-devs

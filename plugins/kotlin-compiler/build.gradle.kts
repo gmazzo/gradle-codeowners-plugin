@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    `build-constants`
+    `compiler-arguments`
     `jvm-convention-module`
     `embedded-dependencies`
 }

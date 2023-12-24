@@ -17,16 +17,21 @@ testing.suites.withType<JvmTestSuite>().configureEach {
     useJUnitJupiter()
 }
 
-val collectSources = copySpec()
-val collectTask = tasks.register<Sync>("collectMappings") {
-    with(collectSources)
+val collectTaskOutputs = copySpec()
+val collectTask = tasks.register<Sync>("collectTaskOutputs") {
+    with(collectTaskOutputs)
     into(temporaryDir)
 }
 
 rootProject.allprojects project@{
     tasks.withType<CodeOwnersTask>().all task@{
-        collectSources.from(files(simplifiedMappedCodeOwnersFile, rawMappedCodeOwnersFile)) {
+        collectTaskOutputs.from(files(simplifiedMappedCodeOwnersFile, rawMappedCodeOwnersFile)) {
             into("actualMappings/${project.path}")
+        }
+    }
+    tasks.withType<CodeOwnersReportTask>().all task@{
+        collectTaskOutputs.from(codeOwnersReportFile) {
+            into("actualReports/${project.path}")
         }
     }
 }
