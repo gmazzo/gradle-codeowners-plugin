@@ -16,6 +16,13 @@ interface CodeOwnersExtension<SourceSet : CodeOwnersSourceSet> {
       */
      val codeOwnersFile : RegularFileProperty
 
+     /**
+      * The collecting of CodeOwners source sets.
+      * This is usually a mirror of:
+      * - [SourceSet]s for Java projects
+      * - [com.android.build.api.variant.Component]s variants (include test and androidTest) for Android projects
+      * - [org.jetbrains.kotlin.gradle.plugin.KotlinCompilation]s for Kotlin projects
+      */
      val sourceSets : NamedDomainObjectContainer<SourceSet>
 
 }
