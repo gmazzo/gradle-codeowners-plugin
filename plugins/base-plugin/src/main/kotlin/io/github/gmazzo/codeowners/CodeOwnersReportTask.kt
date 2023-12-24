@@ -7,7 +7,6 @@ import org.apache.bcel.util.ClassPathRepository
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
@@ -51,23 +50,18 @@ abstract class CodeOwnersReportTask : DefaultTask() {
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    @get:IgnoreEmptyDirectories
-    @get:SkipWhenEmpty
-    internal val sourcesFiles: FileTree = sources.asFileTree
-
-    @get:Internal
     abstract val classes: ConfigurableFileCollection
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    @get:IgnoreEmptyDirectories
-    @get:SkipWhenEmpty
-    internal val classesFiles: FileTree = classes.asFileTree
-
-    @get:InputFiles
     @get:Optional
+    @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val mappings: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:IgnoreEmptyDirectories
+    @get:SkipWhenEmpty
+    @get:PathSensitive(PathSensitivity.NONE)
+    internal val anyClass = classes.asFileTree + mappings.asFileTree
 
     @get:Input
     @get:Optional
@@ -87,19 +81,17 @@ abstract class CodeOwnersReportTask : DefaultTask() {
 
     private fun resolveCodeOwnersOfSourceFiles(): MutableMap<String, MutableSet<String>> {
         val root = rootDirectory.asFile.get()
-        val matcher = CodeOwnersMatcher(
-            root,
-            codeOwnersFile.asFile.get().useLines { CodeOwnersFile(it) }
-        )
+        val matcher = CodeOwnersMatcher(root, codeOwnersFile.asFile.get().useLines { CodeOwnersFile(it) })
         val entries = mutableMapOf<String, MutableSet<String>>()
 
-        sourcesFiles.visit {
+        sources.asFileTree.visit {
             if (!isDirectory) {
                 val owners = matcher.ownerOf(file, isDirectory)
 
                 if (owners != null) {
                     entries.computeIfAbsent(path) { mutableSetOf() }.addAll(owners)
                 }
+                logger.info("File '{}' owners: {}", path, owners)
             }
         }
         return entries
@@ -111,7 +103,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
         val classEntries = TreeMap<String, MutableSet<String>>()
         val repository = ClassPathRepository(ClassPath(classes.asPath))
 
-        classesFiles.matching { include("**/*.class") }.visit {
+        classes.asFileTree.matching { include("**/*.class") }.visit {
             if (!isDirectory) {
                 val className = path.removeSuffix(".class").replace('/', '.')
                 val javaClass = repository.loadClass(className)
@@ -119,18 +111,24 @@ abstract class CodeOwnersReportTask : DefaultTask() {
                 val entryPath = javaClass.className.replace('.', File.separatorChar)
 
                 classEntries.computeIfAbsent(entryPath) { mutableSetOf() }.addAll(owners)
+                logger.info("Class '{}' (of file '{}') owners: {}", className, javaClass.sourceFilePath, owners)
             }
         }
         return classEntries
     }
 
-    private fun collectFromExternalMappings(entries: MutableMap<String, MutableSet<String>>) = mappings
-        .asFileTree.asSequence()
-        .flatMap { file -> file.useLines { CodeOwnersFile(it) }.entries }
-        .filterIsInstance<CodeOwnersFile.Entry>()
-        .forEach {
-            entries.computeIfAbsent(it.pattern) { mutableSetOf() }.addAll(it.owners)
-        }
+    private fun collectFromExternalMappings(
+        entries: MutableMap<String, MutableSet<String>>
+    ) = mappings.asFileTree.forEach { file ->
+        file.useLines { CodeOwnersFile(it) }
+            .entries
+            .filterIsInstance<CodeOwnersFile.Entry>()
+            .forEach {
+                entries.computeIfAbsent(it.pattern) { mutableSetOf() }.addAll(it.owners)
+
+                logger.info("Class '{}' (from mapping file '{}') owners: {}", it.pattern, file.path, it.owners)
+            }
+    }
 
     private fun generateCodeOwnersFile(entries: MutableMap<String, MutableSet<String>>) {
         val header = listOfNotNull(codeOwnersReportHeader.orNull?.let(CodeOwnersFile::Comment))

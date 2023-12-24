@@ -9,4 +9,6 @@ interface CodeOwnersSourceSet : Named {
 
      val classes : ConfigurableFileCollection
 
+     val mappings : ConfigurableFileCollection
+
 }
