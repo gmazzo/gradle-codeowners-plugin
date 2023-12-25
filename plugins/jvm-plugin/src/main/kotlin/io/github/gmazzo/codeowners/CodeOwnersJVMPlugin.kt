@@ -49,7 +49,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
             .convention(DependenciesMode.LOCAL_PROJECTS)
             .finalizeValueOnRead()
 
-        extension.addCodeOwnershipAsResources
+        extension.enabled
             .convention(true)
             .finalizeValueOnRead()
 
@@ -192,7 +192,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
         extension: CodeOwnersJVMExtension,
         sources: CodeOwnersJVMSourceSet
     ) = configure {
-        from(extension.addCodeOwnershipAsResources.and(sources.enabled).map {
+        from(extension.enabled.and(sources.enabled).map {
             if (it) sources.generateTask.map(CodeOwnersResourcesTask::outputDirectory) else emptyList<Any>()
         })
     }
@@ -204,7 +204,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
     ) {
         dependencies.add(
             configurationName,
-            extension.addCodeOwnershipAsResources.and(sourceSet.enabled)
+            extension.enabled.and(sourceSet.enabled)
                 .map { if (it) BuildConfig.CORE_DEPENDENCY else files() })
     }
 
