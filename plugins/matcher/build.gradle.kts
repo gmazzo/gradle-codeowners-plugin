@@ -9,5 +9,5 @@ description = "CodeOwners Kotlin Compiler Parser"
 dependencies {
     implementation(libs.jgit)
 
-    testImplementation(libs.kotlin.test)
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
