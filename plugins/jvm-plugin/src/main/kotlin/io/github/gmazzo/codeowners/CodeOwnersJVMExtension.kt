@@ -6,10 +6,7 @@ interface CodeOwnersJVMExtension : CodeOwnersExtension<CodeOwnersJVMSourceSet>, 
 
      /**
       * Where if code ownership info should be added as Java resources to be available at runtime.
-      *
-      * Turn this feature off to avoid polluting your production code, but keep in mind
-      * [io.github.gmazzo.codeowners.codeOwnersOf] API won't work without it.
       */
-     val addCodeOwnershipAsResources: Property<Boolean>
+     val enabled: Property<Boolean>
 
 }
