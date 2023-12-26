@@ -18,11 +18,6 @@ if (signingKey != null && signingPassword != null) {
     publishing.publications.configureEach {
         signing.sign(this)
     }
-
-} else {
-    check(System.getenv("CI") == null) {
-        "Can't sign artifacts because `signingKey` and/or `signingPassword` are missing"
-    }
 }
 
 plugins.withId("java") {

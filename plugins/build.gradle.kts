@@ -43,12 +43,6 @@ allprojects {
         }
     }
 
-    plugins.withId("maven-publish") {
-        the<PublishingExtension>().repositories {
-            maven(layout.buildDirectory.dir("repo")) { name = "Local" }
-        }
-    }
-
 }
 
 tasks.build {
