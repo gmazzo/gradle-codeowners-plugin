@@ -1,3 +1,5 @@
+import org.jetbrains.dokka.gradle.DokkaTask
+
 plugins {
     `maven-publish`
     org.jetbrains.dokka
@@ -9,13 +11,18 @@ val signingPassword: String? by project
 if (signingKey != null && signingPassword != null) {
     apply(plugin = "signing")
 
-    configure<SigningExtension> {
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(the<PublishingExtension>().publications)
+    val signing: SigningExtension by extensions
+
+    signing.useInMemoryPgpKeys(signingKey, signingPassword)
+
+    publishing.publications.configureEach {
+        signing.sign(this)
     }
 
 } else {
-    logger.warn("Artifact signing disabled due lack of signing properties `signingKey` and `signingPassword`")
+    check(System.getenv("CI") == null) {
+        "Can't sign artifacts because `signingKey` and/or `signingPassword` are missing"
+    }
 }
 
 plugins.withId("java") {
@@ -29,7 +36,7 @@ plugins.withId("java") {
     }
 }
 
-tasks.dokkaJavadoc {
+tasks.withType<DokkaTask>().configureEach {
     notCompatibleWithConfigurationCache("uses Task.project") // TODO dokka is not compatible with CC yet
 }
 
@@ -37,22 +44,14 @@ publishing.publications.withType<MavenPublication>().configureEach {
     setupMandatoryPOMAttributes()
 }
 
-val sonatypeRelease = rootProject.tasks.named("closeAndReleaseSonatypeStagingRepository")
-
-sonatypeRelease {
-    // TODO workaround of "Task ':kotlin-core:publishIosArm64PublicationToSonatypeRepository' uses this output of
-    //  task ':kotlin-core:signIosSimulatorArm64Publication' without declaring an explicit or implicit dependency."
-    mustRunAfter(tasks.withType<AbstractPublishToMaven>())
-}
-
 tasks.publish {
     dependsOn("publishToSonatype")
-    mustRunAfter(sonatypeRelease)
+    mustRunAfter(":closeAndReleaseSonatypeStagingRepository")
 }
 
 // makes sure stage repository is closed and release after publishing to it
 tasks.named("publishToSonatype") {
-    finalizedBy(sonatypeRelease)
+    finalizedBy(":closeAndReleaseSonatypeStagingRepository")
 }
 
 fun MavenPublication.setupMandatoryPOMAttributes() {

@@ -1,4 +1,4 @@
-import org.jetbrains.dokka.gradle.DokkaTask
+import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 
@@ -24,20 +24,18 @@ dependencies {
     commonTestImplementation(platform(libs.junit.bom))
 }
 
-val javadocJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("javadoc")
-    from(tasks.dokkaHtml)
-}
-
 kotlin.targets.configureEach target@{
+
+    val javadocTask = tasks.register<Jar>("javadoc${this@target.name.capitalized()}") {
+        archiveClassifier = "$disambiguationClassifier-javadoc"
+        from(tasks.dokkaHtml)
+    }
+
     mavenPublication {
-        artifact(javadocJar)
+        artifact(javadocTask)
     }
 }
 
-tasks.withType<DokkaTask>().configureEach {
-    notCompatibleWithConfigurationCache("uses Task.project")
-}
 tasks.withType<KotlinJsIrLink>().configureEach {
     notCompatibleWithConfigurationCache("uses Task.project")
 }

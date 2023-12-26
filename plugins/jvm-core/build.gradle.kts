@@ -12,7 +12,3 @@ components.named<AdhocComponentWithVariants>("java") {
     withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
     withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
 }
-
-publishing.repositories {
-    maven(layout.buildDirectory.dir("repo")) { name = "Local" }
-}
