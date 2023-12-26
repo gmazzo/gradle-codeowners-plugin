@@ -1,17 +1,11 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    `jvm-convention-module`
     `java-test-fixtures`
-    `maven-central-publish`
     jacoco
 }
 
-description = "CodeOwners Library"
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
-
-publishing.publications {
-    create<MavenPublication>("java") { from(components["java"]) }
-}
+description = "CodeOwners JVM Library"
 
 // disables testFixtures artifact publication
 components.named<AdhocComponentWithVariants>("java") {

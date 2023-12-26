@@ -10,7 +10,7 @@ plugins {
     jacoco
 }
 
-description = "CodeOwners Gradle Plugin"
+description = "CodeOwners JVM Gradle Plugin"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 

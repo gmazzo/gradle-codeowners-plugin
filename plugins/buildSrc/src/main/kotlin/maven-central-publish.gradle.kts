@@ -53,30 +53,31 @@ fun MavenPublication.setupMandatoryPOMAttributes() {
             .exec { commandLine("git", "remote", "get-url", "origin") }
             .standardOutput
             .asText
+            .map(String::trim)
 
-        name.set("${rootProject.name}-${project.name}")
-        description.set(project.description)
-        url.set(origin)
+        name = "${rootProject.name}-${project.name}"
+        description = provider { project.description }
+        url = origin
 
         licenses {
             license {
-                name.set("MIT License")
-                url.set("https://opensource.org/license/mit/")
+                name = "MIT License"
+                url = "https://opensource.org/license/mit/"
             }
         }
 
         developers {
             developer {
-                id.set("gmazzo")
-                name.set(id)
-                email.set("gmazzo65@gmail.com")
+                id = "gmazzo"
+                name = id
+                email = "gmazzo65@gmail.com"
             }
         }
 
         scm {
-            connection.set(origin)
-            developerConnection.set(origin)
-            url.set(origin)
+            connection = origin
+            developerConnection = origin
+            url = origin
         }
 
     }

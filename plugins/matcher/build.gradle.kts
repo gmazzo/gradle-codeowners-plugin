@@ -4,7 +4,7 @@ plugins {
     `embedded-dependencies`
 }
 
-description = "CodeOwners Kotlin Compiler Parser"
+description = "CodeOwners Matcher Library"
 
 dependencies {
     implementation(libs.jgit)

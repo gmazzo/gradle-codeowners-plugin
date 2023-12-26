@@ -4,9 +4,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     `jvm-convention-module`
+    `maven-central-publish`
 }
 
-description = "CodeOwners Library"
+description = "CodeOwners Kotlin Library"
 
 kotlin {
     jvm()
