@@ -37,18 +37,22 @@ publishing.publications.withType<MavenPublication>().configureEach {
     setupMandatoryPOMAttributes()
 }
 
+val sonatypeRelease = rootProject.tasks.named("closeAndReleaseSonatypeStagingRepository")
+
+sonatypeRelease {
+    // TODO workaround of "Task ':kotlin-core:publishIosArm64PublicationToSonatypeRepository' uses this output of
+    //  task ':kotlin-core:signIosSimulatorArm64Publication' without declaring an explicit or implicit dependency."
+    mustRunAfter(tasks.withType<AbstractPublishToMaven>())
+}
+
 tasks.publish {
     dependsOn("publishToSonatype")
-    mustRunAfter(":closeAndReleaseSonatypeStagingRepository")
+    mustRunAfter(sonatypeRelease)
 }
 
 // makes sure stage repository is closed and release after publishing to it
 tasks.named("publishToSonatype") {
-    finalizedBy(":closeAndReleaseSonatypeStagingRepository")
-}
-
-rootProject.tasks.named("closeAndReleaseSonatypeStagingRepository") {
-    mustRunAfter(tasks.withType<AbstractPublishToMaven>())
+    finalizedBy(sonatypeRelease)
 }
 
 fun MavenPublication.setupMandatoryPOMAttributes() {
