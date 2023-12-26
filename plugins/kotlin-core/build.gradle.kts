@@ -24,16 +24,14 @@ dependencies {
     commonTestImplementation(platform(libs.junit.bom))
 }
 
-kotlin.targets.configureEach target@{
-
-    val javadocTask = tasks.register<Jar>("javadoc${this@target.name.capitalized()}") {
-        archiveClassifier = "$disambiguationClassifier-javadoc"
+publishing.publications.withType<MavenPublication>().configureEach pub@{
+    val javadocTask = tasks.register<Jar>("javadoc${this@pub.name.capitalized()}") {
+        archiveBaseName = "${project.name}-${this@pub.name}"
+        archiveClassifier = "javadoc"
         from(tasks.dokkaHtml)
     }
 
-    mavenPublication {
-        artifact(javadocTask)
-    }
+    artifact(javadocTask)
 }
 
 tasks.withType<KotlinJsIrLink>().configureEach {
