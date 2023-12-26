@@ -2,6 +2,7 @@
 
 package io.github.gmazzo.codeowners.compiler
 
+import io.github.gmazzo.codeowners.compiler.BuildConfig.COMPILER_PLUGIN_ID
 import io.github.gmazzo.codeowners.compiler.CodeOwnersConfigurationKeys.CODEOWNERS_FILE
 import io.github.gmazzo.codeowners.compiler.CodeOwnersConfigurationKeys.CODEOWNERS_ROOT
 import io.github.gmazzo.codeowners.compiler.CodeOwnersConfigurationKeys.MAPPINGS_OUTPUT
@@ -19,7 +20,8 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         if (KotlinVersion.CURRENT.toString() != BuildConfig.EXPECTED_KOTLIN_VERSION) {
-            configuration.resolverLogger.warning("This plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
+            configuration.resolverLogger.warning("The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin " +
+                    "${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
         }
 
         val codeOwnersRoot = configuration.get(CODEOWNERS_ROOT)!!
