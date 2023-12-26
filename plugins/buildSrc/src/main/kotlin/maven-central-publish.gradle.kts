@@ -47,6 +47,10 @@ tasks.named("publishToSonatype") {
     finalizedBy(":closeAndReleaseSonatypeStagingRepository")
 }
 
+rootProject.tasks.named("closeAndReleaseSonatypeStagingRepository") {
+    mustRunAfter(tasks.withType<AbstractPublishToMaven>())
+}
+
 fun MavenPublication.setupMandatoryPOMAttributes() {
     pom {
         val origin = providers
