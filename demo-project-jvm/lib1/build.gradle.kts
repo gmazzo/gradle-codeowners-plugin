@@ -6,7 +6,9 @@ plugins {
 val integrationTest by testing.suites.registering(JvmTestSuite::class)
 
 sourceSets.test {
-    codeOwners.enabled = false
+    codeOwners {
+        enabled = false
+    }
 }
 
 dependencies {

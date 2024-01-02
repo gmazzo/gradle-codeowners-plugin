@@ -16,7 +16,9 @@ android {
 }
 
 androidComponents.onVariants {
-    it.codeOwners.enabled = it.buildType != "release"
+    it.codeOwners {
+        enabled = it.buildType != "release"
+    }
 }
 
 dependencies {
