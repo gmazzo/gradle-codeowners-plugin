@@ -5,7 +5,6 @@ import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
@@ -45,14 +44,11 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
     @get:Input
     abstract val codeOwners: Property<CodeOwnersFile>
 
-    @get:Internal
-    abstract val sources: ConfigurableFileCollection
-
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:IgnoreEmptyDirectories
     @get:SkipWhenEmpty
-    internal val sourcesFiles: FileTree = sources.asFileTree
+    abstract val sources: ConfigurableFileCollection
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
@@ -111,7 +107,7 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
         val root = rootDirectory.asFile.get()
         val matcher = CodeOwnersMatcher(root, codeOwners.get())
 
-        sourcesFiles.visit {
+        sources.asFileTree.visit {
             val owners = matcher.ownerOf(file, isDirectory) ?: return@visit
             val targetPath =
                 if (isDirectory) path.appendSuffix("/")

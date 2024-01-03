@@ -45,29 +45,24 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val codeOwnersFile: RegularFileProperty
 
-    @get:Internal
+    @get:InputFiles
+    @get:IgnoreEmptyDirectories
+    @get:SkipWhenEmpty
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sources: ConfigurableFileCollection
 
     @get:InputFiles
     @get:IgnoreEmptyDirectories
     @get:SkipWhenEmpty
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    internal val sourcesFiles = sources.asFileTree
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val classes: ConfigurableFileCollection
 
     @get:Optional
     @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NONE)
-    abstract val mappings: ConfigurableFileCollection
-
-    @get:InputFiles
     @get:IgnoreEmptyDirectories
     @get:SkipWhenEmpty
     @get:PathSensitive(PathSensitivity.NONE)
-    internal val anyClass = classes.asFileTree + mappings.asFileTree
+    abstract val mappings: ConfigurableFileCollection
 
     @get:Input
     @get:Optional
