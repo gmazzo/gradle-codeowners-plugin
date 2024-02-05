@@ -23,5 +23,5 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-samWithReceiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version = "1.9.10" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
-gradle-nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0-rc-1" }
+gradle-nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0-rc-2" }
 publicationsReport = { id = "io.github.gmazzo.publications.report", version = "1.2.4" }
