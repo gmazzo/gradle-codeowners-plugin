@@ -6,7 +6,7 @@ android = "8.2.2"
 apache-bcel = "org.apache.bcel:bcel:6.8.1"
 autoservice = "com.google.auto.service:auto-service:1.1.1"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r"
-junit-bom = "org.junit:junit-bom:5.10.1"
+junit-bom = "org.junit:junit-bom:5.10.2"
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-plugin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-plugin-compiler-api = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
