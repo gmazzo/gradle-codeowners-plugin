@@ -10,7 +10,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup JDK17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -18,3 +18,7 @@ runs:
       uses: gradle/actions/setup-gradle@v3
       with:
         cache-encryption-key: ${{ inputs.gradle-encryption-key }}
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
