@@ -33,10 +33,3 @@ publishing.publications.withType<MavenPublication>().configureEach pub@{
 
     artifact(javadocTask)
 }
-
-tasks.withType<KotlinJsIrLink>().configureEach {
-    notCompatibleWithConfigurationCache("uses Task.project")
-}
-tasks.withType<KotlinNativeLink>().configureEach {
-    notCompatibleWithConfigurationCache("uses Task.project")
-}

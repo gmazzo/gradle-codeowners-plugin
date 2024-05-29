@@ -49,10 +49,3 @@ dependencies {
 
     commonTestImplementation(libs.kotlin.test)
 }
-
-tasks.withType<KotlinJsIrLink>().configureEach {
-    notCompatibleWithConfigurationCache("uses Task.project")
-}
-tasks.withType<KotlinNativeLink>().configureEach {
-    notCompatibleWithConfigurationCache("uses Task.project")
-}

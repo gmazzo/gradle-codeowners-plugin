@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.DokkaTask
-
 plugins {
     `maven-publish`
     org.jetbrains.dokka
@@ -29,10 +27,6 @@ plugins.withId("java") {
     tasks.named<Jar>("javadocJar") {
         from(tasks.dokkaJavadoc)
     }
-}
-
-tasks.withType<DokkaTask>().configureEach {
-    notCompatibleWithConfigurationCache("uses Task.project") // TODO dokka is not compatible with CC yet
 }
 
 publishing.publications.withType<MavenPublication>().configureEach {
