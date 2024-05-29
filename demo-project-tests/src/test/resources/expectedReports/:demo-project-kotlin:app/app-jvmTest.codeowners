@@ -6,4 +6,3 @@ org/test/kotlin/app/AppOwnersJVMTest$ownerOfUtilFunctions$1                     
 org/test/kotlin/app/AppOwnersTest                                                   app-devs
 org/test/kotlin/app/AppOwnersTest$ownerFromExceptionStacktrace$exception$1$1        app-devs
 org/test/kotlin/app/RethrowKt                                                       app-devs
-org/test/kotlin/app/RethrowUtils                                                    app-devs

@@ -2,5 +2,3 @@
 
 org/test/kotlin/app/AppException        app-devs
 org/test/kotlin/app/AppOwnersTest       app-devs
-org/test/kotlin/app/RethrowKt           app-devs
-org/test/kotlin/app/RethrowUtils        app-devs

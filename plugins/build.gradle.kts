@@ -1,3 +1,8 @@
+import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
+
 plugins {
     base
     `maven-publish`
@@ -42,7 +47,6 @@ allprojects {
             dependsOn(jacocoTasks)
         }
     }
-
 }
 
 tasks.build {
@@ -59,4 +63,13 @@ tasks.publish {
 
 tasks.publishToMavenLocal {
     subprojects { dependsOn(tasks.publishToMavenLocal) }
+}
+
+// TODO ignores configuration cache known incompatibilities
+allprojects {
+    tasks.withType<DokkaTask> { notCompatibleWithConfigurationCache("uses Task.project") }
+    tasks.withType<KotlinJsIrLink> { notCompatibleWithConfigurationCache("uses Task.project") }
+    tasks.withType<KotlinNativeCompile> { notCompatibleWithConfigurationCache("uses Task.project") }
+    tasks.withType<KotlinNativeLink> { notCompatibleWithConfigurationCache("uses Task.project") }
+    tasks.matching { it.name == "commonizeNativeDistribution" }.configureEach { notCompatibleWithConfigurationCache("uses Task.project") }
 }

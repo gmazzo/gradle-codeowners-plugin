@@ -90,8 +90,9 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
     }
 
     override fun Project.configureBySourceSet(extension: CodeOwnersJVMExtension) {
-        the<SourceSetContainer>().configureEach ss@{
-            val sourceSet = extension.sourceSets.maybeCreate(this@ss.name)
+        the<SourceSetContainer>().configureEach @JvmSerializableLambda {
+            val ss = this
+            val sourceSet = extension.sourceSets.maybeCreate(ss.name)
 
             sourceSet.generateTask {
                 addDependencies(objects, sourceSet, configurations[runtimeClasspathConfigurationName])
@@ -102,63 +103,64 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
                 addOutgoingVariant(sourceSet, configurations[runtimeClasspathConfigurationName])
             }
 
-            this@ss.extensions.add(CodeOwnersJVMSourceSet::class.java, Component::codeOwners.name, sourceSet)
+            ss.extensions.add(CodeOwnersJVMSourceSet::class.java, Component::codeOwners.name, sourceSet)
             tasks.named<AbstractCopyTask>(processResourcesTaskName).addResources(extension, sourceSet)
         }
     }
 
     override fun Project.configureByAndroidVariants(extension: CodeOwnersJVMExtension) {
-        plugins.withId("com.android.base") {
+        plugins.withId("com.android.base") @JvmSerializableLambda {
 
-        fun bind(
-            component: Component,
-            defaultsTo: CodeOwnersJVMSourceSet? = null,
-        ): CodeOwnersJVMSourceSet {
-            val sourceSet = extension.sourceSets.maybeCreate(component.name)
-            component.codeOwners = sourceSet
-            sourceSet.generateTask {
-                addDependencies(objects, sourceSet, component.runtimeConfiguration)
+            fun bind(
+                component: Component,
+                defaultsTo: CodeOwnersJVMSourceSet? = null,
+            ): CodeOwnersJVMSourceSet {
+                val sourceSet = extension.sourceSets.maybeCreate(component.name)
+                component.codeOwners = sourceSet
+                sourceSet.generateTask {
+                    addDependencies(objects, sourceSet, component.runtimeConfiguration)
+                }
+                addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
+                addCodeDependency(extension, sourceSet, component.runtimeConfiguration.name)
+
+                // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
+                afterEvaluate {
+                    @Suppress("DEPRECATION")
+                    tasks.named<AbstractCopyTask>("process${component.name.capitalize()}JavaRes")
+                        .addResources(extension, sourceSet)
+                }
+
+                if (defaultsTo != null) {
+                    sourceSet.enabled.convention(defaultsTo.enabled)
+                }
+                return sourceSet
             }
-            addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
-            addCodeDependency(extension, sourceSet, component.runtimeConfiguration.name)
 
-            // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
-            afterEvaluate {
-                @Suppress("DEPRECATION")
-                tasks.named<AbstractCopyTask>("process${component.name.capitalize()}JavaRes")
-                    .addResources(extension, sourceSet)
-            }
+            AndroidSupport(project).configureVariants {
+                val variant = this@configureVariants
+                variant.packaging.resources.merges.add("**/*.codeowners")
 
-            if (defaultsTo != null) {
-                sourceSet.enabled.convention(defaultsTo.enabled)
-            }
-            return sourceSet
-        }
+                val sourceSet = bind(variant)
 
-        AndroidSupport(project).configureVariants {
-            val variant = this@configureVariants
-            variant.packaging.resources.merges.add("**/*.codeowners")
+                (variant as? HasUnitTest)?.unitTest?.let { bind(component = it, defaultsTo = sourceSet) }
+                (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sourceSet) }
 
-            val sourceSet = bind(variant)
+                addOutgoingVariant(sourceSet, variant.runtimeConfiguration).configure {
+                    val attrs = variant.runtimeConfiguration.attributes
 
-            (variant as? HasUnitTest)?.unitTest?.let { bind(component = it, defaultsTo = sourceSet) }
-            (variant as? HasAndroidTest)?.androidTest?.let { bind(component = it, defaultsTo = sourceSet) }
-
-            addOutgoingVariant(sourceSet, variant.runtimeConfiguration).configure {
-                val attrs = variant.runtimeConfiguration.attributes
-
-                // copies variant attributes
-                attributes {
-                    attrs.keySet().forEach { key ->
-                        if (key.name.startsWith("com.android")) {
-                            @Suppress("UNCHECKED_CAST")
-                            attribute(key as Attribute<Any>, attrs.getAttribute(key)!!)
+                    // copies variant attributes
+                    attributes {
+                        attrs.keySet().forEach { key ->
+                            if (key.name.startsWith("com.android")) {
+                                @Suppress("UNCHECKED_CAST")
+                                attribute(key as Attribute<Any>, attrs.getAttribute(key)!!)
+                            }
                         }
                     }
                 }
             }
         }
-    }}
+    }
 
     private fun CodeOwnersResourcesTask.addDependencies(
         objects: ObjectFactory,
