@@ -34,11 +34,11 @@ You should apply the right plugins according to your needs:
 
 | Plugin / Feature                                                     | _Report_ | _JVM_ | _Kotlin_ |
 |----------------------------------------------------------------------|----------|-------|----------|
-| Generates class-like reports at build time                           | ✅        | ✅ *   | ✅ *      |
-| Propagates codeowners info to runtime                                | ❌        | ✅     | ✅        |
-| Works with JVM projects                                              | ✅        | ✅     | ✅        |
-| Works with Multiplatform projects                                    | ❌        | ❌     | ✅        |
-| Acurrancy:<br/>Codeowners info matches alwats the original file ones | 🟢       | 🟡 ** | 🟢       |
+| Generates class-like reports at build time                           | ✅       | ✅ *  | ✅ *     |
+| Propagates codeowners info to runtime                                | ❌       | ✅    | ✅       |
+| Works with JVM projects                                              | ✅       | ✅    | ✅       |
+| Works with Multiplatform projects                                    | ❌       | ❌    | ✅       |
+| Acurrancy:<br/>Codeowners info matches always the original file ones | 🟢       | 🟡 ** | 🟢       |
 
 (*) inherited from `io.github.gmazzo.codeowners` (_Report_) plugin<br/>
 (**) because how the Java Resources API on JVM the ownership information may be inaccurate in some cases. See [Caveats on the approach](./README-jvm.md#caveats-on-the-approach) for more details.
