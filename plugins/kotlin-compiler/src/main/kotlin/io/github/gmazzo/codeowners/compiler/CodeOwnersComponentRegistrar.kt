@@ -12,7 +12,8 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.ir.backend.js.resolverLogger
+import org.jetbrains.kotlin.ir.util.IrMessageLogger
+import org.jetbrains.kotlin.ir.util.irMessageLogger
 
 internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
@@ -20,8 +21,11 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         if (KotlinVersion.CURRENT.toString() != BuildConfig.EXPECTED_KOTLIN_VERSION) {
-            configuration.resolverLogger.warning("The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin " +
-                    "${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
+            configuration.irMessageLogger.report(
+                severity = IrMessageLogger.Severity.WARNING,
+                message = "The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}",
+                location = null
+            )
         }
 
         val codeOwnersRoot = configuration.get(CODEOWNERS_ROOT)!!
