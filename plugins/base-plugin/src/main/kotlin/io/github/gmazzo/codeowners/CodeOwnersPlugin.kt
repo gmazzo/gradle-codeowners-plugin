@@ -151,7 +151,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
         }
 
     private fun Project.configureByKotlinTargetsInternal(extension: Extension) =
-        KotlinSupport(this).configureTargets {
+        KotlinSupport(this).configureTargets @JvmSerializableLambda {
             if (this !is KotlinMetadataTarget) {
                 compilations.configureEach {
                     val sourceSet = extension.sourceSets.maybeCreate(codeOwnersSourceSetName)
@@ -166,7 +166,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
         extension: Extension,
         reportAllTask: TaskProvider<CodeOwnersReportTask>,
     ) = with(AndroidSupport(project)) {
-        configureComponents {
+        configureComponents @JvmSerializableLambda {
             val kotlinAwareSourceSetName =
                 if (plugins.hasPlugin("org.jetbrains.kotlin.multiplatform"))
                     the<KotlinTargetsContainer>()
