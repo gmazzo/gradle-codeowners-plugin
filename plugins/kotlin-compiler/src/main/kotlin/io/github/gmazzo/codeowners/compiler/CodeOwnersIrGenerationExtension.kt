@@ -13,22 +13,21 @@ internal class CodeOwnersIrGenerationExtension(
 ) : IrGenerationExtension {
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        val mappings = mappingsFile?.let {  mutableMapOf<String, MutableSet<String>>() }
-        val transformer = CodeOwnersIrTransformer(pluginContext, mappings)
-        val owners = moduleFragment.files.asSequence()
-            .flatMap { matcher.ownerOf(File(it.fileEntry.name)).orEmpty() }
-            .toSet()
+        val mappings = mappingsFile?.let { mutableMapOf<String, MutableSet<String>>() }
+        val transformer = CodeOwnersIrTransformer(pluginContext, matcher, mappings)
 
-        if (owners.isNotEmpty()) {
-            moduleFragment.accept(transformer, owners)
+        moduleFragment.accept(transformer, InvalidOwners)
 
-            if (mappings != null) {
-                val entries = mappings.map { (file, owners) -> CodeOwnersFile.Entry(file, owners.toList()) }
-                val codeOwners = CodeOwnersFile(entries)
+        if (mappings != null) {
+            val entries = mappings.map { (file, owners) -> CodeOwnersFile.Entry(file, owners.toList()) }
+            val codeOwners = CodeOwnersFile(entries)
 
-                mappingsFile!!.appendText(codeOwners.content)
-            }
+            mappingsFile!!.appendText(codeOwners.content)
         }
+    }
+
+    private data object InvalidOwners : Set<String> by emptySet() {
+        override val size: Int get() = error("Invalid owners")
     }
 
 }

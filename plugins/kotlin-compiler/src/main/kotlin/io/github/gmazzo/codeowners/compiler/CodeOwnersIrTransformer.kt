@@ -1,5 +1,6 @@
 package io.github.gmazzo.codeowners.compiler
 
+import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.getKtFile
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -45,9 +46,11 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.isJs
 import org.jetbrains.kotlin.platform.konan.isNative
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName.byClassId
+import java.io.File
 
 internal class CodeOwnersIrTransformer(
     private val context: IrPluginContext,
+    private val matcher: CodeOwnersMatcher,
     private val mappings: MutableMap<String, MutableSet<String>>?,
 ) : IrElementTransformer<Set<String>> {
 
@@ -69,13 +72,15 @@ internal class CodeOwnersIrTransformer(
         context.referenceClass(ClassId.fromString("io/github/gmazzo/codeowners/CodeOwnersProvider"))!!
     }
 
-    private val fileCodeOwnersProviders = mutableMapOf<Set<String>, IrClassSymbol>()
+    private var fileCodeOwnersProvider: IrClassSymbol? = null
 
     override fun visitFile(declaration: IrFile, data: Set<String>) = declaration.apply {
-        addAnnotation(data)
+        val owners = matcher.ownerOf(File(declaration.fileEntry.name)) ?: return@apply
 
-        super.visitFile(declaration, data)
-        fileCodeOwnersProviders.clear()
+        addAnnotation(owners)
+
+        super.visitFile(declaration, owners)
+        fileCodeOwnersProvider = null
     }
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction, data: Set<String>): IrStatement {
@@ -88,11 +93,7 @@ internal class CodeOwnersIrTransformer(
         val ownersValue = addAnnotation(data)
 
         if (isJS || isNative) {
-            fileOrNull?.let { file ->
-                val provider = file.getOrCreateCodeOwnersProvider(data, ownersValue)
-
-                addCodeOwnersProviderAnnotation(provider)
-            }
+            addCodeOwnersProviderAnnotation(ownersValue)
         }
 
         exportMapping(data)
@@ -139,13 +140,6 @@ internal class CodeOwnersIrTransformer(
         }
     }
 
-    private fun IrFile.getOrCreateCodeOwnersProvider(
-        owners: Set<String>,
-        ownersValue: IrVararg,
-    ) = fileCodeOwnersProviders.getOrPut(owners) {
-        addCodeOwnersProvider("${nameWithoutExtension}\$CODEOWNERS_${fileCodeOwnersProviders.size}", ownersValue)
-    }
-
     private fun IrFile.addCodeOwnersProvider(className: String, owners: IrVararg) = context.irFactory.buildClass {
         startOffset = SYNTHETIC_OFFSET
         endOffset = SYNTHETIC_OFFSET
@@ -182,20 +176,28 @@ internal class CodeOwnersIrTransformer(
         )
     }.symbol
 
-    private fun IrClass.addCodeOwnersProviderAnnotation(provider: IrClassSymbol) {
+    private fun IrClass.addCodeOwnersProviderAnnotation(ownersValue: IrVararg) {
+        if (fileCodeOwnersProvider == null) {
+            val file = fileOrNull ?: return
+
+            fileCodeOwnersProvider = file.addCodeOwnersProvider("${file.nameWithoutExtension}\$CODEOWNERS", ownersValue)
+        }
+
         annotations += IrConstructorCallImpl.fromSymbolOwner(
             UNDEFINED_OFFSET,
             UNDEFINED_OFFSET,
             annotationCodeOwnersProvider.defaultType,
             annotationCodeOwnersProvider.owner.primaryConstructor!!.symbol,
         ).apply {
+            val starType = fileCodeOwnersProvider!!.starProjectedType
+
             putValueArgument(
                 0, IrClassReferenceImpl(
                     UNDEFINED_OFFSET,
                     UNDEFINED_OFFSET,
                     context.irBuiltIns.kClassClass.starProjectedType,
-                    provider.starProjectedType.classifierOrFail,
-                    provider.starProjectedType,
+                    starType.classifierOrFail,
+                    starType,
                 )
             )
         }
