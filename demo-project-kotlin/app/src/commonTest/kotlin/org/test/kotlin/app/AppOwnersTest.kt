@@ -3,7 +3,6 @@ package org.test.kotlin.app
 import io.github.gmazzo.codeowners.codeOwners
 import io.github.gmazzo.codeowners.codeOwnersOf
 import org.test.kotlin.utils.AppUtils
-import kotlin.jvm.JvmSerializableLambda
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -27,7 +26,7 @@ class AppOwnersTest {
 
     @Test
     fun ownerFromExceptionStacktrace() {
-        val exception = assertFailsWith<AppException> { rethrow @JvmSerializableLambda { AppException("myException") } }
+        val exception = assertFailsWith<AppException> { rethrow(AppException()) }
 
         val expectedOwners = setOf(if (isJVM) "utils-devs" else "app-devs") // on JVM we have stackstraces
 

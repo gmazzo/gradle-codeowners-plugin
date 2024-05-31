@@ -13,7 +13,7 @@ actual val KClass<*>.codeOwners: Set<String>?
 val Class<*>.codeOwners: Set<String>?
     get() = when {
         Proxy.isProxyClass(this) -> resolveInterfacesIfProxy().mapNotNull { it.codeOwners }.flatten().toSet()
-        else -> getAnnotation(CodeOwners::class.java)?.owners?.toSet()
+        else -> getAnnotation(CodeOwners::class.java)?.owners?.toSet() ?: enclosingClass?.codeOwners
     }
 
 val KFunction<*>.codeOwners: Set<String>?

@@ -10,7 +10,7 @@ class AndroidLibOwnersTest {
     @Test
     fun ownerOfAndroidLib() {
         assertEquals(setOf("libs-devs"), codeOwnersOf<AndroidLibUtils>())
-        assertEquals(setOf("libs-impl"), codeOwnersOf<AndroidLibUtils.Impl>())
+        assertEquals(setOf("libs-devs"), codeOwnersOf<AndroidLibUtils.Impl>())
     }
 
 }

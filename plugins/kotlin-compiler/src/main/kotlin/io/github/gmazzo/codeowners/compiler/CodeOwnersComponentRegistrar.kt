@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 import org.jetbrains.kotlin.ir.util.IrMessageLogger
 import org.jetbrains.kotlin.ir.util.irMessageLogger
 
@@ -31,9 +32,12 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
         val codeOwnersRoot = configuration.get(CODEOWNERS_ROOT)!!
         val codeOwnersFile = configuration.get(CODEOWNERS_FILE)!!.useLines { CodeOwnersFile(it) }
         val mappingFile = configuration.get(MAPPINGS_OUTPUT)
-        val matcher = CodeOwnersMatcher(codeOwnersRoot, codeOwnersFile)
 
-        IrGenerationExtension.registerExtension(CodeOwnersIrGenerationExtension(matcher, mappingFile))
+        val matcher = CodeOwnersMatcher(codeOwnersRoot, codeOwnersFile)
+        val mappings = CodeOwnersMappings(matcher, mappingFile)
+
+        FirExtensionRegistrarAdapter.registerExtension(CodeOwnersFirExtensionRegistrar(mappings))
+        IrGenerationExtension.registerExtension(CodeOwnersIrGenerationExtension(mappings))
     }
 
 }

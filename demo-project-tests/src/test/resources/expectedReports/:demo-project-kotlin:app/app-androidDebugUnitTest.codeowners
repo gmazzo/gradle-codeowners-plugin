@@ -1,6 +1,6 @@
 # CodeOwners of module ':demo-project-kotlin:app' (source set 'androidDebugUnitTest')
 
-org/test/kotlin/app/AppException                                                    app-devs
-org/test/kotlin/app/AppOwnersTest                                                   app-devs
-org/test/kotlin/app/AppOwnersTest$ownerFromExceptionStacktrace$exception$1$1        app-devs
-org/test/kotlin/app/RethrowKt                                                       app-devs
+org/test/kotlin/app/AppException        app-devs
+org/test/kotlin/app/AppOwnersTest       app-devs
+org/test/kotlin/app/RethrowKt           app-devs
+org/test/kotlin/app/RethrowUtils        app-devs

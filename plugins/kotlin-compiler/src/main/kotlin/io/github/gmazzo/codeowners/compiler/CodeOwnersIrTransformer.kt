@@ -1,26 +1,19 @@
+@file:OptIn(UnsafeDuringIrConstructionAPI::class)
+
 package io.github.gmazzo.codeowners.compiler
 
-import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.getIoFile
-import org.jetbrains.kotlin.backend.jvm.ir.getKtFile
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
-import org.jetbrains.kotlin.ir.IrElementBase
-import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.utils.nameWithoutExtension
-import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.declarations.addConstructor
 import org.jetbrains.kotlin.ir.builders.declarations.buildClass
-import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.createBlockBody
-import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
@@ -29,35 +22,28 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrDelegatingConstructorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrInstanceInitializerCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classifierOrFail
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.starProjectedType
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.addChild
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.createImplicitParameterDeclarationWithWrappedDescriptor
 import org.jetbrains.kotlin.ir.util.fileOrNull
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.isJs
 import org.jetbrains.kotlin.platform.konan.isNative
-import org.jetbrains.kotlin.resolve.jvm.JvmClassName.byClassId
-import java.io.File
 
 internal class CodeOwnersIrTransformer(
     private val context: IrPluginContext,
-    private val matcher: CodeOwnersMatcher,
-    private val mappings: MutableMap<String, Pair<Set<String>, File>>?,
+    private val mappings: CodeOwnersMappings,
 ) : IrElementTransformer<Set<String>> {
 
-    private val isJS = context.platform?.isJs() == true
-
-    private val isNative = context.platform?.isNative() == true
+    private val requiresProvider = context.platform?.let { it.isJs() || it.isNative() } == true
 
     private val stringArray = context.irBuiltIns.arrayClass.typeWith(context.irBuiltIns.stringType)
 
@@ -73,46 +59,37 @@ internal class CodeOwnersIrTransformer(
         context.referenceClass(ClassId.fromString("io/github/gmazzo/codeowners/CodeOwnersProvider"))!!
     }
 
-    private var currentFile: File? = null
     private var fileCodeOwnersProvider: IrClassSymbol? = null
 
     override fun visitFile(declaration: IrFile, data: Set<String>) = declaration.apply {
-        val file = declaration.getIoFile() ?: return@apply
-        val owners = matcher.ownerOf(file) ?: return@apply
+        val owners = declaration.getIoFile()?.let(mappings::resolve)?.owners ?: return@apply
 
-        currentFile = file
         addAnnotation(owners)
         super.visitFile(declaration, owners)
 
-        currentFile = null
         fileCodeOwnersProvider = null
     }
 
-    override fun visitSimpleFunction(declaration: IrSimpleFunction, data: Set<String>): IrStatement {
-        (declaration.parent as? IrFile)?.exportMapping(data)
-
-        return super.visitFunction(declaration, data)
-    }
-
     override fun visitClass(declaration: IrClass, data: Set<String>) = declaration.apply {
+        // we only decorate top level classes
+        if (parent !is IrFile) return@apply
+
         val ownersValue = addAnnotation(data)
 
-        if (isJS || isNative) {
+        if (requiresProvider) {
             addCodeOwnersProviderAnnotation(ownersValue)
         }
 
-        exportMapping(data)
         super.visitClass(declaration, data)
     }
 
     private fun IrMutableAnnotationContainer.addAnnotation(owners: Set<String>): IrVararg {
-        val exisingOwners = findOwnersFromExistingAnnotation()
         val ownersValue = IrVarargImpl(
             UNDEFINED_OFFSET,
             UNDEFINED_OFFSET,
             stringArray,
             context.irBuiltIns.stringType,
-            (exisingOwners ?: owners).map { value ->
+            owners.map { value ->
                 IrConstImpl.string(
                     UNDEFINED_OFFSET,
                     UNDEFINED_OFFSET,
@@ -122,27 +99,15 @@ internal class CodeOwnersIrTransformer(
             },
         )
 
-        if (exisingOwners == null) {
-            annotations += IrConstructorCallImpl.fromSymbolOwner(
-                SYNTHETIC_OFFSET,
-                SYNTHETIC_OFFSET,
-                annotationCodeOwners.defaultType,
-                annotationCodeOwners.owner.primaryConstructor!!.symbol,
-            ).apply {
-                putValueArgument(0, ownersValue)
-            }
+        annotations += IrConstructorCallImpl.fromSymbolOwner(
+            SYNTHETIC_OFFSET,
+            SYNTHETIC_OFFSET,
+            annotationCodeOwners.defaultType,
+            annotationCodeOwners.owner.primaryConstructor!!.symbol,
+        ).apply {
+            putValueArgument(0, ownersValue)
         }
         return ownersValue
-    }
-
-    private fun IrAnnotationContainer.findOwnersFromExistingAnnotation(): Set<String>? {
-        val annotation = annotations
-            .find { it.type.classFqName == annotationCodeOwners.owner.fqNameWhenAvailable } ?: return null
-
-        return (annotation.valueArguments[0] as IrVararg).elements.mapTo(linkedSetOf()) {
-            @Suppress("UNCHECKED_CAST")
-            (it as IrConst<String>).value
-        }
     }
 
     private fun IrFile.addCodeOwnersProvider(className: String, owners: IrVararg) = context.irFactory.buildClass {
@@ -207,18 +172,5 @@ internal class CodeOwnersIrTransformer(
             )
         }
     }
-
-    private fun IrElementBase.exportMapping(owners: Set<String>) {
-        val name = jvmName ?: return
-
-        mappings?.put(name, owners to currentFile!!)
-    }
-
-    private val IrElementBase.jvmName: String?
-        get() = when (this) {
-            is IrFile -> getKtFile()?.let(JvmFileClassUtil::getFileClassInternalName)
-            is IrClass -> classId?.let(::byClassId)?.internalName
-            else -> null
-        }
 
 }

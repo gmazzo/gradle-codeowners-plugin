@@ -1,6 +1,4 @@
 import org.gradle.configurationcache.extensions.capitalized
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
