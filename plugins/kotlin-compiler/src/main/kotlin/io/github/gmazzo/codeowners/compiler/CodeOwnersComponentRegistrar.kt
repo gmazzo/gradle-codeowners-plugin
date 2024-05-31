@@ -33,8 +33,6 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
         val mappingFile = configuration.get(MAPPINGS_OUTPUT)
         val matcher = CodeOwnersMatcher(codeOwnersRoot, codeOwnersFile)
 
-        mappingFile?.delete()
-        mappingFile?.parentFile?.mkdirs()
         IrGenerationExtension.registerExtension(CodeOwnersIrGenerationExtension(matcher, mappingFile))
     }
 

@@ -2,6 +2,7 @@ package io.github.gmazzo.codeowners.compiler
 
 import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.jvm.ir.getIoFile
 import org.jetbrains.kotlin.backend.jvm.ir.getKtFile
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -51,7 +52,7 @@ import java.io.File
 internal class CodeOwnersIrTransformer(
     private val context: IrPluginContext,
     private val matcher: CodeOwnersMatcher,
-    private val mappings: MutableMap<String, MutableSet<String>>?,
+    private val mappings: MutableMap<String, Pair<Set<String>, File>>?,
 ) : IrElementTransformer<Set<String>> {
 
     private val isJS = context.platform?.isJs() == true
@@ -72,14 +73,18 @@ internal class CodeOwnersIrTransformer(
         context.referenceClass(ClassId.fromString("io/github/gmazzo/codeowners/CodeOwnersProvider"))!!
     }
 
+    private var currentFile: File? = null
     private var fileCodeOwnersProvider: IrClassSymbol? = null
 
     override fun visitFile(declaration: IrFile, data: Set<String>) = declaration.apply {
-        val owners = matcher.ownerOf(File(declaration.fileEntry.name)) ?: return@apply
+        val file = declaration.getIoFile() ?: return@apply
+        val owners = matcher.ownerOf(file) ?: return@apply
 
+        currentFile = file
         addAnnotation(owners)
-
         super.visitFile(declaration, owners)
+
+        currentFile = null
         fileCodeOwnersProvider = null
     }
 
@@ -204,17 +209,16 @@ internal class CodeOwnersIrTransformer(
     }
 
     private fun IrElementBase.exportMapping(owners: Set<String>) {
-        if (mappings != null) {
-            val name = jvmName() ?: return
+        val name = jvmName ?: return
 
-            mappings.computeIfAbsent(name) { mutableSetOf() }.addAll(owners)
+        mappings?.put(name, owners to currentFile!!)
+    }
+
+    private val IrElementBase.jvmName: String?
+        get() = when (this) {
+            is IrFile -> getKtFile()?.let(JvmFileClassUtil::getFileClassInternalName)
+            is IrClass -> classId?.let(::byClassId)?.internalName
+            else -> null
         }
-    }
-
-    private fun IrElementBase.jvmName(): String? = when (this) {
-        is IrFile -> getKtFile()?.let(JvmFileClassUtil::getFileClassInternalName)
-        is IrClass -> classId?.let(::byClassId)?.internalName
-        else -> null
-    }
 
 }
