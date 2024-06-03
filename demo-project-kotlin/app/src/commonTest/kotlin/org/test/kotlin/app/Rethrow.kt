@@ -3,8 +3,8 @@ package org.test.kotlin.app
 
 import kotlin.jvm.JvmName
 
-class AppException(message: String) : RuntimeException(message)
+class AppException : RuntimeException("anException")
 
 expect val isJVM: Boolean
 
-expect fun rethrow(throwable: () -> Throwable)
+expect fun rethrow(throwable: Throwable)

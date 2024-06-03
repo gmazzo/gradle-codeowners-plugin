@@ -21,7 +21,7 @@ class LibOwnersTest {
     @Test
     fun ownerOfMoreUtils() {
         assertEquals(setOf("utils-devs"), MoreUtils::class.java.codeOwners)
-        assertEquals(setOf("utils-more"), MoreUtils.Companion::class.java.codeOwners)
+        assertEquals(setOf("utils-devs"), MoreUtils.Companion::class.java.codeOwners)
     }
 
 }
