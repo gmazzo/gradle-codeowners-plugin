@@ -16,9 +16,18 @@ val compatibilityTest by testing.suites.registering(JvmTestSuite::class) {
     }
 }
 
-val compatibilityTestSelfPlugin by configurations.creating
-val compatibilityTestKotlinPlugin by configurations.creating
-val compatibilityTestAndroidPlugin by configurations.creating
+fun prepare(config: Configuration) = with(config) {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.CLASSES_AND_RESOURCES))
+    }
+}
+
+val compatibilityTestSelfPlugin by configurations.creating(::prepare)
+val compatibilityTestKotlinPlugin by configurations.creating(::prepare)
+val compatibilityTestAndroidPlugin by configurations.creating(::prepare)
 
 dependencies {
     compatibilityTestSelfPlugin(project)
