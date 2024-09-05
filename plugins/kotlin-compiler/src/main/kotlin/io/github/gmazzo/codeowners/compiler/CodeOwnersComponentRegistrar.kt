@@ -9,12 +9,11 @@ import io.github.gmazzo.codeowners.compiler.CodeOwnersConfigurationKeys.MAPPINGS
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
+import org.jetbrains.kotlin.cli.common.messages.getLogger
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
-import org.jetbrains.kotlin.ir.util.IrMessageLogger
-import org.jetbrains.kotlin.ir.util.irMessageLogger
 
 internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
@@ -22,11 +21,7 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         if (KotlinVersion.CURRENT.toString() != BuildConfig.EXPECTED_KOTLIN_VERSION) {
-            configuration.irMessageLogger.report(
-                severity = IrMessageLogger.Severity.WARNING,
-                message = "The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}",
-                location = null
-            )
+            configuration.getLogger().warning("The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
         }
 
         val codeOwnersRoot = configuration.get(CODEOWNERS_ROOT)!!
