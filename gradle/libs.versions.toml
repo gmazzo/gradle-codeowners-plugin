@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.1.0"
-android = "8.7.2"
+android = "8.7.3"
 
 [libraries]
 apache-bcel = "org.apache.bcel:bcel:6.10.0"
