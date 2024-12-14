@@ -9,5 +9,5 @@ description = "CodeOwners Matcher Library"
 dependencies {
     implementation(libs.jgit)
 
-    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation(libs.junit.params)
 }
