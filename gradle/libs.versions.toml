@@ -4,7 +4,7 @@ android = "8.7.3"
 
 [libraries]
 apache-bcel = "org.apache.bcel:bcel:6.10.0"
-jgit = "org.eclipse.jgit:org.eclipse.jgit:6.10.0.202406032230-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r"
 junit-bom = "org.junit:junit-bom:5.11.3"
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
