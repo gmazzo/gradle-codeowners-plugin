@@ -2,7 +2,6 @@ package io.github.gmazzo.codeowners
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -30,7 +29,7 @@ class KotlinSupport(private val project: Project) {
         val KotlinCompilation<*>.codeOwnersSourceSetName
             get() = when (val classifier = target.disambiguationClassifier?.takeUnless { it.isBlank() }) {
             null -> name
-            else -> "$classifier${name.takeUnless { it == SourceSet.MAIN_SOURCE_SET_NAME }?.capitalized().orEmpty()}"
+            else -> "$classifier${name.takeUnless { it == SourceSet.MAIN_SOURCE_SET_NAME }?.replaceFirstChar { it.uppercase() }.orEmpty()}"
         }
 
     }

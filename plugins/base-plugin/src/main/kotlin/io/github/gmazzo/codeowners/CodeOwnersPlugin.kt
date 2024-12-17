@@ -13,7 +13,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.reportTask
@@ -127,7 +126,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 mappings.from(this@ss.mappings)
             }
 
-            reportTask = tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.capitalized()}Report") {
+            reportTask = tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.replaceFirstChar { it.uppercase() }}Report") {
                 group = TASK_GROUP
                 description = "Generates CODEOWNERS report for '${this@ss.name}'"
 
@@ -171,7 +170,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 if (plugins.hasPlugin("org.jetbrains.kotlin.multiplatform"))
                     the<KotlinTargetsContainer>()
                         .targets.withType<KotlinAndroidTarget>()
-                        .firstOrNull()?.name?.let { "${it}${name.capitalized()}" }
+                        .firstOrNull()?.name?.let { "${it}${name.replaceFirstChar { it.uppercase() }}" }
                 else null
 
             val sourceSet = extension.sourceSets.maybeCreate(kotlinAwareSourceSetName ?: name)
