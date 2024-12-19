@@ -1,6 +1,6 @@
 package io.github.gmazzo.codeowners.matcher
 
-import org.eclipse.jgit.ignore.FastIgnoreRule
+import io.github.gmazzo.codeowners.matcher.jgit.FastIgnoreRule
 import java.io.File
 
 class CodeOwnersMatcher(
