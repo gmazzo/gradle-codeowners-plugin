@@ -1,5 +1,3 @@
-import org.gradle.configurationcache.extensions.capitalized
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     `jvm-convention-module`
@@ -23,7 +21,8 @@ dependencies {
 }
 
 publishing.publications.withType<MavenPublication>().configureEach pub@{
-    val javadocTask = tasks.register<Jar>("javadoc${this@pub.name.capitalized()}") {
+
+    val javadocTask = tasks.register<Jar>("javadoc${this@pub.name.replaceFirstChar { it.uppercase() }}") {
         archiveBaseName = "${project.name}-${this@pub.name}"
         archiveClassifier = "javadoc"
         from(tasks.dokkaHtml)
