@@ -10,7 +10,6 @@ val compatibilityTest by testing.suites.registering(JvmTestSuite::class) {
     }
     targets.configureEach {
         testTask.configure {
-            javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
             workingDir(temporaryDir)
         }
     }

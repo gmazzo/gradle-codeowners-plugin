@@ -10,7 +10,7 @@ plugins {
 
 description = "CodeOwners Gradle Base Plugin"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
 
