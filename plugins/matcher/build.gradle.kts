@@ -6,15 +6,16 @@ plugins {
 
 description = "CodeOwners Matcher Library"
 
-sourceSets.main {
-    importClasses(libs.jgit) {
-        repackageTo = "io.github.gmazzo.codeowners.matcher.jgit"
-        keep("org.eclipse.jgit.ignore.FastIgnoreRule")
-        include("**.class")
-    }
+importClasses {
+    repackageTo = "io.github.gmazzo.codeowners.matcher.jgit"
+    keep("org.eclipse.jgit.ignore.FastIgnoreRule")
+    include("**.class")
 }
 
 dependencies {
-    implementation(libs.slf4j) // transitive of libs.jgit, required by FastIgnoreRule
+    importClasses(libs.jgit)
+    importClassesLibraries(libs.slf4j.api)
+    implementation(libs.slf4j.api)
+
     testImplementation(libs.junit.params)
 }

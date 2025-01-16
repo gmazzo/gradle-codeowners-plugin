@@ -12,7 +12,7 @@ plugins {
 
 description = "CodeOwners JVM Gradle Plugin"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 val pluginUnderTestImplementation by configurations.creating
 

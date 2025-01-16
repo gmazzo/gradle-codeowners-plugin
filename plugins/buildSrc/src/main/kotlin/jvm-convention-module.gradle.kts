@@ -4,7 +4,7 @@ plugins {
     id("maven-central-publish")
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 plugins.withId("java") {
 
