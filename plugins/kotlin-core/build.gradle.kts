@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    `jvm-convention-module`
-    `maven-central-publish`
+    id("jvm-convention-module")
+    id("maven-central-publish")
 }
 
 description = "CodeOwners Kotlin Library"

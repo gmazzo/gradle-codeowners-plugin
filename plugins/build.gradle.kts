@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.gradle.nexusPublish)
     alias(libs.plugins.publicationsReport)
-    `git-versioning`
+    id("git-versioning")
 }
 
 nexusPublishing {

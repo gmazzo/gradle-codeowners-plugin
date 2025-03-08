@@ -17,6 +17,7 @@ dependencies {
 }
 
 buildConfig {
+    packageName = ""
     buildConfigField("KOTLIN_PLUGIN", plugin(libs.plugins.kotlin.jvm))
     buildConfigField("ANDROID_PLUGIN", plugin(libs.plugins.android.application))
 }

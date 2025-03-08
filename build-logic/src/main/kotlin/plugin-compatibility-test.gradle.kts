@@ -1,5 +1,3 @@
-import buildSrc.BuildConfig
-
 plugins {
     `java-gradle-plugin`
 }

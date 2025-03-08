@@ -4,9 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
-    `compiler-arguments`
-    `plugin-compatibility-test`
-    `maven-central-publish`
+    id("compiler-arguments")
+    id("plugin-compatibility-test")
+    id("maven-central-publish")
     jacoco
 }
 

@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.embeddedDependencies)
-    `compiler-arguments`
-    `jvm-convention-module`
+    id("compiler-arguments")
+    id("jvm-convention-module")
 }
 
 description = "CodeOwners Kotlin Compiler Plugin"
