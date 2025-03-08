@@ -21,6 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "plugins"
 
+includeBuild("../build-logic")
 include(
     "base-plugin",
     "jvm-core",

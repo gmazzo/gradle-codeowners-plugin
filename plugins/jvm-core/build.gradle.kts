@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    `jvm-convention-module`
+    id("jvm-convention-module")
     `java-test-fixtures`
     jacoco
 }

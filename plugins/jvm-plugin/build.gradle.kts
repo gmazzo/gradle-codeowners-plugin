@@ -4,9 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
-    com.github.gmazzo.buildconfig
-    `plugin-compatibility-test`
-    `maven-central-publish`
+    id("com.github.gmazzo.buildconfig")
+    id("plugin-compatibility-test")
+    id("maven-central-publish")
     jacoco
 }
 

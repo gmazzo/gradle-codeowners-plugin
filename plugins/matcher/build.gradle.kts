@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.importClasses)
-    `jvm-convention-module`
+    id("jvm-convention-module")
 }
 
 description = "CodeOwners Matcher Library"

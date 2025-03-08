@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.samWithReceiver)
     alias(libs.plugins.gradle.pluginPublish)
     `java-test-fixtures`
-    `plugin-compatibility-test`
-    `maven-central-publish`
+    id("plugin-compatibility-test")
+    id("maven-central-publish")
     jacoco
 }
 
