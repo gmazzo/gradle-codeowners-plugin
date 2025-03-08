@@ -1,21 +1,16 @@
 plugins {
+    signing
     `maven-publish`
     org.jetbrains.dokka
 }
 
-val signingKey: String? by project
-val signingPassword: String? by project
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
 
-if (signingKey != null && signingPassword != null) {
-    apply(plugin = "signing")
-
-    val signing: SigningExtension by extensions
-
-    signing.useInMemoryPgpKeys(signingKey, signingPassword)
-
-    publishing.publications.configureEach {
-        signing.sign(this)
-    }
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    publishing.publications.configureEach(::sign)
+    tasks.withType<Sign>().configureEach { enabled = signingKey != null }
 }
 
 plugins.withId("java") {
