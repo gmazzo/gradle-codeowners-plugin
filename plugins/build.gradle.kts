@@ -47,29 +47,40 @@ allprojects {
             dependsOn(jacocoTasks)
         }
     }
+
+    // disables testFixtures artifact publication
+    plugins.withId("java-test-fixtures") {
+        val java: AdhocComponentWithVariants by components
+        val testFixtures by the<SourceSetContainer>()
+
+        sequenceOf(
+            testFixtures.apiElementsConfigurationName,
+            testFixtures.runtimeElementsConfigurationName
+        ).forEach { java.withVariantsFromConfiguration(configurations[it]) { skip() } }
+    }
 }
 
 tasks.build {
-    subprojects { dependsOn(tasks.build) }
+subprojects { dependsOn(tasks.build) }
 }
 
 tasks.check {
-    subprojects { dependsOn(tasks.check) }
+subprojects { dependsOn(tasks.check) }
 }
 
 tasks.publish {
-    subprojects { dependsOn(tasks.publish) }
+subprojects { dependsOn(tasks.publish) }
 }
 
 tasks.publishToMavenLocal {
-    subprojects { dependsOn(tasks.publishToMavenLocal) }
+subprojects { dependsOn(tasks.publishToMavenLocal) }
 }
 
 // TODO ignores configuration cache known incompatibilities
 allprojects {
-    tasks.withType<DokkaTask> { notCompatibleWithConfigurationCache("uses Task.project") }
-    tasks.withType<KotlinJsIrLink> { notCompatibleWithConfigurationCache("uses Task.project") }
-    tasks.withType<KotlinNativeCompile> { notCompatibleWithConfigurationCache("uses Task.project") }
-    tasks.withType<KotlinNativeLink> { notCompatibleWithConfigurationCache("uses Task.project") }
-    tasks.matching { it.name == "commonizeNativeDistribution" }.configureEach { notCompatibleWithConfigurationCache("uses Task.project") }
+tasks.withType<DokkaTask> { notCompatibleWithConfigurationCache("uses Task.project") }
+tasks.withType<KotlinJsIrLink> { notCompatibleWithConfigurationCache("uses Task.project") }
+tasks.withType<KotlinNativeCompile> { notCompatibleWithConfigurationCache("uses Task.project") }
+tasks.withType<KotlinNativeLink> { notCompatibleWithConfigurationCache("uses Task.project") }
+tasks.matching { it.name == "commonizeNativeDistribution" }.configureEach { notCompatibleWithConfigurationCache("uses Task.project") }
 }

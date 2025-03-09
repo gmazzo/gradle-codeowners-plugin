@@ -6,9 +6,3 @@ plugins {
 }
 
 description = "CodeOwners JVM Library"
-
-// disables testFixtures artifact publication
-components.named<AdhocComponentWithVariants>("java") {
-    withVariantsFromConfiguration(configurations.testFixturesApiElements.get()) { skip() }
-    withVariantsFromConfiguration(configurations.testFixturesRuntimeElements.get()) { skip() }
-}
