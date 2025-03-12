@@ -32,11 +32,3 @@ tasks.publish {
 tasks.publishToMavenLocal {
     dependsOn(pluginsBuild.task(":$name"))
 }
-
-// TODO ignores configuration cache known incompatibilities
-allprojects {
-    tasks.withType<KotlinJsIrLink> { notCompatibleWithConfigurationCache("uses Task.project") }
-    tasks.withType<KotlinNativeCompile> { notCompatibleWithConfigurationCache("uses Task.project") }
-    tasks.withType<KotlinNativeLink> { notCompatibleWithConfigurationCache("uses Task.project") }
-}
-tasks.matching { it.name == "commonizeNativeDistribution" }.configureEach { notCompatibleWithConfigurationCache("uses Task.project") }

@@ -1,22 +1,13 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.samWithReceiver)
-    alias(libs.plugins.gradle.pluginPublish)
+    id("plugin-convention-module")
     id("com.github.gmazzo.buildconfig")
-    id("plugin-compatibility-test")
-    id("maven-central-publish")
-    jacoco
 }
 
-description = "CodeOwners JVM Gradle Plugin"
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
 
 val pluginUnderTestImplementation by configurations.creating
-
-samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
 
 dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =
@@ -49,7 +40,7 @@ gradlePlugin {
         id = "io.github.gmazzo.codeowners.jvm"
         displayName = name
         implementationClass = "io.github.gmazzo.codeowners.CodeOwnersJVMPlugin"
-        description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
+        description = project.description
         tags.addAll("codeowners", "ownership", "attribution")
     }
 }
@@ -57,20 +48,16 @@ gradlePlugin {
 buildConfig {
     useKotlinOutput { internalVisibility = true }
     packageName = "io.github.gmazzo.codeowners"
-    buildConfigField("CORE_DEPENDENCY", projects.jvmCore.dependencyProject
-        .publishing.publications.named<MavenPublication>("java").map {
-            "${it.groupId}:${it.artifactId}:${it.version}"
-        }
+
+    buildConfigField(
+        "CORE_DEPENDENCY", projects.jvmCore.dependencyProject
+            .publishing.publications.named<MavenPublication>("maven")
+            .map { "${it.groupId}:${it.artifactId}:${it.version}" }
     )
 }
 
 tasks.pluginUnderTestMetadata {
     pluginClasspath.from(pluginUnderTestImplementation)
-}
-
-// makes sure to publish to mavenCentral first, before doing it to Plugins Portal
-tasks.publishPlugins {
-    mustRunAfter(tasks.publishToSonatype)
 }
 
 tasks.publish {
