@@ -54,20 +54,17 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     internal val sourcesFiles = sources.asFileTree
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Internal
     abstract val classes: ConfigurableFileCollection
 
-    @get:Optional
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NONE)
+    @get:Internal
     abstract val mappings: ConfigurableFileCollection
 
     @get:InputFiles
     @get:IgnoreEmptyDirectories
     @get:SkipWhenEmpty
-    @get:PathSensitive(PathSensitivity.NONE)
-    internal val anyClass = classes.asFileTree + mappings.asFileTree
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    internal val classesAndMappingFiles = classes.asFileTree + mappings.asFileTree
 
     @get:Input
     @get:Optional

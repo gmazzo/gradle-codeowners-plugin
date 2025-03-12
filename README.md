@@ -1,7 +1,7 @@
 ![GitHub](https://img.shields.io/github/license/gmazzo/gradle-codeowners-plugin)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.gmazzo.codeowners/matcher)](https://central.sonatype.com/artifact/io.github.gmazzo.codeowners/matcher)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.gmazzo.codeowners/io.github.gmazzo.codeowners.gradle.plugin)](https://central.sonatype.com/artifact/io.github.gmazzo.codeowners/io.github.gmazzo.codeowners.gradle.plugin)
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.gmazzo.codeowners)](https://plugins.gradle.org/plugin/io.github.gmazzo.codeowners)
-[![Build Status](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/build.yaml/badge.svg)](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/build.yaml)
+[![Build Status](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/gmazzo/gradle-codeowners-plugin/actions/workflows/ci-cd.yaml)
 [![Coverage](https://codecov.io/gh/gmazzo/gradle-codeowners-plugin/branch/main/graph/badge.svg?token=ExYkP1Q9oE)](https://codecov.io/gh/gmazzo/gradle-codeowners-plugin)
 [![Users](https://img.shields.io/badge/users_by-Sourcegraph-purple)](https://sourcegraph.com/search?q=content:io.github.gmazzo.codeowners+-repo:github.com/gmazzo/gradle-codeowners-plugin)
 

@@ -1,13 +1,6 @@
-@file:Suppress("UnstableApiUsage")
-
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.samWithReceiver)
-    alias(libs.plugins.gradle.pluginPublish)
+    id("plugin-convention-module")
     id("compiler-arguments")
-    id("plugin-compatibility-test")
-    id("maven-central-publish")
-    jacoco
 }
 
 description = "CodeOwners Kotlin Gradle Plugin"
@@ -15,15 +8,10 @@ description = "CodeOwners Kotlin Gradle Plugin"
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 val pluginUnderTestImplementation by configurations.creating
-
-samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
-
 val compileOnlyWithTests by configurations.creating
 
-configurations {
-    compileOnly { extendsFrom(compileOnlyWithTests) }
-    testRuntimeOnly { extendsFrom(compileOnlyWithTests) }
-}
+configurations.compileOnly { extendsFrom(compileOnlyWithTests) }
+configurations.testRuntimeOnly { extendsFrom(compileOnlyWithTests) }
 
 dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =
@@ -69,13 +57,4 @@ buildConfig {
 
 tasks.pluginUnderTestMetadata {
     pluginClasspath.from(pluginUnderTestImplementation)
-}
-
-// makes sure to publish to mavenCentral first, before doing it to Plugins Portal
-tasks.publishPlugins {
-    mustRunAfter(tasks.publishToSonatype)
-}
-
-tasks.publish {
-    dependsOn(tasks.publishPlugins)
 }

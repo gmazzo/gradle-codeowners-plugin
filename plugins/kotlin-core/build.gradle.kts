@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("jvm-convention-module")
-    id("maven-central-publish")
+    id("jvm-base-convention-module")
+    id("org.jetbrains.dokka")
 }
 
 description = "CodeOwners Kotlin Library"
@@ -18,15 +18,4 @@ dependencies {
     commonMainImplementation(libs.kotlin.reflect)
     commonTestImplementation(libs.kotlin.test)
     commonTestImplementation(platform(libs.junit.bom))
-}
-
-publishing.publications.withType<MavenPublication>().configureEach pub@{
-
-    val javadocTask = tasks.register<Jar>("javadoc${this@pub.name.replaceFirstChar { it.uppercase() }}") {
-        archiveBaseName = "${project.name}-${this@pub.name}"
-        archiveClassifier = "javadoc"
-        from(tasks.dokkaHtml)
-    }
-
-    artifact(javadocTask)
 }

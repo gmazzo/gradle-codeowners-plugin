@@ -11,9 +11,18 @@ fun plugin(dep: Provider<PluginDependency>) = dep.map {
     "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}"
 }
 
+fun plugin(dep: ProviderConvertible<PluginDependency>) =
+    plugin(dep.asProvider())
+
 dependencies {
+    implementation(plugin(libs.plugins.axion.release))
     implementation(plugin(libs.plugins.buildConfig))
     implementation(plugin(libs.plugins.dokka))
+    implementation(plugin(libs.plugins.dokka.javadoc))
+    implementation(plugin(libs.plugins.kotlin.jvm))
+    implementation(plugin(libs.plugins.kotlin.samWithReceiver))
+    implementation(plugin(libs.plugins.mavenPublish))
+    implementation(plugin(libs.plugins.gradle.pluginPublish))
 }
 
 buildConfig {

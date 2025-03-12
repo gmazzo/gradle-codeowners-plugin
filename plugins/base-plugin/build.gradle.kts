@@ -1,18 +1,9 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.samWithReceiver)
-    alias(libs.plugins.gradle.pluginPublish)
+    id("plugin-convention-module")
     `java-test-fixtures`
-    id("plugin-compatibility-test")
-    id("maven-central-publish")
-    jacoco
 }
 
-description = "CodeOwners Gradle Base Plugin"
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-
-samWithReceiver.annotation(HasImplicitReceiver::class.java.name)
+description = "Computes the codeowners of the project's classes"
 
 dependencies {
     fun plugin(dep: Provider<PluginDependency>) = with(dep.get()) {
@@ -32,23 +23,11 @@ dependencies {
 }
 
 gradlePlugin {
-    website.set("https://github.com/gmazzo/gradle-codeowners-plugin")
-    vcsUrl.set("https://github.com/gmazzo/gradle-codeowners-plugin")
-
     plugins.create("codeOwners") {
         id = "io.github.gmazzo.codeowners"
         displayName = name
         implementationClass = "io.github.gmazzo.codeowners.CodeOwnersPlugin"
-        description = "Computes the codeowners of the project's classes"
+        description = project.description
         tags.addAll("codeowners", "ownership", "attribution")
     }
-}
-
-// makes sure to publish to mavenCentral first, before doing it to Plugins Portal
-tasks.publishPlugins {
-    mustRunAfter(tasks.publishToSonatype)
-}
-
-tasks.publish {
-    dependsOn(tasks.publishPlugins)
 }
