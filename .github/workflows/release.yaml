@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build
-    uses: ./.github/workflows/build.yaml
+    uses: ci-cd.yaml
 
   release:
     name: Release

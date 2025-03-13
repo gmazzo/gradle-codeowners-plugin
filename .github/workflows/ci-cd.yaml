@@ -14,8 +14,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
-    name: Build
+  ci-cd:
+    name: CI/CD
     runs-on: macos-latest # we also build on iOS for multiplatform
     steps:
       - name: Checkout
