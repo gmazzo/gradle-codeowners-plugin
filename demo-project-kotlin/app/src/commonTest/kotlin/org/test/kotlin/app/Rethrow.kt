@@ -1,4 +1,5 @@
 @file:JvmName("RethrowUtils")
+
 package org.test.kotlin.app
 
 import kotlin.jvm.JvmName

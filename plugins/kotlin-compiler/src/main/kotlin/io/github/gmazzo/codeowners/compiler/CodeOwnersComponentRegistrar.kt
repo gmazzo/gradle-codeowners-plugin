@@ -21,7 +21,8 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         if (KotlinVersion.CURRENT.toString() != BuildConfig.EXPECTED_KOTLIN_VERSION) {
-            configuration.getLogger().warning("The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
+            configuration.getLogger()
+                .warning("The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
         }
 
         val codeOwnersRoot = configuration.get(CODEOWNERS_ROOT)!!

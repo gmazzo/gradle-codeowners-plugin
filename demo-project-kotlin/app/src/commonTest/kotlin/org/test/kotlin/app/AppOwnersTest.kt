@@ -2,10 +2,10 @@ package org.test.kotlin.app
 
 import io.github.gmazzo.codeowners.codeOwners
 import io.github.gmazzo.codeowners.codeOwnersOf
-import org.test.kotlin.utils.AppUtils
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import org.test.kotlin.utils.AppUtils
 
 class AppOwnersTest {
 

@@ -1,14 +1,14 @@
 package io.github.gmazzo.codeowners
 
+import java.io.File
+import java.nio.file.Files
+import kotlin.test.assertEquals
 import org.gradle.api.artifacts.transform.TransformOutputs
 import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.internal.provider.Providers
 import org.gradle.api.provider.Provider
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import java.io.File
-import java.nio.file.Files
-import kotlin.test.assertEquals
 
 class CodeOwnersTransformTest {
 
@@ -35,10 +35,10 @@ class CodeOwnersTransformTest {
         assertEquals(
             """
                 # Generated .codeowners for lib1.jar
-                
+
                 org/test/lib/       kotlin-devs java-devs
                 org/test/utils/     kotlin-devs
-                
+
             """.trimIndent(),
             outputContent
         )

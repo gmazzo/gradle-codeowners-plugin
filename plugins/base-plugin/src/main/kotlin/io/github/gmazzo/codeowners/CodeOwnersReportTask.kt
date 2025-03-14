@@ -2,6 +2,8 @@ package io.github.gmazzo.codeowners
 
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
+import java.io.File
+import java.util.*
 import org.apache.bcel.util.ClassPath
 import org.apache.bcel.util.ClassPathRepository
 import org.gradle.api.DefaultTask
@@ -21,8 +23,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import java.util.TreeMap
 
 @CacheableTask
 @Suppress("LeakingThis")

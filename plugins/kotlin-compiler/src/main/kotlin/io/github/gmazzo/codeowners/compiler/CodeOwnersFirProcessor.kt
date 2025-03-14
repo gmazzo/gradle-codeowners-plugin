@@ -43,7 +43,8 @@ class CodeOwnersFirProcessor(
 
             if (file.declarations.any { it is FirSimpleFunction }) {
                 val fileJvmName = file.findJvmNameValue() ?: file.name.replace("\\.kt".toRegex(), "Kt")
-                val fileClass = JvmClassName.byFqNameWithoutInnerClasses(file.packageFqName.child(Name.identifier(fileJvmName))).internalName
+                val fileClass =
+                    JvmClassName.byFqNameWithoutInnerClasses(file.packageFqName.child(Name.identifier(fileJvmName))).internalName
 
                 data.classes += fileClass
             }

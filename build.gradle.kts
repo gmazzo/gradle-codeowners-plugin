@@ -1,7 +1,3 @@
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
-
 plugins {
     base
     `maven-publish`

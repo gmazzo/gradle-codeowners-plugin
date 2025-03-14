@@ -2,6 +2,8 @@ package io.github.gmazzo.codeowners
 
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
+import java.io.File
+import java.util.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -20,10 +22,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import java.util.LinkedList
-import java.util.SortedSet
-import java.util.TreeSet
 
 @CacheableTask
 @Suppress("LeakingThis")
@@ -146,10 +144,12 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
             if (shouldWrite(path, entry)) {
                 written.add(entry)
 
-                into.add(CodeOwnersFile.Entry(
-                    pattern = path,
-                    owners = entry.owners.toList()
-                ))
+                into.add(
+                    CodeOwnersFile.Entry(
+                        pattern = path,
+                        owners = entry.owners.toList()
+                    )
+                )
                 return true
             }
             return false

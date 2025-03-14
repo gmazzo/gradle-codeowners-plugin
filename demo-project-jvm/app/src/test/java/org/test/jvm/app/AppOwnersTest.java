@@ -7,8 +7,8 @@ import org.test.jvm.utils.LibUtils;
 import org.test.jvm.utils.more.MoreUtils;
 
 import static io.github.gmazzo.codeowners.CodeOwnersUtils.getCodeOwners;
-import static org.junit.Assert.assertEquals;
 import static kotlin.collections.SetsKt.setOf;
+import static org.junit.Assert.assertEquals;
 
 /**
  * On <code>debug</code> both <code>app</code> and <code>lib</code>s have owners computed
@@ -38,8 +38,8 @@ public class AppOwnersTest {
     @Test
     public void ownerOfAppUtilsPackage() {
         assertEquals(
-                BuildConfig.DEBUG ? setOf("app-devs", "libs-devs", "utils-devs") : setOf("libs-devs", "utils-devs"),
-                getCodeOwners(AppUtils.class.getClassLoader(), AppUtils.class.getPackage().getName()));
+            BuildConfig.DEBUG ? setOf("app-devs", "libs-devs", "utils-devs") : setOf("libs-devs", "utils-devs"),
+            getCodeOwners(AppUtils.class.getClassLoader(), AppUtils.class.getPackage().getName()));
     }
 
     @Test

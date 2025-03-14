@@ -1,10 +1,10 @@
 package org.test.kotlin.lib
 
 import io.github.gmazzo.codeowners.codeOwners
-import org.test.kotlin.utils.LibUtils
-import org.test.kotlin.utils.more.MoreUtils
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.test.kotlin.utils.LibUtils
+import org.test.kotlin.utils.more.MoreUtils
 
 class LibOwnersTest {
 

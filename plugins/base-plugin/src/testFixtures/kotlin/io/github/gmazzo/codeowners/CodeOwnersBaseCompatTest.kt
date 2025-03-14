@@ -1,11 +1,11 @@
 package io.github.gmazzo.codeowners
 
+import java.io.File
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import java.io.File
 
 abstract class CodeOwnersBaseCompatTest(
     private val pluginId: String,
@@ -43,7 +43,7 @@ abstract class CodeOwnersBaseCompatTest(
                 $plugins
                 id("$pluginId")
             }
-           
+
             configurations.all {
                 exclude("io.github.gmazzo.codeowners", "jvm-core")
                 exclude("io.github.gmazzo.codeowners", "kotlin-core")
@@ -54,7 +54,7 @@ abstract class CodeOwnersBaseCompatTest(
         if (kind.android) {
             buildFile.appendText(
                 """
-                
+
                 android {
                     namespace = "org.test"
                     compileSdk = 30
@@ -86,9 +86,9 @@ abstract class CodeOwnersBaseCompatTest(
                     google()
                 }
             }
-            
+
             rootProject.name = "test"
-            
+
             include(":app")
             """.trimIndent()
         )

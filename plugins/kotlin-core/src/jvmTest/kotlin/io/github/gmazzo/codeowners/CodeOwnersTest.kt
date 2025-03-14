@@ -1,5 +1,8 @@
 package io.github.gmazzo.codeowners
 
+import java.lang.reflect.Proxy
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import org.test.AnotherBaz
 import org.test.Bar
 import org.test.BarImpl
@@ -7,9 +10,6 @@ import org.test.Baz
 import org.test.Foo
 import org.test.FooImpl
 import org.test.baz
-import java.lang.reflect.Proxy
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 // it only applies to JVM as annotations are not available on other targets
 class CodeOwnersTest {
