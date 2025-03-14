@@ -6,13 +6,13 @@ import io.github.gmazzo.codeowners.compiler.BuildConfig.ARG_CODEOWNERS_FILE
 import io.github.gmazzo.codeowners.compiler.BuildConfig.ARG_CODEOWNERS_ROOT
 import io.github.gmazzo.codeowners.compiler.BuildConfig.ARG_MAPPINGS_OUTPUT
 import io.github.gmazzo.codeowners.compiler.BuildConfig.COMPILER_PLUGIN_ID
+import java.io.File
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOptionProcessingException
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import java.io.File
 
 internal class CodeOwnersCommandLineProcessor : CommandLineProcessor {
 
@@ -20,12 +20,13 @@ internal class CodeOwnersCommandLineProcessor : CommandLineProcessor {
 
     override val pluginOptions = listOf(CODEOWNERS_ROOT, CODEOWNERS_FILE, MAPPINGS_OUTPUT)
 
-    override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) = when (option) {
-        CODEOWNERS_ROOT -> configuration.put(CodeOwnersConfigurationKeys.CODEOWNERS_ROOT, File(value))
-        CODEOWNERS_FILE -> configuration.put(CodeOwnersConfigurationKeys.CODEOWNERS_FILE, File(value))
-        MAPPINGS_OUTPUT -> configuration.put(CodeOwnersConfigurationKeys.MAPPINGS_OUTPUT, File(value))
-        else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
-    }
+    override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) =
+        when (option) {
+            CODEOWNERS_ROOT -> configuration.put(CodeOwnersConfigurationKeys.CODEOWNERS_ROOT, File(value))
+            CODEOWNERS_FILE -> configuration.put(CodeOwnersConfigurationKeys.CODEOWNERS_FILE, File(value))
+            MAPPINGS_OUTPUT -> configuration.put(CodeOwnersConfigurationKeys.MAPPINGS_OUTPUT, File(value))
+            else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
+        }
 
     companion object {
 

@@ -1,6 +1,7 @@
 package io.github.gmazzo.codeowners
 
 import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
+import java.util.zip.ZipInputStream
 import org.gradle.api.artifacts.transform.CacheableTransform
 import org.gradle.api.artifacts.transform.InputArtifact
 import org.gradle.api.artifacts.transform.TransformAction
@@ -10,7 +11,6 @@ import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import java.util.zip.ZipInputStream
 
 @CacheableTransform
 internal abstract class CodeOwnersTransform : TransformAction<TransformParameters.None> {

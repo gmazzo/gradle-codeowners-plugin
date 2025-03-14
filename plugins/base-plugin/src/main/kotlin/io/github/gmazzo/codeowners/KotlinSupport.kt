@@ -28,9 +28,12 @@ class KotlinSupport(private val project: Project) {
 
         val KotlinCompilation<*>.codeOwnersSourceSetName
             get() = when (val classifier = target.disambiguationClassifier?.takeUnless { it.isBlank() }) {
-            null -> name
-            else -> "$classifier${name.takeUnless { it == SourceSet.MAIN_SOURCE_SET_NAME }?.replaceFirstChar { it.uppercase() }.orEmpty()}"
-        }
+                null -> name
+                else -> classifier + name
+                    .takeUnless { it == SourceSet.MAIN_SOURCE_SET_NAME }
+                    ?.replaceFirstChar { it.uppercase() }
+                    .orEmpty()
+            }
 
     }
 

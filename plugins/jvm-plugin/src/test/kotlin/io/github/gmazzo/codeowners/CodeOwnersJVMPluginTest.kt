@@ -1,5 +1,7 @@
 package io.github.gmazzo.codeowners
 
+import java.io.File
+import kotlin.test.assertEquals
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.exclude
@@ -8,8 +10,6 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.io.File
-import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CodeOwnersJVMPluginTest {
@@ -83,7 +83,7 @@ class CodeOwnersJVMPluginTest {
             "child3/src/main/kotlin/com/test/child3/Piece3Stubs.kt",
             "child3/src/main/kotlin/com/test/child3/b/Piece3B.kt",
 
-        ).map(root::file).onEach { it.parentFile.mkdirs() }.forEach(File::createNewFile)
+            ).map(root::file).onEach { it.parentFile.mkdirs() }.forEach(File::createNewFile)
 
         codeOwnersFile.writeText(
             """
@@ -91,12 +91,13 @@ class CodeOwnersJVMPluginTest {
             *                   app-devs
             *.kt                app-devs kotlin-devs
             child1/             child1-devs
-            child2/             child2-devs app-devs 
-            child3/**/java      child3-java 
+            child2/             child2-devs app-devs
+            child3/**/java      child3-java
             child3/**/kotlin    child3-kotlin
             /admin              app-devs admin-devs
             **/groovy/env-*     scripting-devs
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -110,7 +111,7 @@ class CodeOwnersJVMPluginTest {
             com/test/app/AppData        app-devs kotlin-devs
             com/test/app/child1/        child1-devs
             com/test/app/child2/        app-devs child2-devs
-            
+
         """.trimIndent()
     )
 
@@ -119,7 +120,7 @@ class CodeOwnersJVMPluginTest {
         "com/test/admin/.codeowners" to setOf("app-devs", "admin-devs"),
         expectedMappings = """
             com/test/admin/     admin-devs app-devs
-            
+
         """.trimIndent()
     )
 
@@ -128,7 +129,7 @@ class CodeOwnersJVMPluginTest {
         "com/test/child1/.codeowners" to setOf("child1-devs"),
         expectedMappings = """
             com/test/child1/        child1-devs
-            
+
         """.trimIndent()
     )
 
@@ -141,7 +142,7 @@ class CodeOwnersJVMPluginTest {
             Main                    app-devs child2-devs
             com/test/child2/        app-devs child2-devs
             env-dev/                scripting-devs
-            
+
         """.trimIndent()
     )
 
@@ -158,11 +159,14 @@ class CodeOwnersJVMPluginTest {
             com/test/child3/Piece3Stubs     child3-kotlin
             com/test/child3/a/              child3-java
             com/test/child3/b/              child3-kotlin
-            
+
         """.trimIndent()
     )
 
-    private fun Project.testGenerateCodeOwners(vararg expectedInfos: Pair<String, Set<String>>, expectedMappings: String) {
+    private fun Project.testGenerateCodeOwners(
+        vararg expectedInfos: Pair<String, Set<String>>,
+        expectedMappings: String
+    ) {
         tasks.withType<CodeOwnersResourcesTask>().all { generateCodeOwnersInfo() }
 
         val actualInfos = layout.buildDirectory.dir("codeOwners/resources/main").get().let { dir ->
@@ -178,7 +182,8 @@ class CodeOwnersJVMPluginTest {
 
         assertEquals(expectedInfos.toList().asText(), actualInfos.asText())
 
-        val actualMappings = layout.buildDirectory.file("codeOwners/mappings/main-simplified.codeowners").get().asFile.readText()
+        val actualMappings =
+            layout.buildDirectory.file("codeOwners/mappings/main-simplified.codeowners").get().asFile.readText()
         assertEquals(expectedMappings, actualMappings)
     }
 

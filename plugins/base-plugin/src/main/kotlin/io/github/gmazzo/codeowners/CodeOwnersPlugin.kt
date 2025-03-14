@@ -3,6 +3,7 @@ package io.github.gmazzo.codeowners
 import com.android.build.api.artifact.ScopedArtifact
 import com.android.build.api.variant.ScopedArtifacts
 import io.github.gmazzo.codeowners.KotlinSupport.Companion.codeOwnersSourceSetName
+import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -22,7 +23,6 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
-import javax.inject.Inject
 
 open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
     private val extensionClass: Class<out Extension>,
@@ -101,10 +101,11 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
         )
 
         val defaultFile = lazy {
-            defaultLocations.asFileTree.singleOrNull() ?: error(defaultLocations.joinToString(
-                prefix = "No CODEOWNERS file found! Default locations:\n",
-                separator = "\n"
-            ) { "- ${it.toRelativeString(rootDir)}" })
+            defaultLocations.asFileTree.singleOrNull() ?: error(
+                defaultLocations.joinToString(
+                    prefix = "No CODEOWNERS file found! Default locations:\n",
+                    separator = "\n"
+                ) { "- ${it.toRelativeString(rootDir)}" })
         }
 
         codeOwnersFile
@@ -126,18 +127,19 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 mappings.from(this@ss.mappings)
             }
 
-            reportTask = tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.replaceFirstChar { it.uppercase() }}Report") {
-                group = TASK_GROUP
-                description = "Generates CODEOWNERS report for '${this@ss.name}'"
+            reportTask =
+                tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.replaceFirstChar { it.uppercase() }}Report") {
+                    group = TASK_GROUP
+                    description = "Generates CODEOWNERS report for '${this@ss.name}'"
 
-                sources.from(this@ss.sources)
-                classes.from(this@ss.classes)
-                mappings.from(this@ss.mappings)
-                rootDirectory.set(extension.rootDirectory)
-                codeOwnersFile.set(extension.codeOwnersFile)
-                codeOwnersReportHeader.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
-                codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}-${this@ss.name}.codeowners"))
-            }
+                    sources.from(this@ss.sources)
+                    classes.from(this@ss.classes)
+                    mappings.from(this@ss.mappings)
+                    rootDirectory.set(extension.rootDirectory)
+                    codeOwnersFile.set(extension.codeOwnersFile)
+                    codeOwnersReportHeader.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
+                    codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}-${this@ss.name}.codeowners"))
+                }
         }
     }
 

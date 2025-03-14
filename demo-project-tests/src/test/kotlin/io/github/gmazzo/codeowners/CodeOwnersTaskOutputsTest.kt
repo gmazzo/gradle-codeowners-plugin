@@ -1,12 +1,12 @@
 package io.github.gmazzo.codeowners
 
+import java.io.File
+import kotlin.test.assertEquals
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.File
-import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CodeOwnersTaskOutputsTest {
@@ -14,15 +14,19 @@ class CodeOwnersTaskOutputsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("collectMappings")
     fun `verify CodeOwnersTask output`(path: String, expected: File?, actual: File?) {
-        assertEquals(expected?.readText(), actual?.readText(),
-            "Generated mappings for '$path' do not match the expected one")
+        assertEquals(
+            expected?.readText(), actual?.readText(),
+            "Generated mappings for '$path' do not match the expected one"
+        )
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("collectReports")
     fun `verify CodeOwnersReportTask output`(path: String, expected: File?, actual: File?) {
-        assertEquals(expected?.readText(), actual?.readText(),
-            "Generated report for '$path' do not match the expected one")
+        assertEquals(
+            expected?.readText(), actual?.readText(),
+            "Generated report for '$path' do not match the expected one"
+        )
     }
 
     private fun collectMappings() = collect("Mappings")

@@ -9,11 +9,17 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 var KotlinTarget.codeOwners: CodeOwnersKotlinTargetExtension
     get() = (this as ExtensionAware).extensions.getByName<CodeOwnersKotlinTargetExtension>(KotlinTarget::codeOwners.name)
-    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinTargetExtension>(KotlinTarget::codeOwners.name, value)
+    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinTargetExtension>(
+        KotlinTarget::codeOwners.name,
+        value
+    )
 
 var KotlinCompilation<*>.codeOwners: CodeOwnersKotlinSourceSet
     get() = (this as ExtensionAware).extensions.getByName<CodeOwnersKotlinSourceSet>(KotlinCompilation<*>::codeOwners.name)
-    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinSourceSet>(KotlinCompilation<*>::codeOwners.name, value)
+    internal set(value) = (this as ExtensionAware).extensions.add<CodeOwnersKotlinSourceSet>(
+        KotlinCompilation<*>::codeOwners.name,
+        value
+    )
 
 operator fun <Target : CodeOwnersKotlinTargetExtension> Target.invoke(action: Action<Target>) =
     action.execute(this)

@@ -2,11 +2,11 @@ package org.test.kotlin.app
 
 import io.github.gmazzo.codeowners.codeOwners
 import io.github.gmazzo.codeowners.codeOwnersOf
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import org.test.kotlin.lib.LibClass
 import org.test.kotlin.utils.more.MoreUtils
 import org.test.kotlin.utils.rethrow
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class AppOwnersJVMTest {
 

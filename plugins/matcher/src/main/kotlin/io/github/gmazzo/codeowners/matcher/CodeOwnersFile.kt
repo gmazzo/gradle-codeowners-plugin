@@ -83,7 +83,8 @@ data class CodeOwnersFile(
                             append(owner)
                         }
                         if (it.comment != null) {
-                            (it.pattern.length + it.owners.lengthOfAll until indent + commentsIndent).forEach { _ -> append(' ') }
+                            (it.pattern.length + it.owners.lengthOfAll until indent + commentsIndent)
+                                .forEach { _ -> append(' ') }
                             append("# ")
                             append(it.comment)
                         }

@@ -1,9 +1,9 @@
 package io.github.gmazzo.codeowners.matcher
 
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 import java.io.File
 import kotlin.test.assertEquals
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 class CodeOwnersMatcherTest {
 

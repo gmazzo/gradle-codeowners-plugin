@@ -48,13 +48,13 @@ class CodeOwnersFileTest {
         testParse(
             """
             # This is a comment.
-            
+
             *       @global-owner1 @global-owner2
-            *.js    @js-owner #This is an inline comment. 
+            *.js    @js-owner #This is an inline comment.
             *.go docs@example.com
             /build/logs/ @doctocat
             #A final comment
-            
+
         """.trimIndent(),
             CodeOwnersFile(
                 CodeOwnersFile.Comment("This is a comment."),
@@ -74,9 +74,9 @@ class CodeOwnersFileTest {
         testParse(
             """
             # This is a comment.
-            
+
             entryWithoutOwners
-            
+
             *       @global-owner1 @global-owner2
             *.js    @js-owner #This is an inline comment.
         """.trimIndent(),
@@ -110,17 +110,19 @@ class CodeOwnersFileTest {
             CodeOwnersFile.EmptyLine,
         )
 
-        assertEquals("""
+        assertEquals(
+            """
             # This is a comment.
-            
+
             *                   @global-owner1 @global-owner2
             *.js                @js-owner                           # This is an inline comment.
             *.go                docs@example.com
             /build/logs/        @doctocat
             # A final comment
-            
-            
-        """.trimIndent(), codeOwners.content)
+
+
+            """.trimIndent(), codeOwners.content
+        )
     }
 
     @Test
@@ -136,9 +138,11 @@ class CodeOwnersFileTest {
             CodeOwnersFile.EmptyLine,
         )
 
-        val reSerialized = ObjectInputStream(ByteArrayInputStream(ByteArrayOutputStream()
-            .use { ObjectOutputStream(it).use { out -> out.writeObject(original) }; it.toByteArray() }))
-            .readObject() as CodeOwnersFile
+        val reSerialized = ObjectInputStream(
+            ByteArrayInputStream(
+                ByteArrayOutputStream()
+                    .use { ObjectOutputStream(it).use { out -> out.writeObject(original) }; it.toByteArray() })
+        ).readObject() as CodeOwnersFile
 
         assertEquals(original, reSerialized)
         assertEquals(original.content, reSerialized.content)

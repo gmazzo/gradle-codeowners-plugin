@@ -1,4 +1,5 @@
 @file:CodeOwners("baz")
+
 package org.test
 
 import io.github.gmazzo.codeowners.CodeOwners

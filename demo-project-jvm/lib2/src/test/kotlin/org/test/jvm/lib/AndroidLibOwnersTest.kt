@@ -1,9 +1,9 @@
 package org.test.jvm.lib
 
 import io.github.gmazzo.codeowners.codeOwnersOf
-import org.test.jvm.utils.AndroidLibUtils
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.test.jvm.utils.AndroidLibUtils
 
 class AndroidLibOwnersTest {
 
