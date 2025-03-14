@@ -38,6 +38,12 @@ rootProject.allprojects project@{
     }
 }
 
+tasks.register<Sync>("updateTestSpecs") {
+    from(collectTask.map { it.destinationDir.resolve("actualMappings") }) { into("expectedMappings") }
+    from(collectTask.map { it.destinationDir.resolve("actualReports") }) { into("expectedReports") }
+    into(layout.projectDirectory.dir("src/test/resources"))
+}
+
 sourceSets.test {
     resources.srcDirs(collectTask)
 }

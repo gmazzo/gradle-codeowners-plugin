@@ -137,12 +137,19 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     }
 
     private fun generateCodeOwnersFile(entries: MutableMap<String, MutableSet<String>>) {
+        val file = codeOwnersReportFile.asFile.get()
+
+        if (entries.isEmpty()) {
+            file.delete()
+            return
+        }
+
         val header = listOfNotNull(codeOwnersReportHeader.orNull?.let(CodeOwnersFile::Comment))
-        val file = CodeOwnersFile(header + entries.map { (key, value) ->
+        val codeOwners = CodeOwnersFile(header + entries.map { (key, value) ->
             CodeOwnersFile.Entry(pattern = key, owners = value.toList())
         })
 
-        codeOwnersReportFile.asFile.get().writeText(file.content)
+        file.writeText(codeOwners.content)
     }
 
 }
