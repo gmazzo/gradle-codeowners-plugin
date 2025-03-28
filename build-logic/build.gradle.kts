@@ -15,7 +15,6 @@ fun plugin(dep: ProviderConvertible<PluginDependency>) =
     plugin(dep.asProvider())
 
 dependencies {
-    implementation(plugin(libs.plugins.axion.release))
     implementation(plugin(libs.plugins.buildConfig))
     implementation(plugin(libs.plugins.dokka))
     implementation(plugin(libs.plugins.dokka.javadoc))
