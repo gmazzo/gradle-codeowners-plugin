@@ -3,14 +3,13 @@ plugins {
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
     id("jvm-convention-module") apply false
-    alias(libs.plugins.axion.release)
+    alias(libs.plugins.gitVersion)
     alias(libs.plugins.publicationsReport)
     base
 }
 
 allprojects {
     group = "io.github.gmazzo.codeowners"
-    version = rootProject.scmVersion.version
 }
 
 tasks.build {
