@@ -20,7 +20,7 @@ buildConfig = { id = "com.github.gmazzo.buildconfig", version = "5.5.4" }
 dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
 dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version = "2.0.0" }
 embeddedDependencies = { id = "io.github.gmazzo.dependencies.embedded", version = "1.0.5" }
-importClasses = { id = "io.github.gmazzo.importclasses", version = "1.2.0" }
+importClasses = { id = "io.github.gmazzo.importclasses", version = "1.2.1" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
