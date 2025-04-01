@@ -19,6 +19,8 @@ updates:
       - dependency-name: "org.eclipse.jgit:org.eclipse.jgit" # because of min Java version
         update-types: [ "version-update:semver-major" ]
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - "/"
+      - "/.github/actions/*"
     schedule:
       interval: "weekly"
