@@ -17,7 +17,7 @@ permissions:
 jobs:
   ci-cd:
     name: CI/CD
-    runs-on: macos-latest # we also build on iOS for multiplatform
+    runs-on: ${{ github.event_name == 'pull_request' && 'macos-latest' || 'ubuntu-latest' }} # we also build on iOS for multiplatform on PRs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
