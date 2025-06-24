@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.DeclarationCheckers
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFileChecker
 import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
+import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
 import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
@@ -29,13 +30,15 @@ class CodeOwnersFirProcessor(
     }
 
     inner class CodeOwnersMapper : FirFileChecker(MppCheckerKind.Platform) {
-        override fun check(declaration: FirFile, context: CheckerContext, reporter: DiagnosticReporter) {
+        context(_: CheckerContext, _: DiagnosticReporter)
+        override fun check(declaration: FirFile) {
             val mappings = declaration.sourceFile?.toIoFileOrNull()?.let(mappings::resolve) ?: return
 
             declaration.accept(fileVisitor, mappings)
         }
     }
 
+    @OptIn(DirectDeclarationsAccess::class)
     private val fileVisitor = object : FirVisitor<Unit, CodeOwnersMappings.Mapping>() {
 
         override fun visitFile(file: FirFile, data: CodeOwnersMappings.Mapping) {

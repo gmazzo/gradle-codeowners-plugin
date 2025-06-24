@@ -30,10 +30,10 @@ import org.jetbrains.kotlin.ir.types.starProjectedType
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.addChild
-import org.jetbrains.kotlin.ir.util.createImplicitParameterDeclarationWithWrappedDescriptor
+import org.jetbrains.kotlin.ir.util.createThisReceiverParameter
 import org.jetbrains.kotlin.ir.util.fileOrNull
 import org.jetbrains.kotlin.ir.util.primaryConstructor
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
+import org.jetbrains.kotlin.ir.visitors.IrTransformer
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.isJs
@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.platform.konan.isNative
 internal class CodeOwnersIrTransformer(
     private val context: IrPluginContext,
     private val mappings: CodeOwnersMappings,
-) : IrElementTransformer<Set<String>> {
+) : IrTransformer<Set<String>>() {
 
     private val requiresProvider = context.platform?.let { it.isJs() || it.isNative() } == true
 
@@ -105,9 +105,7 @@ internal class CodeOwnersIrTransformer(
             SYNTHETIC_OFFSET,
             annotationCodeOwners.defaultType,
             annotationCodeOwners.owner.primaryConstructor!!.symbol,
-        ).apply {
-            putValueArgument(0, ownersValue)
-        }
+        ).apply { arguments[0] = ownersValue }
         return ownersValue
     }
 
@@ -121,7 +119,7 @@ internal class CodeOwnersIrTransformer(
         this@addCodeOwnersProvider.addChild(this)
 
         superTypes += classCodeOwnersProvider.defaultType
-        createImplicitParameterDeclarationWithWrappedDescriptor()
+        createThisReceiverParameter()
         addConstructor {
             isPrimary = true
             visibility = DescriptorVisibilities.INTERNAL
@@ -134,9 +132,7 @@ internal class CodeOwnersIrTransformer(
                     UNDEFINED_OFFSET,
                     context.irBuiltIns.unitType,
                     classCodeOwnersProvider.owner.primaryConstructor!!.symbol
-                ).apply {
-                    putValueArgument(0, owners)
-                },
+                ).apply { arguments[0] = owners },
                 IrInstanceInitializerCallImpl(
                     UNDEFINED_OFFSET,
                     UNDEFINED_OFFSET,
@@ -162,14 +158,12 @@ internal class CodeOwnersIrTransformer(
         ).apply {
             val starType = fileCodeOwnersProvider!!.starProjectedType
 
-            putValueArgument(
-                0, IrClassReferenceImpl(
-                    UNDEFINED_OFFSET,
-                    UNDEFINED_OFFSET,
-                    context.irBuiltIns.kClassClass.starProjectedType,
-                    starType.classifierOrFail,
-                    starType,
-                )
+            arguments[0] = IrClassReferenceImpl(
+                UNDEFINED_OFFSET,
+                UNDEFINED_OFFSET,
+                context.irBuiltIns.kClassClass.starProjectedType,
+                starType.classifierOrFail,
+                starType,
             )
         }
     }

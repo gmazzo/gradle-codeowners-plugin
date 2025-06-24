@@ -16,6 +16,7 @@ internal class CodeOwnersIrGenerationExtension(
         moduleFragment.accept(transformer, InvalidOwners)
     }
 
+    @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
     private data object InvalidOwners : Set<String> by emptySet() {
         override val size: Int get() = error("Invalid owners")
     }

@@ -7,6 +7,8 @@ plugins {
 
 description = "CodeOwners Kotlin Compiler Plugin"
 
+kotlin.compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
+
 buildConfig {
     packageName = "io.github.gmazzo.codeowners.compiler"
 
