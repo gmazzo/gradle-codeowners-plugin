@@ -16,7 +16,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.17" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android" }
 android-library = { id = "com.android.library", version.ref = "android" }
-buildConfig = { id = "com.github.gmazzo.buildconfig", version = "5.6.6" }
+buildConfig = { id = "com.github.gmazzo.buildconfig", version = "5.6.7" }
 dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
 dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version = "2.0.0" }
 embeddedDependencies = { id = "io.github.gmazzo.dependencies.embedded", version = "1.1.0" }
