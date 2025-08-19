@@ -23,7 +23,7 @@ kotlin {
 
     targets.named<KotlinAndroidTarget>("android") {
         compilations.configureEach {
-            codeOwners.enabled = androidVariant.buildType.name != "release"
+            codeOwners.enabled = "release" !in name.lowercase()
         }
     }
 }
