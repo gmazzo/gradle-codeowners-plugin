@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 
-open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
+open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
     private val extensionClass: Class<out Extension>,
 ) : Plugin<Project> {
 
@@ -84,7 +84,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
 
     private fun Project.configureExtensionInternal(extension: Extension) = with(extension) {
         val parentExtension = generateSequence(parent) { it.parent }
-            .mapNotNull { it.extensions.findByType(CodeOwnersExtension::class.java) }
+            .mapNotNull { it.extensions.findByType(CodeOwnersExtensionBase::class.java) }
             .firstOrNull()
 
         rootDirectory
@@ -198,7 +198,5 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
                 .toGet(ScopedArtifact.CLASSES, { classes }, { jars })
         }
     }
-
-    internal interface DefaultExtension : CodeOwnersExtension<CodeOwnersSourceSet>
 
 }

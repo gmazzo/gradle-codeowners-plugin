@@ -4,7 +4,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 
-interface CodeOwnersExtension<SourceSet : CodeOwnersSourceSet> {
+interface CodeOwnersExtensionBase<SourceSet : CodeOwnersSourceSet> {
 
     /**
      * The base path of the entries on the CODEOWNERS file
