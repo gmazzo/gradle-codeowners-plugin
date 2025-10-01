@@ -5,6 +5,7 @@ import kotlin.test.assertEquals
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.exclude
+import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeAll
@@ -59,6 +60,8 @@ class CodeOwnersJVMPluginTest {
         root.apply(plugin = "org.jetbrains.kotlin.jvm")
         child2.apply(plugin = "groovy")
         child3.apply(plugin = "org.jetbrains.kotlin.jvm")
+
+        root.the<CodeOwnersJVMExtension>().rootDirectory.set(root.projectDir)
 
         sequenceOf(
             "src/main/java/com/test/app/App.java",

@@ -87,9 +87,9 @@ abstract class CodeOwnersReportTask : DefaultTask() {
         val matcher = CodeOwnersMatcher(root, codeOwnersFile.asFile.get().useLines { CodeOwnersFile(it) })
         val entries = mutableMapOf<String, MutableSet<String>>()
 
-        sources.asFileTree.visit {
+        sourcesFiles.visit {
             if (!isDirectory) {
-                val owners = matcher.ownerOf(file, isDirectory)
+                val owners = matcher.ownerOf(file, isDirectory = false)
 
                 if (owners != null) {
                     entries.computeIfAbsent(path) { mutableSetOf() }.addAll(owners)
