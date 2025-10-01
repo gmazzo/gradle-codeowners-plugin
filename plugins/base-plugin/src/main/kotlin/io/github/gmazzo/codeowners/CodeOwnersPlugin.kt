@@ -13,6 +13,7 @@ import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.io.github.gmazzo.codeowners.CodeOwnersExtension
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.reportTask
@@ -28,8 +29,8 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
 ) : Plugin<Project> {
 
     @Inject
-    @Suppress("UNCHECKED_CAST")
-    constructor() : this(DefaultExtension::class.java as Class<out Extension>)
+    @Suppress("UNCHECKED_CAST", "unused")
+    constructor() : this(CodeOwnersExtension::class.java as Class<out Extension>)
 
     companion object {
         const val TASK_GROUP = "CodeOwners"
