@@ -10,7 +10,6 @@ import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.PluginContainer
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
@@ -89,30 +88,38 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
             .firstOrNull()
 
         rootDirectory
-            .valueIfNotNull(parentExtension?.rootDirectory)
-            .convention(layout.projectDirectory)
+            .convention(parentExtension?.rootDirectory ?: gitRoot)
             .finalizeValueOnRead()
 
-        val defaultLocations = files(
+        codeOwnersFile
+            .convention(parentExtension?.codeOwnersFile ?: rootDirectory.defaultCodeOwnersFile)
+            .finalizeValueOnRead()
+    }
+
+    private val Provider<Directory>.defaultCodeOwnersFile get() = map { root ->
+        val locations = listOf(
             "CODEOWNERS",
             ".github/CODEOWNERS",
             ".gitlab/CODEOWNERS",
             "docs/CODEOWNERS",
         )
+        val existingLocations = locations.mapNotNull { path -> root.file(path).takeIf { it.asFile.exists() } }
 
-        val defaultFile = lazy {
-            defaultLocations.asFileTree.singleOrNull() ?: error(
-                defaultLocations.joinToString(
-                    prefix = "No CODEOWNERS file found! Default locations:\n",
-                    separator = "\n"
-                ) { "- ${it.toRelativeString(rootDir)}" })
+        when (existingLocations.size) {
+            1 -> existingLocations.first()
+            0 -> error(locations.joinToString(prefix = "No CODEOWNERS file found! Default locations:\n", separator = "\n") { "- $it" })
+            else -> error(existingLocations.joinToString(prefix = "Multiple CODEOWNERS file found! Locations:\n", separator = "\n") { "- $it" })
         }
-
-        codeOwnersFile
-            .valueIfNotNull(parentExtension?.codeOwnersFile)
-            .convention(layout.file(provider(defaultFile::value)))
-            .finalizeValueOnRead()
     }
+
+    private val Project.gitRoot: Provider<Directory>
+        get() {
+            val rootDir = rootProject.layout.projectDirectory
+
+            return providers
+                .exec { commandLine("git", "rev-parse", "--show-toplevel") }
+                .standardOutput.asText.map { if (it.isNotBlank()) rootDir.dir(it.trim()) else rootDir }
+        }
 
     private fun Project.configureSourceSets(
         extension: Extension,
@@ -189,17 +196,6 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtension<*>>(
             artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
                 .use(sourceSet.reportTask)
                 .toGet(ScopedArtifact.CLASSES, { classes }, { jars })
-        }
-    }
-
-    private val Project.pathAsFileName
-        get() = path.removePrefix(":").replace(':', '-')
-
-    private fun <Type, PropertyOfType : Property<Type>> PropertyOfType.valueIfNotNull(
-        provider: Provider<Type>?,
-    ): PropertyOfType = apply {
-        if (provider != null) {
-            value(provider)
         }
     }
 
