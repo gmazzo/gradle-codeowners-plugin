@@ -11,18 +11,18 @@ public class UtilsOwnersTest {
 
     @Test
     public void ownerOfSelf() {
-        assertEquals(setOf("test-devs"), getCodeOwners(UtilsOwnersTest.class));
+        assertEquals(setOf("jvm-test-devs"), getCodeOwners(UtilsOwnersTest.class));
     }
 
     @Test
     public void ownerOfUtils() {
-        assertEquals(setOf("utils-devs"), getCodeOwners(Utils.class));
+        assertEquals(setOf("jvm-utils-devs"), getCodeOwners(Utils.class));
     }
 
     @Test
     public void ownerOfMoreUtils() {
-        assertEquals(setOf("utils-devs"), getCodeOwners(MoreUtils.class));
-        assertEquals(setOf("utils-devs"), getCodeOwners(MoreUtils.Companion.class));
+        assertEquals(setOf("jvm-utils-devs"), getCodeOwners(MoreUtils.class));
+        assertEquals(setOf("jvm-utils-devs"), getCodeOwners(MoreUtils.Companion.class));
     }
 
 }

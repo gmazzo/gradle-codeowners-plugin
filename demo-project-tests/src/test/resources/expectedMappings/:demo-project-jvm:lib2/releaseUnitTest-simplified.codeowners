@@ -1,7 +1,7 @@
-org/test/jvm/lib/                           libs-devs
-org/test/jvm/lib/AndroidLibOwnersTest       test-devs
-org/test/jvm/utils/                         libs-devs utils-devs
-org/test/jvm/utils/AndroidLibUtils          libs-devs
-org/test/jvm/utils/LibUtils                 libs-devs
-org/test/jvm/utils/Utils                    utils-devs
-org/test/jvm/utils/more/                    utils-devs
+org/test/jvm/lib/                           jvm-libs-devs
+org/test/jvm/lib/AndroidLibOwnersTest       jvm-test-devs
+org/test/jvm/utils/                         jvm-libs-devs jvm-utils-devs
+org/test/jvm/utils/AndroidLibUtils          jvm-libs-devs
+org/test/jvm/utils/LibUtils                 jvm-libs-devs
+org/test/jvm/utils/Utils                    jvm-utils-devs
+org/test/jvm/utils/more/                    jvm-utils-devs

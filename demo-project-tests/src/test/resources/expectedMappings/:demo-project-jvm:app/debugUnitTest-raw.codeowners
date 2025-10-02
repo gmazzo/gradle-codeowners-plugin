@@ -1,13 +1,13 @@
-org/test/jvm/app/                       app-devs
-org/test/jvm/app/AppClass               app-devs
-org/test/jvm/app/AppOwnersTest          test-devs
-org/test/jvm/app/BuildConfig            app-devs
-org/test/jvm/lib/                       libs-devs
-org/test/jvm/lib/LibClass               libs-devs
-org/test/jvm/utils/                     app-devs libs-devs utils-devs
-org/test/jvm/utils/AndroidLibUtils      libs-devs
-org/test/jvm/utils/AppUtils             app-devs
-org/test/jvm/utils/LibUtils             libs-devs
-org/test/jvm/utils/Utils                utils-devs
-org/test/jvm/utils/more/                utils-devs
-org/test/jvm/utils/more/MoreUtils       utils-devs
+org/test/jvm/app/                       jvm-app-devs
+org/test/jvm/app/AppClass               jvm-app-devs
+org/test/jvm/app/AppOwnersTest          jvm-test-devs
+org/test/jvm/app/BuildConfig            jvm-app-devs
+org/test/jvm/lib/                       jvm-libs-devs
+org/test/jvm/lib/LibClass               jvm-libs-devs
+org/test/jvm/utils/                     jvm-app-devs jvm-libs-devs jvm-utils-devs
+org/test/jvm/utils/AndroidLibUtils      jvm-libs-devs
+org/test/jvm/utils/AppUtils             jvm-app-devs
+org/test/jvm/utils/LibUtils             jvm-libs-devs
+org/test/jvm/utils/Utils                jvm-utils-devs
+org/test/jvm/utils/more/                jvm-utils-devs
+org/test/jvm/utils/more/MoreUtils       jvm-utils-devs

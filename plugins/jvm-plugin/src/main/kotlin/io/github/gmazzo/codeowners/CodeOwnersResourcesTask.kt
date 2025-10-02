@@ -9,10 +9,10 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.IgnoreEmptyDirectories
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -40,8 +40,9 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
         rootDirectory.map { it.asFile.toRelativeString(rootDir) }
     }
 
-    @get:Input
-    abstract val codeOwners: Property<CodeOwnersFile>
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val codeOwnersFile: RegularFileProperty
 
     @get:Internal
     abstract val sources: ConfigurableFileCollection
@@ -107,7 +108,8 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
         logger.info("Processing sources...")
 
         val root = rootDirectory.asFile.get()
-        val matcher = CodeOwnersMatcher(root, codeOwners.get())
+        val codeOwners = codeOwnersFile.asFile.get().useLines { CodeOwnersFile(it) }
+        val matcher = CodeOwnersMatcher(root, codeOwners)
 
         sourcesFiles.visit {
             val owners = matcher.ownerOf(file, isDirectory) ?: return@visit

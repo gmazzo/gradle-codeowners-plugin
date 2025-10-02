@@ -1,4 +1,4 @@
 # CodeOwners of module ':demo-project-kotlin:lib2' (source set 'release')
 
-org/test/kotlin/utils/AndroidLibUtils           libs-devs
-org/test/kotlin/utils/AndroidLibUtils$Impl      libs-devs
+org/test/kotlin/utils/AndroidLibUtils           kt-libs-devs
+org/test/kotlin/utils/AndroidLibUtils$Impl      kt-libs-devs

@@ -1,5 +1,5 @@
 # CodeOwners of module ':demo-project-jvm:lib1'
 
-org/test/jvm/lib/LibClass           libs-devs
-org/test/jvm/lib/LibOwnersTest      test-devs
-org/test/jvm/utils/LibUtils         libs-devs
+org/test/jvm/lib/LibClass           jvm-libs-devs
+org/test/jvm/lib/LibOwnersTest      jvm-test-devs
+org/test/jvm/utils/LibUtils         jvm-libs-devs

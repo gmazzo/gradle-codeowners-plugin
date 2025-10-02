@@ -19,17 +19,17 @@ public class AppOwnersTest {
 
     @Test
     public void ownerOfSelf() {
-        assertEquals(BuildConfig.DEBUG ? setOf("test-devs") : null, getCodeOwners(AppOwnersTest.class));
+        assertEquals(BuildConfig.DEBUG ? setOf("jvm-test-devs") : null, getCodeOwners(AppOwnersTest.class));
     }
 
     @Test
     public void ownerOfApp() {
-        assertEquals(BuildConfig.DEBUG ? setOf("app-devs") : null, getCodeOwners(AppClass.class));
+        assertEquals(BuildConfig.DEBUG ? setOf("jvm-app-devs") : null, getCodeOwners(AppClass.class));
     }
 
     @Test
     public void ownerOfAppUtils() {
-        assertEquals(BuildConfig.DEBUG ? setOf("app-devs") : setOf("libs-devs", "utils-devs"), getCodeOwners(AppUtils.class));
+        assertEquals(BuildConfig.DEBUG ? setOf("jvm-app-devs") : setOf("jvm-libs-devs", "jvm-utils-devs"), getCodeOwners(AppUtils.class));
     }
 
     /**
@@ -38,23 +38,23 @@ public class AppOwnersTest {
     @Test
     public void ownerOfAppUtilsPackage() {
         assertEquals(
-            BuildConfig.DEBUG ? setOf("app-devs", "libs-devs", "utils-devs") : setOf("libs-devs", "utils-devs"),
+            BuildConfig.DEBUG ? setOf("jvm-app-devs", "jvm-libs-devs", "jvm-utils-devs") : setOf("jvm-libs-devs", "jvm-utils-devs"),
             getCodeOwners(AppUtils.class.getClassLoader(), AppUtils.class.getPackage().getName()));
     }
 
     @Test
     public void ownerOfLib() {
-        assertEquals(setOf("libs-devs"), getCodeOwners(LibClass.class));
+        assertEquals(setOf("jvm-libs-devs"), getCodeOwners(LibClass.class));
     }
 
     @Test
     public void ownerOfLibUtils() {
-        assertEquals(setOf("libs-devs"), getCodeOwners(LibUtils.class));
+        assertEquals(setOf("jvm-libs-devs"), getCodeOwners(LibUtils.class));
     }
 
     @Test
     public void ownerOfMoreUtils() {
-        assertEquals(setOf("utils-devs"), getCodeOwners(MoreUtils.class));
+        assertEquals(setOf("jvm-utils-devs"), getCodeOwners(MoreUtils.class));
     }
 
 }

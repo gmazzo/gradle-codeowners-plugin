@@ -1,5 +1,5 @@
 # CodeOwners of module ':demo-project-jvm:app' (source set 'debug')
 
-org/test/jvm/app/AppClass           app-devs
-org/test/jvm/app/BuildConfig        app-devs
-org/test/jvm/utils/AppUtils         app-devs
+org/test/jvm/app/AppClass           jvm-app-devs
+org/test/jvm/app/BuildConfig        jvm-app-devs
+org/test/jvm/utils/AppUtils         jvm-app-devs

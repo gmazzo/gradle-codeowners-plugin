@@ -1,4 +1,4 @@
 # CodeOwners of module ':demo-project-kotlin:app' (source set 'iosSimulatorArm64')
 
-org/test/kotlin/app/AppClass        app-devs
-org/test/kotlin/utils/AppUtils      app-devs
+org/test/kotlin/app/AppClass        kt-app-devs
+org/test/kotlin/utils/AppUtils      kt-app-devs

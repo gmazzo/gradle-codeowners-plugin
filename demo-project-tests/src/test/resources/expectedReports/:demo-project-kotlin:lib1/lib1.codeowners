@@ -1,5 +1,5 @@
 # CodeOwners of module ':demo-project-kotlin:lib1'
 
-org/test/kotlin/lib/LibClass            libs-devs
-org/test/kotlin/lib/LibOwnersTest       libs-devs
-org/test/kotlin/utils/LibUtils          libs-devs
+org/test/kotlin/lib/LibClass            kt-libs-devs
+org/test/kotlin/lib/LibOwnersTest       kt-libs-devs
+org/test/kotlin/utils/LibUtils          kt-libs-devs
