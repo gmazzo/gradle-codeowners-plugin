@@ -17,7 +17,7 @@ dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =
         plugin.map { create("${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}") }
 
-    implementation(projects.basePlugin)
+    api(projects.basePlugin)
     implementation(projects.matcher)
 
     testImplementation(testFixtures(projects.basePlugin))
