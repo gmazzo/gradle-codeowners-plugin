@@ -40,6 +40,7 @@ class CodeOwnersKotlinPlugin :
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> =
         with(kotlinCompilation.project.the<CodeOwnersKotlinExtension>()) {
             kotlinCompilation.compileTaskProvider.configure {
+                inputs.file(codeOwnersFile).optional()
                 outputs.dir(kotlinCompilation.outputMappingsFile.map { it.asFile.parentFile }).optional()
             }
 
