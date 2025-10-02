@@ -10,23 +10,23 @@ class LibOwnersTest {
 
     @Test
     fun ownerOfSelf() {
-        assertEquals(setOf("libs-devs"), LibOwnersTest::class.java.codeOwners)
+        assertEquals(setOf("jvm-libs-devs"), LibOwnersTest::class.java.codeOwners)
     }
 
     @Test
     fun ownerOfLib() {
-        assertEquals(setOf("libs-devs"), LibClass::class.java.codeOwners)
+        assertEquals(setOf("jvm-libs-devs"), LibClass::class.java.codeOwners)
     }
 
     @Test
     fun ownerOfUtils() {
-        assertEquals(setOf("libs-devs"), LibUtils::class.java.codeOwners)
+        assertEquals(setOf("jvm-libs-devs"), LibUtils::class.java.codeOwners)
     }
 
     @Test
     fun ownerOfMoreUtils() {
-        assertEquals(setOf("utils-devs"), MoreUtils::class.java.codeOwners)
-        assertEquals(setOf("utils-devs"), MoreUtils.Companion::class.java.codeOwners)
+        assertEquals(setOf("jvm-utils-devs"), MoreUtils::class.java.codeOwners)
+        assertEquals(setOf("jvm-utils-devs"), MoreUtils.Companion::class.java.codeOwners)
     }
 
 }

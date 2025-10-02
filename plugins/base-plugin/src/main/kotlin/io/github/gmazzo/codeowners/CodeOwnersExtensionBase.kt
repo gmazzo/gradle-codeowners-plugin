@@ -1,8 +1,10 @@
 package io.github.gmazzo.codeowners
 
+import java.io.Serializable
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 
 interface CodeOwnersExtensionBase<SourceSet : CodeOwnersSourceSet> {
 
@@ -17,6 +19,16 @@ interface CodeOwnersExtensionBase<SourceSet : CodeOwnersSourceSet> {
     val codeOwnersFile: RegularFileProperty
 
     /**
+     * An optional renamer function to be applied to the owners on the CODEOWNERS file.
+     */
+    val codeOwnersRenamer: Property<Renamer>
+
+    /**
+     * Sets a renamer function to be applied to the owners on the CODEOWNERS file.
+     */
+    fun codeOwnersRenamer(renamer: Renamer)
+
+    /**
      * The collecting of CodeOwners source sets.
      * This is usually a mirror of:
      * - [SourceSet]s for Java projects
@@ -24,5 +36,11 @@ interface CodeOwnersExtensionBase<SourceSet : CodeOwnersSourceSet> {
      * - [org.jetbrains.kotlin.gradle.plugin.KotlinCompilation]s for Kotlin projects
      */
     val sourceSets: NamedDomainObjectContainer<SourceSet>
+
+    fun interface Renamer : Serializable {
+
+        fun rename(owner: String): String
+
+    }
 
 }

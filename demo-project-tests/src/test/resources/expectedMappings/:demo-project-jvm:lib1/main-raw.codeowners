@@ -1,7 +1,7 @@
-org/test/jvm/lib/                       libs-devs
-org/test/jvm/lib/LibClass               libs-devs
-org/test/jvm/utils/                     libs-devs utils-devs
-org/test/jvm/utils/LibUtils             libs-devs
-org/test/jvm/utils/Utils                utils-devs
-org/test/jvm/utils/more/                utils-devs
-org/test/jvm/utils/more/MoreUtils       utils-devs
+org/test/jvm/lib/                       jvm-libs-devs
+org/test/jvm/lib/LibClass               jvm-libs-devs
+org/test/jvm/utils/                     jvm-libs-devs jvm-utils-devs
+org/test/jvm/utils/LibUtils             jvm-libs-devs
+org/test/jvm/utils/Utils                jvm-utils-devs
+org/test/jvm/utils/more/                jvm-utils-devs
+org/test/jvm/utils/more/MoreUtils       jvm-utils-devs

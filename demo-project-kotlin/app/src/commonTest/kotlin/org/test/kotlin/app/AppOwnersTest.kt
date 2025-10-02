@@ -11,24 +11,24 @@ class AppOwnersTest {
 
     @Test
     fun ownerOfApp() {
-        assertEquals(setOf("app-devs"), codeOwnersOf<AppClass>())
+        assertEquals(setOf("kt-app-devs"), codeOwnersOf<AppClass>())
     }
 
     @Test
     fun ownerOfAppUtils() {
-        assertEquals(setOf("app-devs"), codeOwnersOf<AppClass>())
+        assertEquals(setOf("kt-app-devs"), codeOwnersOf<AppClass>())
     }
 
     @Test
     fun ownerOfAppUtilsPackage() {
-        assertEquals(setOf("app-devs"), codeOwnersOf<AppUtils>())
+        assertEquals(setOf("kt-app-devs"), codeOwnersOf<AppUtils>())
     }
 
     @Test
     fun ownerFromExceptionStacktrace() {
         val exception = assertFailsWith<AppException> { rethrow(AppException()) }
 
-        val expectedOwners = setOf(if (isJVM) "utils-devs" else "app-devs") // on JVM we have stackstraces
+        val expectedOwners = setOf(if (isJVM) "kt-utils-devs" else "kt-app-devs") // on JVM we have stackstraces
 
         assertEquals(expectedOwners, exception.codeOwners)
     }

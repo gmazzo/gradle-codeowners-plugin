@@ -1,6 +1,6 @@
 # CodeOwners of module ':demo-project-kotlin:app' (source set 'jsTest')
 
-org/test/kotlin/app/AppException        app-devs
-org/test/kotlin/app/AppOwnersTest       app-devs
-org/test/kotlin/app/RethrowKt           app-devs
-org/test/kotlin/app/RethrowUtils        app-devs
+org/test/kotlin/app/AppException        kt-app-devs
+org/test/kotlin/app/AppOwnersTest       kt-app-devs
+org/test/kotlin/app/RethrowKt           kt-app-devs
+org/test/kotlin/app/RethrowUtils        kt-app-devs

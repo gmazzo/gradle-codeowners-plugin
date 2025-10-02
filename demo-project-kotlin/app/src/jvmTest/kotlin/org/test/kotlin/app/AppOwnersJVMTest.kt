@@ -12,22 +12,22 @@ class AppOwnersJVMTest {
 
     @Test
     fun ownerOfLib() {
-        assertEquals(setOf("libs-devs"), codeOwnersOf<LibClass>())
+        assertEquals(setOf("kt-libs-devs"), codeOwnersOf<LibClass>())
     }
 
     @Test
     fun ownerOfLibUtils() {
-        assertEquals(setOf("libs-devs"), codeOwnersOf<LibClass>())
+        assertEquals(setOf("kt-libs-devs"), codeOwnersOf<LibClass>())
     }
 
     @Test
     fun ownerOfMoreUtils() {
-        assertEquals(setOf("utils-devs"), codeOwnersOf<MoreUtils>())
+        assertEquals(setOf("kt-utils-devs"), codeOwnersOf<MoreUtils>())
     }
 
     @Test
     fun ownerOfUtilFunctions() {
-        assertEquals(setOf("utils-devs"), ::rethrow.codeOwners)
+        assertEquals(setOf("kt-utils-devs"), ::rethrow.codeOwners)
     }
 
 }

@@ -1,6 +1,6 @@
 # CodeOwners of module ':demo-project-kotlin:utils' (source set 'main')
 
-org/test/kotlin/utils/RethrowKt                     utils-devs
-org/test/kotlin/utils/Utils                         utils-devs
-org/test/kotlin/utils/more/MoreUtils                utils-devs
-org/test/kotlin/utils/more/MoreUtils$Companion      utils-devs
+org/test/kotlin/utils/RethrowKt                     kt-utils-devs
+org/test/kotlin/utils/Utils                         kt-utils-devs
+org/test/kotlin/utils/more/MoreUtils                kt-utils-devs
+org/test/kotlin/utils/more/MoreUtils$Companion      kt-utils-devs

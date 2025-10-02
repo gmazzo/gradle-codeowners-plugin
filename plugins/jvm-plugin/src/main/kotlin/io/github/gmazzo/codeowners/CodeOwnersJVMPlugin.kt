@@ -6,7 +6,6 @@ import com.android.build.api.variant.Component
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasUnitTest
 import io.github.gmazzo.codeowners.CodeOwnersInspectDependencies.DependenciesMode
-import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
@@ -35,16 +34,18 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
 
-class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJVMExtension::class.java) {
+class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionInternal>() {
 
     private companion object {
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
         private const val ARTIFACT_TYPE_ANDROID_JAVA_RES = "android-java-res"
     }
 
-    override fun Project.configureExtension(extension: CodeOwnersJVMExtension) {
-        val codeOwners = extension.codeOwnersFile.asFile.map { file -> file.useLines { CodeOwnersFile(it) } }
+    override val extensionClass = CodeOwnersJVMExtension::class.java
 
+    override val extensionClassImpl = CodeOwnersJVMExtensionInternal::class.java
+
+    override fun Project.configureExtension() {
         extension.inspectDependencies
             .convention(DependenciesMode.LOCAL_PROJECTS)
             .finalizeValueOnRead()
@@ -53,14 +54,11 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
             .convention(true)
             .finalizeValueOnRead()
 
-        configureSourceSets(extension, codeOwners)
+        configureSourceSets()
         setupArtifactTransform(objects)
     }
 
-    private fun Project.configureSourceSets(
-        extension: CodeOwnersJVMExtension,
-        codeOwnersFile: Provider<CodeOwnersFile>,
-    ) = extension.sourceSets.configureEach ss@{
+    private fun Project.configureSourceSets() = extension.sourceSets.configureEach ss@{
 
         enabled
             .convention(true)
@@ -81,7 +79,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
             description = "Process CODEOWNERS entries for source set '${this@ss.name}'"
 
             sources.from(this@ss.sources)
-            codeOwners.set(codeOwnersFile)
+            codeOwnersFile.set(extension.renamedCodeOwnersFile)
             rootDirectory.set(extension.rootDirectory)
             outputDirectory.set(layout.buildDirectory.dir("codeOwners/resources/${this@ss.name}"))
             rawMappedCodeOwnersFile.set(layout.buildDirectory.file("codeOwners/mappings/${this@ss.name}-raw.codeowners"))
@@ -89,7 +87,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
         }
     }
 
-    override fun Project.configureBySourceSet(extension: CodeOwnersJVMExtension) {
+    override fun Project.configureBySourceSet() {
         the<SourceSetContainer>().configureEach @JvmSerializableLambda {
             val ss = this
             val sourceSet = extension.sourceSets.maybeCreate(ss.name)
@@ -108,7 +106,7 @@ class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtension>(CodeOwnersJ
         }
     }
 
-    override fun Project.configureByAndroidVariants(extension: CodeOwnersJVMExtension) {
+    override fun Project.configureByAndroidVariants() {
         plugins.withId("com.android.base") @JvmSerializableLambda {
 
             fun bind(

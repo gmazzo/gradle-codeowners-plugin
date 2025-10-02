@@ -3,7 +3,6 @@ package io.github.gmazzo.codeowners
 import com.android.build.api.artifact.ScopedArtifact
 import com.android.build.api.variant.ScopedArtifacts
 import io.github.gmazzo.codeowners.KotlinSupport.Companion.codeOwnersSourceSetName
-import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -23,22 +22,24 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 
-open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
-    private val extensionClass: Class<out Extension>,
-) : Plugin<Project> {
-
-    @Inject
-    @Suppress("UNCHECKED_CAST", "unused")
-    constructor() : this(CodeOwnersExtension::class.java as Class<out Extension>)
+open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Plugin<Project> {
 
     companion object {
         const val TASK_GROUP = "CodeOwners"
+        private const val EXTENSION_NAME = "codeOwners"
     }
 
-    protected open fun Project.configureExtension(extension: Extension) {}
-    protected open fun Project.configureByAndroidVariants(extension: Extension) {}
-    protected open fun Project.configureByKotlinTargets(extension: Extension) {}
-    protected open fun Project.configureBySourceSet(extension: Extension) {}
+    protected open val extensionClass: Class<out CodeOwnersExtensionBase<*>> = CodeOwnersExtension::class.java
+    protected open val extensionClassImpl: Class<out CodeOwnersExtensionBaseInternal<*>> =
+        CodeOwnersExtensionInternal::class.java
+
+    protected open fun Project.configureExtension() {}
+    protected open fun Project.configureByAndroidVariants() {}
+    protected open fun Project.configureByKotlinTargets() {}
+    protected open fun Project.configureBySourceSet() {}
+
+    protected lateinit var extension: Extension
+        private set
 
     override fun apply(target: Project): Unit = with(target) {
         GradleVersion.version("7.5").let { required ->
@@ -47,34 +48,40 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
             }
         }
 
-        val extension = extensions.create("codeOwners", extensionClass)
+        @Suppress("UNCHECKED_CAST")
+        extension = extensions.create(
+            extensionClass as Class<CodeOwnersExtensionBase<*>>,
+            EXTENSION_NAME,
+            extensionClassImpl as Class<Extension>,
+            lazy { tasks.register<CodeOwnersRenameTask>("renameCodeOwners") },
+        ) as Extension
 
         val reportAllTask = tasks.register<CodeOwnersReportTask>("codeOwnersReport") {
             group = TASK_GROUP
             description = "Generates CODEOWNERS report for all classes of this project"
 
             rootDirectory.set(extension.rootDirectory)
-            codeOwnersFile.set(extension.codeOwnersFile)
+            codeOwnersFile.set(extension.renamedCodeOwnersFile)
             codeOwnersReportHeader.set("CodeOwners of module '${project.path}'\n")
             codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}.codeowners"))
         }
 
-        configureExtensionInternal(extension)
-        configureSourceSets(extension, reportAllTask)
-        configureExtension(extension)
+        configureExtensionInternal()
+        configureSourceSets(reportAllTask)
+        configureExtension()
 
         // configures collaborating plugin's specifics
         plugins.withId("java") {
-            configureBySourceSetInternal(extension)
-            configureBySourceSet(extension)
+            configureBySourceSetInternal()
+            configureBySourceSet()
         }
         plugins.withId("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.multiplatform") {
-            configureByKotlinTargetsInternal(extension)
-            configureByKotlinTargets(extension)
+            configureByKotlinTargetsInternal()
+            configureByKotlinTargets()
         }
         plugins.withId("com.android.base") {
-            configureByAndroidVariantsInternal(extension, reportAllTask)
-            configureByAndroidVariants(extension)
+            configureByAndroidVariantsInternal( reportAllTask)
+            configureByAndroidVariants()
         }
     }
 
@@ -82,35 +89,56 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
     private fun PluginContainer.withId(vararg pluginIds: String, action: Action<Plugin<*>>) =
         pluginIds.forEach { withId(it, action) }
 
-    private fun Project.configureExtensionInternal(extension: Extension) = with(extension) {
+    private fun Project.configureExtensionInternal() = with(extension) {
         val parentExtension = generateSequence(parent) { it.parent }
-            .mapNotNull { it.extensions.findByType(CodeOwnersExtensionBase::class.java) }
+            .mapNotNull { it.extensions.findByName(EXTENSION_NAME) as CodeOwnersExtensionBaseInternal<*>? }
             .firstOrNull()
 
         rootDirectory
-            .convention(parentExtension?.rootDirectory ?: gitRoot)
+            .convention(parentExtension?.rootDirectory.orElse(gitRoot))
             .finalizeValueOnRead()
 
         codeOwnersFile
-            .convention(parentExtension?.codeOwnersFile ?: rootDirectory.defaultCodeOwnersFile)
+            .convention( parentExtension?.codeOwnersFile.orElse(rootDirectory.defaultCodeOwnersFile))
+            .finalizeValueOnRead()
+
+        codeOwnersRenamer
+            .finalizeValueOnRead()
+
+        renamedCodeOwnersFile
+            .convention(parentExtension?.renamedCodeOwnersFile.orElse(codeOwnersFile))
+            .finalizeValueOnRead()
+
+        renamedCodeOwnersFileUntracked
+            .convention(parentExtension?.renamedCodeOwnersFileUntracked.orElse(codeOwnersFile))
             .finalizeValueOnRead()
     }
 
-    private val Provider<Directory>.defaultCodeOwnersFile get() = map { root ->
-        val locations = listOf(
-            "CODEOWNERS",
-            ".github/CODEOWNERS",
-            ".gitlab/CODEOWNERS",
-            "docs/CODEOWNERS",
-        )
-        val existingLocations = locations.mapNotNull { path -> root.file(path).takeIf { it.asFile.exists() } }
+    private val Provider<Directory>.defaultCodeOwnersFile
+        get() = map { root ->
+            val locations = listOf(
+                "CODEOWNERS",
+                ".github/CODEOWNERS",
+                ".gitlab/CODEOWNERS",
+                "docs/CODEOWNERS",
+            ).map { path -> root.file(path) }
+            val existingLocations = locations.mapNotNull { it.takeIf { it.asFile.isFile } }
 
-        when (existingLocations.size) {
-            1 -> existingLocations.first()
-            0 -> error(locations.joinToString(prefix = "No CODEOWNERS file found! Default locations:\n", separator = "\n") { "- $it" })
-            else -> error(existingLocations.joinToString(prefix = "Multiple CODEOWNERS file found! Locations:\n", separator = "\n") { "- $it" })
+            when (existingLocations.size) {
+                1 -> existingLocations.first()
+                0 -> error(
+                    locations.joinToString(
+                        prefix = "No CODEOWNERS file found! Default locations:\n",
+                        separator = "\n"
+                    ) { "- $it" })
+
+                else -> error(
+                    existingLocations.joinToString(
+                        prefix = "Multiple CODEOWNERS file found! Locations:\n",
+                        separator = "\n"
+                    ) { "- $it" })
+            }
         }
-    }
 
     private val Project.gitRoot: Provider<Directory>
         get() {
@@ -122,7 +150,6 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
         }
 
     private fun Project.configureSourceSets(
-        extension: Extension,
         reportAllTask: TaskProvider<CodeOwnersReportTask>,
     ) {
         extension.sourceSets.configureEach ss@{
@@ -143,14 +170,14 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
                     classes.from(this@ss.classes)
                     mappings.from(this@ss.mappings)
                     rootDirectory.set(extension.rootDirectory)
-                    codeOwnersFile.set(extension.codeOwnersFile)
+                    codeOwnersFile.set(extension.renamedCodeOwnersFile)
                     codeOwnersReportHeader.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
                     codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}-${this@ss.name}.codeowners"))
                 }
         }
     }
 
-    private fun Project.configureBySourceSetInternal(extension: Extension) =
+    private fun Project.configureBySourceSetInternal() =
         the<SourceSetContainer>().configureEach {
             val sourceSet = extension.sourceSets.maybeCreate(name)
 
@@ -158,7 +185,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
             sourceSet.classes.from(output.classesDirs)
         }
 
-    private fun Project.configureByKotlinTargetsInternal(extension: Extension) =
+    private fun Project.configureByKotlinTargetsInternal() =
         KotlinSupport(this).configureTargets @JvmSerializableLambda {
             if (this !is KotlinMetadataTarget) {
                 compilations.configureEach {
@@ -171,7 +198,6 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
         }
 
     private fun Project.configureByAndroidVariantsInternal(
-        extension: Extension,
         reportAllTask: TaskProvider<CodeOwnersReportTask>,
     ) = with(AndroidSupport(project)) {
         configureComponents @JvmSerializableLambda {
@@ -198,5 +224,9 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBase<*>>(
                 .toGet(ScopedArtifact.CLASSES, { classes }, { jars })
         }
     }
+
+    private fun <Type> Provider<Type>?.orElse(
+        provider: Provider<Type>,
+    ): Provider<Type> = this?.orElse(provider) ?: provider
 
 }

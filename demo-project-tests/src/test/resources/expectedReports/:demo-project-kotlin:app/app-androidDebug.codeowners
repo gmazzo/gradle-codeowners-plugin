@@ -1,5 +1,5 @@
 # CodeOwners of module ':demo-project-kotlin:app' (source set 'androidDebug')
 
-org/test/kotlin/app/AppClass        app-devs
-org/test/kotlin/app/BuildConfig     app-devs
-org/test/kotlin/utils/AppUtils      app-devs
+org/test/kotlin/app/AppClass        kt-app-devs
+org/test/kotlin/app/BuildConfig     kt-app-devs
+org/test/kotlin/utils/AppUtils      kt-app-devs
