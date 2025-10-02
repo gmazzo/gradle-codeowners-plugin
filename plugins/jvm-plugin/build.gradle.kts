@@ -16,7 +16,7 @@ dependencies {
     compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.android.application))
 
-    implementation(projects.basePlugin)
+    api(projects.basePlugin)
     implementation(projects.matcher)
 
     testImplementation(gradleKotlinDsl())
