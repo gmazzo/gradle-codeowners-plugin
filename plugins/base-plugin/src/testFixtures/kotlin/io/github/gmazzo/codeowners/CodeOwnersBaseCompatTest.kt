@@ -44,6 +44,8 @@ abstract class CodeOwnersBaseCompatTest(
                 id("$pluginId")
             }
 
+            codeOwners.rootDirectory = layout.projectDirectory
+
             configurations.all {
                 exclude("io.github.gmazzo.codeowners", "jvm-core")
                 exclude("io.github.gmazzo.codeowners", "kotlin-core")

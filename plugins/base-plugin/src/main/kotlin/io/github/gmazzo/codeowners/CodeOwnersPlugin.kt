@@ -145,7 +145,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
             val rootDir = rootProject.layout.projectDirectory
 
             return providers
-                .exec { commandLine("git", "rev-parse", "--show-toplevel") }
+                .exec { commandLine("git", "rev-parse", "--show-toplevel"); isIgnoreExitValue = true }
                 .standardOutput.asText.map { if (it.isNotBlank()) rootDir.dir(it.trim()) else rootDir }
         }
 

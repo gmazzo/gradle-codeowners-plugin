@@ -2,6 +2,7 @@ plugins {
     org.jetbrains.kotlin.jvm
     org.jetbrains.kotlin.plugin.sam.with.receiver
     id("jvm-convention-module")
+    id("plugin-compatibility-test")
     com.gradle.`plugin-publish`
 }
 
