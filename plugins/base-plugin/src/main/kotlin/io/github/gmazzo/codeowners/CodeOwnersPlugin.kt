@@ -80,7 +80,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
             configureByKotlinTargets()
         }
         plugins.withId("com.android.base") {
-            configureByAndroidVariantsInternal( reportAllTask)
+            configureByAndroidVariantsInternal(reportAllTask)
             configureByAndroidVariants()
         }
     }
@@ -99,7 +99,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
             .finalizeValueOnRead()
 
         codeOwnersFile
-            .convention( parentExtension?.codeOwnersFile.orElse(rootDirectory.defaultCodeOwnersFile))
+            .convention(parentExtension?.codeOwnersFile.orElse(rootDirectory.defaultCodeOwnersFile))
             .finalizeValueOnRead()
 
         codeOwnersRenamer
@@ -205,7 +205,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
                 if (plugins.hasPlugin("org.jetbrains.kotlin.multiplatform"))
                     the<KotlinTargetsContainer>()
                         .targets.withType<KotlinAndroidTarget>()
-                        .firstOrNull()?.name?.let { "${it}${name.replaceFirstChar { it.uppercase() }}" }
+                        .firstOrNull()?.name?.let { "${it}${name.replaceFirstChar { ch -> ch.uppercase() }}" }
                 else null
 
             val sourceSet = extension.sourceSets.maybeCreate(kotlinAwareSourceSetName ?: name)
