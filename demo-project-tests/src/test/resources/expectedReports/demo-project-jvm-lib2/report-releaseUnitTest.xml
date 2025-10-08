@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<codeowners files="1" unowned="0">
+    <owner files="1" name="jvm-test-devs">
+        <file path="src/test/kotlin/org/test/jvm/lib/AndroidLibOwnersTest.kt"/>
+    </owner>
+    <unowned files="0"/>
+</codeowners>

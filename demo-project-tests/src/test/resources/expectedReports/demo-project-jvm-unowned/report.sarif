@@ -1,0 +1,49 @@
+{
+    "$schema": "https://json.schemastore.org/sarif-2.1.0-rtm.4",
+    "version": "2.1.0",
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "io.github.gmazzo.codeowners.CodeOwnersReportTask",
+                    "informationUri": "https://github.com/gmazzo/gradle-codeowners-plugin",
+                    "version": "2.7.0-SNAPSHOT",
+                    "rules": [
+                        {
+                            "id": "UnownedClassFile",
+                            "shortDescription": {
+                                "text": "Class file does not have a code owner"
+                            }
+                        }
+                    ]
+                }
+            },
+            "artifacts": [
+                {
+                    "first": "location",
+                    "second": {
+                        "uri": "file:<baseDir>/gradle-codeowners-plugin/demo-project-jvm/unowned/"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "ruleId": "UnownedClassFile",
+                    "level": "error",
+                    "message": {
+                        "text": "Class file does not have a code owner"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "file:<baseDir>/gradle-codeowners-plugin/demo-project-jvm/unowned/src/main/java/org/test/jvm/unowned/Unowned.java"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

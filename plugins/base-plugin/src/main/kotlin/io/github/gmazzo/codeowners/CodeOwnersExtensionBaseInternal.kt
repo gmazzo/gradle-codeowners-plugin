@@ -1,11 +1,10 @@
 package io.github.gmazzo.codeowners
 
-import javax.inject.Inject
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.TaskProvider
 
-abstract class CodeOwnersExtensionBaseInternal<SourceSet : CodeOwnersSourceSet> @Inject constructor(
+abstract class CodeOwnersExtensionBaseInternal<SourceSet : CodeOwnersSourceSet>(
     private val project: Project,
     val renameTask: Lazy<TaskProvider<CodeOwnersRenameTask>>,
 ) : CodeOwnersExtensionBase<SourceSet> {

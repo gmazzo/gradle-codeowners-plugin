@@ -1,5 +1,5 @@
 package org.test.kotlin.utils
 
 fun rethrow(throwable: Throwable) {
-    throw throwable.javaClass.newInstance()
+    throw throwable.javaClass.getConstructor().newInstance()
 }

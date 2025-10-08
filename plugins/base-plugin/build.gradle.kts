@@ -1,9 +1,17 @@
 plugins {
     id("plugin-convention-module")
+    id("com.github.gmazzo.buildconfig")
     `java-test-fixtures`
 }
 
 description = "Computes the codeowners of the project's classes"
+
+buildConfig {
+    packageName = "io.github.gmazzo.codeowners"
+
+    buildConfigField("PLUGIN_VERSION", provider { project.version.toString() })
+    buildConfigField("PLUGIN_URL", "https://github.com/gmazzo/gradle-codeowners-plugin")
+}
 
 dependencies {
     fun plugin(dep: Provider<PluginDependency>) = with(dep.get()) {
@@ -19,7 +27,7 @@ dependencies {
 
     testFixturesImplementation(gradleTestKit())
     testFixturesApi(platform(libs.junit.bom))
-    testFixturesApi("org.junit.jupiter:junit-jupiter-params")
+    testFixturesApi(libs.junit.params)
 }
 
 gradlePlugin {

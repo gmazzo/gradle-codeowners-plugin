@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<codeowners files="2" unowned="0">
+    <owner files="2" name="kt-app-devs">
+        <file path="src/commonMain/kotlin/org/test/kotlin/app/AppClass.kt"/>
+        <file path="src/commonMain/kotlin/org/test/kotlin/utils/AppUtils.kt"/>
+    </owner>
+    <unowned files="0"/>
+</codeowners>

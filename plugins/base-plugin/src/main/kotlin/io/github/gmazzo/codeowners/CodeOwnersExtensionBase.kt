@@ -1,11 +1,14 @@
 package io.github.gmazzo.codeowners
 
 import java.io.Serializable
+import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
 
+@JvmDefaultWithoutCompatibility
 interface CodeOwnersExtensionBase<SourceSet : CodeOwnersSourceSet> {
 
     /**
@@ -36,6 +39,24 @@ interface CodeOwnersExtensionBase<SourceSet : CodeOwnersSourceSet> {
      * - [org.jetbrains.kotlin.gradle.plugin.KotlinCompilation]s for Kotlin projects
      */
     val sourceSets: NamedDomainObjectContainer<SourceSet>
+
+    /**
+     * The directory where code owners reports are generated.
+     */
+    val reportsDirectory: DirectoryProperty
+
+    /**
+     * Access the reports produced by its [CodeOwnersReportTask] task
+     */
+    @get:Nested
+    val reports: CodeOwnersReports
+
+    /**
+     * Configures the reports produced by its [CodeOwnersReportTask] task
+     */
+    fun reports(action: Action<CodeOwnersReports>) {
+        action.execute(reports)
+    }
 
     fun interface Renamer : Serializable {
 
