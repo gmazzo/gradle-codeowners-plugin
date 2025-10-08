@@ -213,7 +213,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
             val jars = objects.listProperty<Directory>()
 
             sourceSet.sources.from(sources.java?.all, sources.kotlin?.all)
-            sourceSet.classes.from(classes, jars)
+             sourceSet.classes.from(classes, jars)
 
             artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
                 .use(reportAllTask)
