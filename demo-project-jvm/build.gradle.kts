@@ -5,4 +5,11 @@ plugins {
 codeOwners {
     rootDirectory = layout.projectDirectory
     codeOwnersRenamer { "jvm-$it" }
+
+    reports {
+        ignoreUnowned()
+
+        checkstyle.required = true
+        sarif.required = true
+    }
 }

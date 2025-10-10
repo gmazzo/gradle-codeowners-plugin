@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<checkstyle version="9.3">
+    <file name="src/main/kotlin/org/test/kotlin/unowned/Unowned.kt">
+        <error message="Class file does not have a code owner" severity="error" source="io.github.gmazzo.codeowners.CodeOwnersReportTask"/>
+    </file>
+</checkstyle>

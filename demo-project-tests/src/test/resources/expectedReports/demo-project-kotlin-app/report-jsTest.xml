@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<codeowners files="3" unowned="0">
+    <owner files="3" name="kt-app-devs">
+        <file path="src/jsTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+        <file path="src/commonTest/kotlin/org/test/kotlin/app/AppOwnersTest.kt"/>
+        <file path="src/commonTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+    </owner>
+    <unowned files="0"/>
+</codeowners>

@@ -24,7 +24,6 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-@Suppress("LeakingThis")
 abstract class CodeOwnersResourcesTask : DefaultTask() {
 
     @get:Internal
@@ -36,6 +35,7 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
      * [Incorrect use of the `@Input` annotation](https://docs.gradle.org/7.6/userguide/validation_problems.html#incorrect_use_of_input_annotation)
      */
     @get:Input
+    @Suppress("unused")
     internal val rootDirectoryPath = project.rootDir.let { rootDir ->
         rootDirectory.map { it.asFile.toRelativeString(rootDir) }
     }

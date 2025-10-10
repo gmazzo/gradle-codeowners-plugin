@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<codeowners files="1" unowned="1">
+    <unowned files="1">
+        <file path="src/main/java/org/test/jvm/unowned/Unowned.java"/>
+    </unowned>
+</codeowners>

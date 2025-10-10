@@ -25,6 +25,7 @@ include(
     "demo-project-jvm:lib1",
     "demo-project-jvm:lib2",
     "demo-project-jvm:utils",
+    "demo-project-jvm:unowned",
 )
 include(
     "demo-project-kotlin",
@@ -32,5 +33,6 @@ include(
     "demo-project-kotlin:lib1",
     "demo-project-kotlin:lib2",
     "demo-project-kotlin:utils",
+    "demo-project-kotlin:unowned",
 )
 include("demo-project-tests")

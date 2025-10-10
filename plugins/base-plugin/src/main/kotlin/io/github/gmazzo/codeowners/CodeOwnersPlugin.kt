@@ -9,14 +9,18 @@ import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.PluginContainer
+import org.gradle.api.plugins.ReportingBasePlugin
 import org.gradle.api.provider.Provider
+import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.reportTask
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -48,6 +52,8 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
             }
         }
 
+        apply<ReportingBasePlugin>()
+
         @Suppress("UNCHECKED_CAST")
         extension = extensions.create(
             extensionClass as Class<CodeOwnersExtensionBase<*>>,
@@ -56,14 +62,14 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
             lazy { tasks.register<CodeOwnersRenameTask>("renameCodeOwners") },
         ) as Extension
 
-        val reportAllTask = tasks.register<CodeOwnersReportTask>("codeOwnersReport") {
+        val reportAllTask = tasks.register<CodeOwnersReportTask>("codeOwnersReport") task@{
             group = TASK_GROUP
             description = "Generates CODEOWNERS report for all classes of this project"
 
-            rootDirectory.set(extension.rootDirectory)
-            codeOwnersFile.set(extension.renamedCodeOwnersFile)
-            codeOwnersReportHeader.set("CodeOwners of module '${project.path}'\n")
-            codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}.codeowners"))
+            this@task.rootDirectory.set(extension.rootDirectory)
+            this@task.codeOwnersFile.set(extension.renamedCodeOwnersFile)
+            this@task.reports.from(extension.reports, "", extension.reportsDirectory)
+            this@task.reports.mappings.header.convention("CodeOwners of module '${project.path}'\n")
         }
 
         configureExtensionInternal()
@@ -71,6 +77,9 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
         configureExtension()
 
         // configures collaborating plugin's specifics
+        plugins.withId("lifecycle-base") {
+            tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) { dependsOn(reportAllTask) }
+        }
         plugins.withId("java") {
             configureBySourceSetInternal()
             configureBySourceSet()
@@ -91,7 +100,7 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
 
     private fun Project.configureExtensionInternal() = with(extension) {
         val parentExtension = generateSequence(parent) { it.parent }
-            .mapNotNull { it.extensions.findByName(EXTENSION_NAME) as CodeOwnersExtensionBaseInternal<*>? }
+            .mapNotNull { it.extensions.findByName(EXTENSION_NAME) as? CodeOwnersExtensionBaseInternal<*>? }
             .firstOrNull()
 
         rootDirectory
@@ -112,6 +121,51 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
         renamedCodeOwnersFileUntracked
             .convention(parentExtension?.renamedCodeOwnersFileUntracked.orElse(codeOwnersFile))
             .finalizeValueOnRead()
+
+        reportsDirectory
+            .convention(the<ReportingExtension>().baseDirectory.dir("codeowners"))
+            .finalizeValueOnRead()
+
+        reports {
+
+            failOnUnownedThreshold
+                .convention(parentExtension?.reports?.failOnUnownedThreshold.orElse(provider { null }))
+                .finalizeValueOnRead()
+
+            unownedClassSeverity
+                .convention(parentExtension?.reports?.unownedClassSeverity.orElse(provider { CodeOwnersReports.Severity.ERROR }))
+                .finalizeValueOnRead()
+
+            mappings.required
+                .convention(parentExtension?.reports?.mappings?.required.orElse(provider { true }))
+                .finalizeValueOnRead()
+
+            mappings.header
+                .convention(parentExtension?.reports?.mappings?.header.orElse(provider { null }))
+                .finalizeValueOnRead()
+
+            html.required
+                .convention(parentExtension?.reports?.html?.required.orElse(provider { true }))
+                .finalizeValueOnRead()
+
+            html.stylesheet
+                .convention(parentExtension?.reports?.html?.stylesheet.orElse(provider { null }))
+                .finalizeValueOnRead()
+
+            xml.required
+                .convention(parentExtension?.reports?.xml?.required.orElse(provider { true }))
+                .finalizeValueOnRead()
+
+            checkstyle.required
+                .convention(parentExtension?.reports?.checkstyle?.required.orElse(provider { false }))
+                .finalizeValueOnRead()
+
+            sarif.required
+                .convention(parentExtension?.reports?.sarif?.required.orElse(provider { false }))
+                .finalizeValueOnRead()
+
+        }
+
     }
 
     private val Provider<Directory>.defaultCodeOwnersFile
@@ -149,11 +203,11 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
                 .standardOutput.asText.map { if (it.isNotBlank()) rootDir.dir(it.trim()) else rootDir }
         }
 
-    private fun Project.configureSourceSets(
-        reportAllTask: TaskProvider<CodeOwnersReportTask>,
-    ) {
+    private fun Project.configureSourceSets(reportAllTask: TaskProvider<CodeOwnersReportTask>) {
         extension.sourceSets.configureEach ss@{
             check(name.isNotBlank()) { "Source set name cannot be empty" }
+
+            val prefix = this@ss.name.replaceFirstChar { it.uppercase() }
 
             reportAllTask.configure {
                 sources.from(this@ss.sources)
@@ -161,19 +215,22 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
                 mappings.from(this@ss.mappings)
             }
 
-            reportTask =
-                tasks.register<CodeOwnersReportTask>("codeOwners${this@ss.name.replaceFirstChar { it.uppercase() }}Report") {
-                    group = TASK_GROUP
-                    description = "Generates CODEOWNERS report for '${this@ss.name}'"
+            reportTask = tasks.register<CodeOwnersReportTask>("codeOwners${prefix}Report") task@{
+                group = TASK_GROUP
+                description = "Generates CODEOWNERS report for '${this@ss.name}'"
 
-                    sources.from(this@ss.sources)
-                    classes.from(this@ss.classes)
-                    mappings.from(this@ss.mappings)
-                    rootDirectory.set(extension.rootDirectory)
-                    codeOwnersFile.set(extension.renamedCodeOwnersFile)
-                    codeOwnersReportHeader.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
-                    codeOwnersReportFile.set(layout.buildDirectory.file("reports/codeOwners/${project.name}-${this@ss.name}.codeowners"))
-                }
+                this@task.sources.from(this@ss.sources)
+                this@task.classes.from(this@ss.classes)
+                this@task.mappings.from(this@ss.mappings)
+                this@task.rootDirectory.set(extension.rootDirectory)
+                this@task.codeOwnersFile.set(extension.renamedCodeOwnersFile)
+                this@task.reports.from(
+                    extension.reports,
+                    "-${this@ss.name}",
+                    extension.reportsDirectory.dir(this@ss.name)
+                )
+                this@task.reports.mappings.header.set("CodeOwners of module '${project.path}' (source set '${this@ss.name}')\n")
+            }
         }
     }
 
@@ -223,6 +280,32 @@ open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Pl
                 .use(sourceSet.reportTask)
                 .toGet(ScopedArtifact.CLASSES, { classes }, { jars })
         }
+    }
+
+    private fun CodeOwnersReports.from(
+        other: CodeOwnersReports,
+        prefix: String,
+        reportsDir: Provider<Directory>,
+    ) {
+        failOnUnownedThreshold.convention(other.failOnUnownedThreshold)
+        unownedClassSeverity.convention(other.unownedClassSeverity)
+
+        mappings.required.convention(other.mappings.required)
+        mappings.outputLocation.convention(reportsDir.map { it.file("mappings${prefix}.codeowners") })
+        mappings.header.convention(other.mappings.header)
+
+        html.required.convention(other.html.required)
+        html.stylesheet.convention(other.html.stylesheet)
+        html.outputLocation.convention(reportsDir.map { it.file("report${prefix}.html") })
+
+        xml.required.convention(other.xml.required)
+        xml.outputLocation.convention(reportsDir.map { it.file("report${prefix}.xml") })
+
+        checkstyle.required.convention(other.checkstyle.required)
+        checkstyle.outputLocation.convention(reportsDir.map { it.file("report-checkstyle${prefix}.xml") })
+
+        sarif.required.convention(other.sarif.required)
+        sarif.outputLocation.convention(reportsDir.map { it.file("report${prefix}.sarif") })
     }
 
     private fun <Type> Provider<Type>?.orElse(

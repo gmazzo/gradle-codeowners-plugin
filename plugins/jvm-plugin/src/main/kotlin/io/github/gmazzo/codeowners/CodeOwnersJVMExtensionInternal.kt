@@ -7,4 +7,5 @@ import org.gradle.api.tasks.TaskProvider
 abstract class CodeOwnersJVMExtensionInternal @Inject constructor(
     project: Project,
     renameTask: Lazy<TaskProvider<CodeOwnersRenameTask>>,
-) : CodeOwnersJVMExtension, CodeOwnersExtensionBaseInternal<CodeOwnersJVMSourceSet>(project, renameTask)
+) : CodeOwnersJVMExtension,
+    CodeOwnersExtensionBaseInternal<CodeOwnersJVMSourceSet>(project, renameTask)

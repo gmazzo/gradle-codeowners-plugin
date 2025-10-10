@@ -22,17 +22,31 @@ val collectTask = tasks.register<Sync>("collectTaskOutputs") {
 }
 
 rootProject.allprojects project@{
+    val prefix = path.removePrefix(":").replace(":", "-")
+
     tasks.withType<CodeOwnersResourcesTask>().all task@{
         collectTask.configure {
             from(listOf(simplifiedMappedCodeOwnersFile, rawMappedCodeOwnersFile)) {
-                into("actualMappings/${this@task.project.path}")
+                into("actualMappings/$prefix")
             }
         }
     }
     tasks.withType<CodeOwnersReportTask>().all task@{
         collectTask.configure {
-            from(codeOwnersReportFile) {
-                into("actualReports/${this@task.project.path}")
+            from(
+                files(
+                    reports.mappings.outputLocation,
+                    reports.html.outputLocation,
+                    reports.xml.outputLocation,
+                    reports.checkstyle.outputLocation,
+                    reports.sarif.outputLocation,
+                )
+            ) {
+                into("actualReports/$prefix")
+                filter {
+                    it.replace("(?<=CodeOwners Gradle Plugin ).*?(?=<)".toRegex(), "x.y.z")
+                        .replace("(?<=file:).*?(/gradle-codeowners-plugin)?(?=/gradle-codeowners-plugin)".toRegex(), "<baseDir>")
+                }
             }
         }
     }

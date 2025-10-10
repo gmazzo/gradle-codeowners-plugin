@@ -87,14 +87,28 @@ try {
 or in Java:
 
 ```java
-try{
+try {
   // do some work
 
-  }catch(Throwable ex){
-Set<String> ownersOfErr = CodeOwners.getCodeOwners(ex);
-// report to its owner
+} catch (Throwable ex) {
+  Set<String> ownersOfErr = CodeOwners.getCodeOwners(ex);
+  // report to its owner
 }
 ```
+
+## Ownership attribution checks
+The `codeOwnersReport` task (bounded to the `check` lifecycle one) that can be used
+to produce a report of unowned class files or even fail the build.
+
+You can enable and configure it as follows:
+```kotlin
+codeOwners {
+  reports {
+    failOnUnowned()
+  }
+}
+```
+Check [reports](./README-report.md) for more details.
 
 ## Recommended setup on multi module projects
 
