@@ -45,7 +45,10 @@ rootProject.allprojects project@{
                 into("actualReports/$prefix")
                 filter {
                     it.replace("(?<!sarif-)\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?".toRegex(), "x.y.z")
-                        .replace("(?<=file:).*?(/gradle-codeowners-plugin)?(?=/gradle-codeowners-plugin)".toRegex(), "<baseDir>")
+                        .replace(
+                            "(?<=file:).*?(/gradle-codeowners-plugin)?(?=/gradle-codeowners-plugin)".toRegex(),
+                            "<baseDir>"
+                        )
                 }
             }
         }
@@ -58,6 +61,17 @@ tasks.register<Sync>("updateTestSpecs") {
     into(layout.projectDirectory.dir("src/test/resources"))
 }
 
+// we intentionally have some file classes unowned in the demo project,
+// we delete the check outputs to avoid reporting them in the CI (failing the check)
+val cleanupFailedChecks by tasks.registering(Delete::class)
+rootProject.allprojects {
+    tasks.withType<CodeOwnersReportTask>().all {
+        cleanupFailedChecks.configure {
+            delete(reports.checkstyle.outputLocation, reports.sarif.outputLocation)
+        }
+    }
+}
+
 sourceSets.test {
     resources.srcDirs(collectTask)
 }
@@ -66,4 +80,5 @@ tasks.check {
     rootProject.allprojects {
         dependsOn(tasks.withType<CodeOwnersReportTask>())
     }
+    finalizedBy(cleanupFailedChecks)
 }
