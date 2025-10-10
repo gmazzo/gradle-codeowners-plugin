@@ -34,6 +34,12 @@ jobs:
         uses: gmazzo/publish-report-annotations@v1
         with:
           checkName: Test Results
+          reports: |
+            !**/report-checkstyle.*
+            **/build/test-results/**/*.xml
+            **/build/reports/**/*.xml
+            **/build/outputs/androidTest-results/**/*.xml
+            **/*.xcresult
       - name: Coverage report
         uses: codecov/codecov-action@v5
         with:
