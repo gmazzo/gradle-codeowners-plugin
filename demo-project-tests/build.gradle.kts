@@ -44,7 +44,7 @@ rootProject.allprojects project@{
             ) {
                 into("actualReports/$prefix")
                 filter {
-                    it.replace("(?<=CodeOwners Gradle Plugin ).*?(?=<)".toRegex(), "x.y.z")
+                    it.replace("(?<!sarif-)\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?".toRegex(), "x.y.z")
                         .replace("(?<=file:).*?(/gradle-codeowners-plugin)?(?=/gradle-codeowners-plugin)".toRegex(), "<baseDir>")
                 }
             }
