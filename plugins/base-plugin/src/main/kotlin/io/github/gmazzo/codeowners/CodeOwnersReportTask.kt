@@ -78,6 +78,12 @@ abstract class CodeOwnersReportTask : DefaultTask() {
 
     private val pathsBaseDir = project.projectDir
 
+    init {
+        outputs.doNotCacheIf("SARIF reports requires absolute paths") {
+            (it as CodeOwnersReportTask).reports.sarif.required.get()
+        }
+    }
+
     @TaskAction
     fun reportCodeOwners() {
         val ownersWithFiles = mutableMapOf<String, MutableSet<File>>()
