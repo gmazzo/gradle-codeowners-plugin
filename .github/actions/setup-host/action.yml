@@ -23,6 +23,6 @@ runs:
         build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
         build-scan-terms-of-use-agree: 'yes'
     - name: Setup Node
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version: 18
