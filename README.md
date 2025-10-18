@@ -9,7 +9,7 @@
 
 # gradle-codeowners-plugin
 
-A Gradle plugin to propagate CODEOWNERS information to classes
+A Gradle plugin to propagate CODEOWNERS attribution to Kotlin or JVM classes
 
 It consists on 3 different plugins, each one providing a different set of features and targeting different use cases:
 
