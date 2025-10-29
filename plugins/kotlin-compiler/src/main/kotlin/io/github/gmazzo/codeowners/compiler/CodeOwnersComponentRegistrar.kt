@@ -20,7 +20,7 @@ internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
     override val supportsK2 = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        if (KotlinVersion.CURRENT.toString() != BuildConfig.EXPECTED_KOTLIN_VERSION) {
+        if (KotlinVersion.CURRENT.major != BuildConfig.EXPECTED_KOTLIN_VERSION.substringBefore('.').toInt()) {
             configuration.getLogger()
                 .warning("The '$COMPILER_PLUGIN_ID' plugin was designed for Kotlin ${BuildConfig.EXPECTED_KOTLIN_VERSION}, but you are using ${KotlinVersion.CURRENT}")
         }
