@@ -50,7 +50,7 @@ buildConfig {
     packageName = "io.github.gmazzo.codeowners"
 
     buildConfigField(
-        "CORE_DEPENDENCY", projects.jvmCore.dependencyProject
+        "CORE_DEPENDENCY", evaluationDependsOn(projects.jvmCore.path)
             .publishing.publications.named<MavenPublication>("maven")
             .map { "${it.groupId}:${it.artifactId}:${it.version}" }
     )
