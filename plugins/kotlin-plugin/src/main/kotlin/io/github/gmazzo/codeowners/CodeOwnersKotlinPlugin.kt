@@ -12,6 +12,7 @@ import io.github.gmazzo.codeowners.KotlinSupport.Companion.codeOwnersSourceSetNa
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -42,8 +43,12 @@ class CodeOwnersKotlinPlugin :
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         kotlinCompilation.compileTaskProvider.configure {
-            inputs.file(extension.renamedCodeOwnersFile).optional()
-            outputs.dir(kotlinCompilation.outputMappingsFile.map { it.asFile.parentFile }).optional()
+            inputs.file(extension.renamedCodeOwnersFile)
+                .withPathSensitivity(PathSensitivity.NONE)
+                .optional()
+
+            outputs.dir(kotlinCompilation.outputMappingsFile.map { it.asFile.parentFile })
+                .optional()
         }
 
         return extension.rootDirectory
