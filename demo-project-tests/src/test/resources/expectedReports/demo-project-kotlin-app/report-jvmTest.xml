@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <codeowners files="4" unowned="0">
     <owner files="4" name="kt-app-devs">
-        <file path="src/jvmTest/kotlin/org/test/kotlin/app/AppOwnersJVMTest.kt"/>
-        <file path="src/jvmTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
         <file path="src/commonTest/kotlin/org/test/kotlin/app/AppOwnersTest.kt"/>
         <file path="src/commonTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+        <file path="src/jvmTest/kotlin/org/test/kotlin/app/AppOwnersJVMTest.kt"/>
+        <file path="src/jvmTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
     </owner>
     <unowned files="0"/>
 </codeowners>

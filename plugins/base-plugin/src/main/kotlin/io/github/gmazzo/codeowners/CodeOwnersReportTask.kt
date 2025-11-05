@@ -86,8 +86,8 @@ abstract class CodeOwnersReportTask : DefaultTask() {
 
     @TaskAction
     fun reportCodeOwners() {
-        val ownersWithFiles = mutableMapOf<String, MutableSet<File>>()
-        val unownedFiles = mutableSetOf<File>()
+        val ownersWithFiles = mutableMapOf<String, SortedSet<File>>()
+        val unownedFiles = sortedSetOf<File>()
         val byPathOwners = mutableMapOf<String, MutableSet<String>>()
         val severity = reports.unownedClassSeverity.get()
         val totalFiles =
@@ -109,7 +109,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     }
 
     private fun resolveCodeOwnersOfSourceFiles(
-        ownersWithFiles: MutableMap<String, MutableSet<File>>,
+        ownersWithFiles: MutableMap<String, SortedSet<File>>,
         unownedFiles: MutableSet<File>,
         byPathOwners: MutableMap<String, MutableSet<String>>,
         severity: CodeOwnersReports.Severity,
@@ -132,7 +132,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
                     byPathOwners.computeIfAbsent(path) { mutableSetOf() }.addAll(owners)
 
                     for (owner in owners) {
-                        ownersWithFiles.computeIfAbsent(owner) { mutableSetOf() }.add(file)
+                        ownersWithFiles.computeIfAbsent(owner) { sortedSetOf() }.add(file)
                     }
 
                 } else {
@@ -199,8 +199,8 @@ abstract class CodeOwnersReportTask : DefaultTask() {
 
     private fun generateXMLReport(
         totalFiles: Int,
-        ownersWithFiles: MutableMap<String, MutableSet<File>>,
-        unownedFiles: MutableSet<File>,
+        ownersWithFiles: MutableMap<String, SortedSet<File>>,
+        unownedFiles: SortedSet<File>,
     ): Document {
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
         val root = doc.appendChild(doc.createElement("codeowners").apply {

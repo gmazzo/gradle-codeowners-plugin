@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <codeowners files="3" unowned="0">
     <owner files="2" name="jvm-libs-devs">
-        <file path="src/main/kotlin/org/test/jvm/utils/LibUtils.kt"/>
         <file path="src/main/kotlin/org/test/jvm/lib/LibClass.kt"/>
+        <file path="src/main/kotlin/org/test/jvm/utils/LibUtils.kt"/>
     </owner>
     <owner files="1" name="jvm-test-devs">
         <file path="src/test/kotlin/org/test/jvm/lib/LibOwnersTest.kt"/>
