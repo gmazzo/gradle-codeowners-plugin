@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <codeowners files="4" unowned="0">
     <owner files="4" name="kt-utils-devs">
+        <file path="src/main/kotlin/org/test/kotlin/utils/Rethrow.kt"/>
         <file path="src/main/kotlin/org/test/kotlin/utils/Utils.kt"/>
         <file path="src/main/kotlin/org/test/kotlin/utils/more/MoreUtils.kt"/>
-        <file path="src/main/kotlin/org/test/kotlin/utils/Rethrow.kt"/>
         <file path="src/test/java/org/test/kotlin/utils/UtilsOwnersTest.java"/>
     </owner>
     <unowned files="0"/>
