@@ -15,6 +15,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.kotlin.dsl.codeOwners
 import org.gradle.kotlin.dsl.newInstance
+import org.jetbrains.kotlin.gradle.plugin.FilesSubpluginOption
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
@@ -58,9 +59,9 @@ class CodeOwnersKotlinPlugin :
                 val (root, file) = it
 
                 listOf(
-                    SubpluginOption(ARG_CODEOWNERS_ROOT, root.asFile.absolutePath),
-                    SubpluginOption(ARG_CODEOWNERS_FILE, file.asFile.absolutePath),
-                    SubpluginOption(ARG_MAPPINGS_OUTPUT, mappings.asFile.absolutePath),
+                    FilesSubpluginOption(ARG_CODEOWNERS_ROOT, listOf(root.asFile)),
+                    FilesSubpluginOption(ARG_CODEOWNERS_FILE, listOf(file.asFile)),
+                    FilesSubpluginOption(ARG_MAPPINGS_OUTPUT, listOf(mappings.asFile)),
                 )
             }
     }
