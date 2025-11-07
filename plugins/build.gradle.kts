@@ -27,3 +27,7 @@ tasks.register("publish") {
 tasks.register("publishToMavenLocal") {
     subprojects { dependsOn(tasks.named("publishToMavenLocal")) }
 }
+
+tasks.register("updateLegacyAbi") {
+    subprojects { dependsOn(tasks.named("updateLegacyAbi")) }
+}

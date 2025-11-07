@@ -1,0 +1,139 @@
+public final class io/github/gmazzo/codeowners/AndroidSupport {
+	public fun <init> (Lorg/gradle/api/Project;)V
+	public final fun configureComponents (Lkotlin/jvm/functions/Function1;)V
+	public final fun configureVariants (Lkotlin/jvm/functions/Function1;)V
+	public final fun getAndroidComponents ()Lcom/android/build/api/variant/AndroidComponentsExtension;
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersExtension : io/github/gmazzo/codeowners/CodeOwnersExtensionBase {
+}
+
+public final class io/github/gmazzo/codeowners/CodeOwnersExtension$DefaultImpls {
+	public static fun reports (Lio/github/gmazzo/codeowners/CodeOwnersExtension;Lorg/gradle/api/Action;)V
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersExtensionBase {
+	public abstract fun codeOwnersRenamer (Lio/github/gmazzo/codeowners/CodeOwnersExtensionBase$Renamer;)V
+	public abstract fun getCodeOwnersFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getCodeOwnersRenamer ()Lorg/gradle/api/provider/Property;
+	public abstract fun getReports ()Lio/github/gmazzo/codeowners/CodeOwnersReports;
+	public abstract fun getReportsDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getRootDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public fun reports (Lorg/gradle/api/Action;)V
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersExtensionBase$Renamer : java/io/Serializable {
+	public abstract fun rename (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract class io/github/gmazzo/codeowners/CodeOwnersExtensionBaseInternal : io/github/gmazzo/codeowners/CodeOwnersExtensionBase {
+	public fun <init> (Lorg/gradle/api/Project;Lkotlin/Lazy;)V
+	public fun codeOwnersRenamer (Lio/github/gmazzo/codeowners/CodeOwnersExtensionBase$Renamer;)V
+	public final fun getRenameTask ()Lkotlin/Lazy;
+	public abstract fun getRenamedCodeOwnersFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getRenamedCodeOwnersFileUntracked ()Lorg/gradle/api/file/RegularFileProperty;
+	public fun reports (Lorg/gradle/api/Action;)V
+}
+
+public class io/github/gmazzo/codeowners/CodeOwnersPlugin : org/gradle/api/Plugin {
+	public static final field Companion Lio/github/gmazzo/codeowners/CodeOwnersPlugin$Companion;
+	public static final field TASK_GROUP Ljava/lang/String;
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	protected fun configureByAndroidVariants (Lorg/gradle/api/Project;)V
+	protected fun configureByKotlinTargets (Lorg/gradle/api/Project;)V
+	protected fun configureBySourceSet (Lorg/gradle/api/Project;)V
+	protected fun configureExtension (Lorg/gradle/api/Project;)V
+	protected final fun getExtension ()Lio/github/gmazzo/codeowners/CodeOwnersExtensionBaseInternal;
+	protected fun getExtensionClass ()Ljava/lang/Class;
+	protected fun getExtensionClassImpl ()Ljava/lang/Class;
+}
+
+public final class io/github/gmazzo/codeowners/CodeOwnersPlugin$Companion {
+}
+
+public abstract class io/github/gmazzo/codeowners/CodeOwnersRenameTask : org/gradle/api/DefaultTask {
+	public fun <init> ()V
+	public abstract fun getCodeOwnersFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getCodeOwnersRenamer ()Lorg/gradle/api/provider/Property;
+	public abstract fun getRenamedCodeOwnersFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public final fun renameCodeOwners ()V
+}
+
+public abstract class io/github/gmazzo/codeowners/CodeOwnersReportTask : org/gradle/api/DefaultTask {
+	public fun <init> ()V
+	public abstract fun getClasses ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	protected final fun getClassesAndMappingFiles ()Lorg/gradle/api/file/FileTree;
+	public abstract fun getCodeOwnersFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getMappings ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getReports ()Lio/github/gmazzo/codeowners/CodeOwnersReports;
+	public abstract fun getRootDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	protected final fun getRootDirectoryPath ()Lorg/gradle/api/provider/Provider;
+	public abstract fun getSources ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	protected final fun getSourcesFiles ()Lorg/gradle/api/file/FileTree;
+	public final fun reportCodeOwners ()V
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersReports {
+	public fun checkstyle (Lorg/gradle/api/Action;)V
+	public fun failOnUnowned ()V
+	public abstract fun getCheckstyle ()Lio/github/gmazzo/codeowners/CodeOwnersReports$Report;
+	public abstract fun getFailOnUnownedThreshold ()Lorg/gradle/api/provider/Property;
+	public abstract fun getHtml ()Lio/github/gmazzo/codeowners/CodeOwnersReports$HTMLReport;
+	public abstract fun getMappings ()Lio/github/gmazzo/codeowners/CodeOwnersReports$MappingsReport;
+	public abstract fun getSarif ()Lio/github/gmazzo/codeowners/CodeOwnersReports$Report;
+	public abstract fun getUnownedClassSeverity ()Lorg/gradle/api/provider/Property;
+	public abstract fun getXml ()Lio/github/gmazzo/codeowners/CodeOwnersReports$Report;
+	public fun html (Lorg/gradle/api/Action;)V
+	public fun ignoreUnowned ()V
+	public fun mappings (Lorg/gradle/api/Action;)V
+	public fun sarif (Lorg/gradle/api/Action;)V
+	public fun xml (Lorg/gradle/api/Action;)V
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersReports$HTMLReport : io/github/gmazzo/codeowners/CodeOwnersReports$Report {
+	public abstract fun getStylesheet ()Lorg/gradle/api/provider/Property;
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersReports$MappingsReport : io/github/gmazzo/codeowners/CodeOwnersReports$Report {
+	public abstract fun getHeader ()Lorg/gradle/api/provider/Property;
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersReports$Report {
+	public abstract fun getOutputLocation ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getRequired ()Lorg/gradle/api/provider/Property;
+}
+
+public final class io/github/gmazzo/codeowners/CodeOwnersReports$Severity : java/lang/Enum {
+	public static final field ERROR Lio/github/gmazzo/codeowners/CodeOwnersReports$Severity;
+	public static final field INFO Lio/github/gmazzo/codeowners/CodeOwnersReports$Severity;
+	public static final field WARNING Lio/github/gmazzo/codeowners/CodeOwnersReports$Severity;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/gmazzo/codeowners/CodeOwnersReports$Severity;
+	public static fun values ()[Lio/github/gmazzo/codeowners/CodeOwnersReports$Severity;
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersSourceSet : org/gradle/api/Named {
+	public abstract fun getClasses ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getMappings ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getSources ()Lorg/gradle/api/file/ConfigurableFileCollection;
+}
+
+public final class io/github/gmazzo/codeowners/KotlinSupport {
+	public static final field Companion Lio/github/gmazzo/codeowners/KotlinSupport$Companion;
+	public fun <init> (Lorg/gradle/api/Project;)V
+	public final fun configureTargets (Lkotlin/jvm/functions/Function1;)V
+	public final fun getKotlin ()Lorg/jetbrains/kotlin/gradle/dsl/KotlinProjectExtension;
+}
+
+public final class io/github/gmazzo/codeowners/KotlinSupport$Companion {
+	public final fun getCodeOwnersSourceSetName (Lorg/jetbrains/kotlin/gradle/plugin/KotlinCompilation;)Ljava/lang/String;
+}
+
+public final class org/gradle/kotlin/dsl/CodeOwnersDSLKt {
+	public static final fun getReportTask (Lio/github/gmazzo/codeowners/CodeOwnersSourceSet;)Lorg/gradle/api/tasks/TaskProvider;
+	public static final fun invoke (Lio/github/gmazzo/codeowners/CodeOwnersSourceSet;Lorg/gradle/api/Action;)V
+}
+

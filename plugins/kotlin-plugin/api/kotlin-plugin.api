@@ -1,0 +1,35 @@
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersKotlinExtension : io/github/gmazzo/codeowners/CodeOwnersExtensionBase {
+}
+
+public final class io/github/gmazzo/codeowners/CodeOwnersKotlinExtension$DefaultImpls {
+	public static fun reports (Lio/github/gmazzo/codeowners/CodeOwnersKotlinExtension;Lorg/gradle/api/Action;)V
+}
+
+public abstract class io/github/gmazzo/codeowners/CodeOwnersKotlinExtensionInternal : io/github/gmazzo/codeowners/CodeOwnersExtensionBaseInternal, io/github/gmazzo/codeowners/CodeOwnersKotlinExtension {
+	public fun <init> (Lorg/gradle/api/Project;Lkotlin/Lazy;)V
+}
+
+public final class io/github/gmazzo/codeowners/CodeOwnersKotlinPlugin : io/github/gmazzo/codeowners/CodeOwnersPlugin, org/jetbrains/kotlin/gradle/plugin/KotlinCompilerPluginSupportPlugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun applyToCompilation (Lorg/jetbrains/kotlin/gradle/plugin/KotlinCompilation;)Lorg/gradle/api/provider/Provider;
+	public fun getCompilerPluginId ()Ljava/lang/String;
+	public fun getPluginArtifact ()Lorg/jetbrains/kotlin/gradle/plugin/SubpluginArtifact;
+	public fun getPluginArtifactForNative ()Lorg/jetbrains/kotlin/gradle/plugin/SubpluginArtifact;
+	public fun isApplicable (Lorg/jetbrains/kotlin/gradle/plugin/KotlinCompilation;)Z
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersKotlinSourceSet : io/github/gmazzo/codeowners/CodeOwnersKotlinTargetExtension, io/github/gmazzo/codeowners/CodeOwnersSourceSet {
+}
+
+public abstract interface class io/github/gmazzo/codeowners/CodeOwnersKotlinTargetExtension {
+	public abstract fun getEnabled ()Lorg/gradle/api/provider/Property;
+}
+
+public final class org/gradle/kotlin/dsl/CodeOwnersKotlinDSLKt {
+	public static final fun getCodeOwners (Lorg/jetbrains/kotlin/gradle/plugin/KotlinCompilation;)Lio/github/gmazzo/codeowners/CodeOwnersKotlinSourceSet;
+	public static final fun getCodeOwners (Lorg/jetbrains/kotlin/gradle/plugin/KotlinTarget;)Lio/github/gmazzo/codeowners/CodeOwnersKotlinTargetExtension;
+	public static final fun invoke (Lio/github/gmazzo/codeowners/CodeOwnersKotlinTargetExtension;Lorg/gradle/api/Action;)V
+}
+

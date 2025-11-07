@@ -25,6 +25,10 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     mustRunAfter(tasks.publishPlugins)
 }
 
+tasks.validatePlugins {
+    enableStricterValidation = true
+}
+
 tasks.publishPlugins {
     enabled = "$version".matches("\\d+(\\.\\d+)+".toRegex())
 }
