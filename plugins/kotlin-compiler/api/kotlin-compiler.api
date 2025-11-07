@@ -1,0 +1,952 @@
+public final class io/github/gmazzo/codeowners/compiler/CodeOwnersConfigurationKeys {
+	public static final field INSTANCE Lio/github/gmazzo/codeowners/compiler/CodeOwnersConfigurationKeys;
+	public final fun getCODEOWNERS_FILE ()Lorg/jetbrains/kotlin/config/CompilerConfigurationKey;
+	public final fun getCODEOWNERS_ROOT ()Lorg/jetbrains/kotlin/config/CompilerConfigurationKey;
+	public final fun getMAPPINGS_OUTPUT ()Lorg/jetbrains/kotlin/config/CompilerConfigurationKey;
+}
+
+public final class io/github/gmazzo/codeowners/compiler/CodeOwnersFirExtensionRegistrar : org/jetbrains/kotlin/fir/extensions/FirExtensionRegistrar {
+	public fun <init> (Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings;)V
+}
+
+public final class io/github/gmazzo/codeowners/compiler/CodeOwnersFirProcessor : org/jetbrains/kotlin/fir/analysis/extensions/FirAdditionalCheckersExtension {
+	public fun <init> (Lorg/jetbrains/kotlin/fir/FirSession;Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings;)V
+	public fun getDeclarationCheckers ()Lorg/jetbrains/kotlin/fir/analysis/checkers/declaration/DeclarationCheckers;
+}
+
+public final class io/github/gmazzo/codeowners/compiler/CodeOwnersFirProcessor$CodeOwnersMapper : org/jetbrains/kotlin/fir/analysis/checkers/declaration/FirDeclarationChecker {
+	public fun <init> (Lio/github/gmazzo/codeowners/compiler/CodeOwnersFirProcessor;)V
+	public synthetic fun check (Lorg/jetbrains/kotlin/fir/analysis/checkers/context/CheckerContext;Lorg/jetbrains/kotlin/diagnostics/DiagnosticReporter;Lorg/jetbrains/kotlin/fir/declarations/FirDeclaration;)V
+	public fun check (Lorg/jetbrains/kotlin/fir/analysis/checkers/context/CheckerContext;Lorg/jetbrains/kotlin/diagnostics/DiagnosticReporter;Lorg/jetbrains/kotlin/fir/declarations/FirFile;)V
+}
+
+public final class io/github/gmazzo/codeowners/compiler/CodeOwnersMappings {
+	public fun <init> (Lio/github/gmazzo/codeowners/matcher/CodeOwnersMatcher;Ljava/io/File;)V
+	public final fun noteFrontedFinished ()Lkotlin/Unit;
+	public final fun resolve (Ljava/io/File;)Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;
+}
+
+public final class io/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping {
+	public fun <init> (Ljava/util/Set;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Set;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun copy (Ljava/util/Set;Ljava/util/Set;)Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;
+	public static synthetic fun copy$default (Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClasses ()Ljava/util/Set;
+	public final fun getOwners ()Ljava/util/Set;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/gmazzo/codeowners/matcher/CodeOwnersFile : java/io/Serializable, java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/util/List;)V
+	public fun <init> (Lkotlin/sequences/Sequence;)V
+	public fun <init> ([Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Part;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile;
+	public static synthetic fun copy$default (Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile;Ljava/util/List;ILjava/lang/Object;)Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Ljava/lang/String;
+	public final fun getEntries ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun iterator ()Ljava/util/Iterator;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/gmazzo/codeowners/matcher/CodeOwnersFile$Comment : io/github/gmazzo/codeowners/matcher/CodeOwnersFile$Part {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Comment;
+	public static synthetic fun copy$default (Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Comment;Ljava/lang/String;ILjava/lang/Object;)Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Comment;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComment ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/gmazzo/codeowners/matcher/CodeOwnersFile$EmptyLine : io/github/gmazzo/codeowners/matcher/CodeOwnersFile$Part {
+	public static final field INSTANCE Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$EmptyLine;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/gmazzo/codeowners/matcher/CodeOwnersFile$Entry : io/github/gmazzo/codeowners/matcher/CodeOwnersFile$Part {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;)Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Entry;
+	public static synthetic fun copy$default (Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Entry;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile$Entry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComment ()Ljava/lang/String;
+	public final fun getOwners ()Ljava/util/List;
+	public final fun getPattern ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/github/gmazzo/codeowners/matcher/CodeOwnersFile$Part : java/io/Serializable {
+}
+
+public final class io/github/gmazzo/codeowners/matcher/CodeOwnersMatcher {
+	public fun <init> (Ljava/io/File;Lio/github/gmazzo/codeowners/matcher/CodeOwnersFile;)V
+	public final fun ownerOf (Ljava/io/File;Z)Ljava/util/Set;
+	public final fun ownerOf (Ljava/lang/String;Z)Ljava/util/Set;
+	public static synthetic fun ownerOf$default (Lio/github/gmazzo/codeowners/matcher/CodeOwnersMatcher;Ljava/io/File;ZILjava/lang/Object;)Ljava/util/Set;
+	public static synthetic fun ownerOf$default (Lio/github/gmazzo/codeowners/matcher/CodeOwnersMatcher;Ljava/lang/String;ZILjava/lang/Object;)Ljava/util/Set;
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/FastIgnoreRule {
+	public static final field PATH_SEPARATOR C
+	public fun <init> (Ljava/lang/String;)V
+	public fun dirOnly ()Z
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getNameOnly ()Z
+	public fun getNegation ()Z
+	public fun getResult ()Z
+	public fun hashCode ()I
+	public fun isEmpty ()Z
+	public fun isMatch (Ljava/lang/String;Z)Z
+	public fun isMatch (Ljava/lang/String;ZZ)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/a : java/lang/Exception {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun a ()Ljava/lang/String;
+}
+
+public abstract class io/github/gmazzo/codeowners/matcher/jgit/b : java/lang/RuntimeException {
+	protected fun <init> (Ljava/lang/String;Ljava/lang/Class;Ljava/util/Locale;Ljava/lang/Exception;)V
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/c : io/github/gmazzo/codeowners/matcher/jgit/b {
+	public fun <init> (Ljava/lang/Class;Ljava/util/Locale;Ljava/lang/Exception;)V
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/d : io/github/gmazzo/codeowners/matcher/jgit/b {
+	public fun <init> (Ljava/lang/Class;Ljava/util/Locale;Ljava/lang/String;Ljava/lang/Exception;)V
+}
+
+public abstract interface class io/github/gmazzo/codeowners/matcher/jgit/e {
+	public static final field i Lio/github/gmazzo/codeowners/matcher/jgit/e;
+	public abstract fun a (Ljava/lang/String;II)Z
+	public abstract fun a (Ljava/lang/String;ZZ)Z
+}
+
+public abstract class io/github/gmazzo/codeowners/matcher/jgit/f : io/github/gmazzo/codeowners/matcher/jgit/e {
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/g : io/github/gmazzo/codeowners/matcher/jgit/h {
+	public fun a (Ljava/lang/String;II)Z
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/h : io/github/gmazzo/codeowners/matcher/jgit/f {
+	public fun a (Ljava/lang/String;II)Z
+	public fun a (Ljava/lang/String;ZZ)Z
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/i : io/github/gmazzo/codeowners/matcher/jgit/f {
+	public fun a (Ljava/lang/String;II)Z
+	public static fun a (Ljava/lang/String;Ljava/lang/Character;Z)Lio/github/gmazzo/codeowners/matcher/jgit/e;
+	public fun a (Ljava/lang/String;ZZ)Z
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/j {
+	public static fun a (Ljava/lang/String;C)Ljava/lang/String;
+	public static fun b (Ljava/lang/String;C)Ljava/util/List;
+	public static fun d (Ljava/lang/String;)Ljava/lang/String;
+	public static fun e (Ljava/lang/String;)Z
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/k : io/github/gmazzo/codeowners/matcher/jgit/h {
+	public fun a (Ljava/lang/String;II)Z
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/l : io/github/gmazzo/codeowners/matcher/jgit/h {
+	public fun a (Ljava/lang/String;II)Z
+}
+
+public final class io/github/gmazzo/codeowners/matcher/jgit/m : io/github/gmazzo/codeowners/matcher/jgit/f {
+	public final fun a (Ljava/lang/String;II)Z
+	public final fun a (Ljava/lang/String;ZZ)Z
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/n : io/github/gmazzo/codeowners/matcher/jgit/q {
+	public field D Ljava/lang/String;
+	public field E Ljava/lang/String;
+	public fun <init> ()V
+	public static fun d ()Lio/github/gmazzo/codeowners/matcher/jgit/n;
+}
+
+public class io/github/gmazzo/codeowners/matcher/jgit/p {
+	public static final field G Ljava/util/Locale;
+	public static fun a (Ljava/lang/Class;)Lio/github/gmazzo/codeowners/matcher/jgit/q;
+}
+
+public abstract class io/github/gmazzo/codeowners/matcher/jgit/q {
+	public fun <init> ()V
+}
+
+public abstract interface class org/slf4j/ILoggerFactory {
+	public abstract fun getLogger (Ljava/lang/String;)Lorg/slf4j/Logger;
+}
+
+public abstract interface class org/slf4j/IMarkerFactory {
+	public abstract fun detachMarker (Ljava/lang/String;)Z
+	public abstract fun exists (Ljava/lang/String;)Z
+	public abstract fun getDetachedMarker (Ljava/lang/String;)Lorg/slf4j/Marker;
+	public abstract fun getMarker (Ljava/lang/String;)Lorg/slf4j/Marker;
+}
+
+public abstract interface class org/slf4j/Logger {
+	public static final field ROOT_LOGGER_NAME Ljava/lang/String;
+	public fun atDebug ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atError ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atInfo ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atLevel (Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atTrace ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atWarn ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun debug (Ljava/lang/String;)V
+	public abstract fun debug (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun debug (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun debug (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun debug (Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun debug (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public abstract fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun debug (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun error (Ljava/lang/String;)V
+	public abstract fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun error (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun error (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun error (Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun error (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public abstract fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun error (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun info (Ljava/lang/String;)V
+	public abstract fun info (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun info (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun info (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun info (Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun info (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public abstract fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun info (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun isDebugEnabled ()Z
+	public abstract fun isDebugEnabled (Lorg/slf4j/Marker;)Z
+	public fun isEnabledForLevel (Lorg/slf4j/event/Level;)Z
+	public abstract fun isErrorEnabled ()Z
+	public abstract fun isErrorEnabled (Lorg/slf4j/Marker;)Z
+	public abstract fun isInfoEnabled ()Z
+	public abstract fun isInfoEnabled (Lorg/slf4j/Marker;)Z
+	public abstract fun isTraceEnabled ()Z
+	public abstract fun isTraceEnabled (Lorg/slf4j/Marker;)Z
+	public abstract fun isWarnEnabled ()Z
+	public abstract fun isWarnEnabled (Lorg/slf4j/Marker;)Z
+	public fun makeLoggingEventBuilder (Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun trace (Ljava/lang/String;)V
+	public abstract fun trace (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun trace (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun trace (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun trace (Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun trace (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public abstract fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun trace (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun warn (Ljava/lang/String;)V
+	public abstract fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun warn (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun warn (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun warn (Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun warn (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public abstract fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public abstract fun warn (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+}
+
+public final class org/slf4j/LoggerFactory {
+	public static final field PROVIDER_PROPERTY_KEY Ljava/lang/String;
+	public static fun getILoggerFactory ()Lorg/slf4j/ILoggerFactory;
+	public static fun getLogger (Ljava/lang/Class;)Lorg/slf4j/Logger;
+	public static fun getLogger (Ljava/lang/String;)Lorg/slf4j/Logger;
+}
+
+public class org/slf4j/LoggerFactoryFriend {
+	public fun <init> ()V
+	public static fun reset ()V
+	public static fun setDetectLoggerNameMismatch (Z)V
+}
+
+public class org/slf4j/MDC {
+	public static fun clear ()V
+	public static fun get (Ljava/lang/String;)Ljava/lang/String;
+	public static fun getCopyOfContextMap ()Ljava/util/Map;
+	public fun getCopyOfDequeByKey (Ljava/lang/String;)Ljava/util/Deque;
+	public static fun getMDCAdapter ()Lorg/slf4j/spi/MDCAdapter;
+	public static fun popByKey (Ljava/lang/String;)Ljava/lang/String;
+	public static fun pushByKey (Ljava/lang/String;Ljava/lang/String;)V
+	public static fun put (Ljava/lang/String;Ljava/lang/String;)V
+	public static fun putCloseable (Ljava/lang/String;Ljava/lang/String;)Lorg/slf4j/MDC$MDCCloseable;
+	public static fun remove (Ljava/lang/String;)V
+	public static fun setContextMap (Ljava/util/Map;)V
+}
+
+public class org/slf4j/MDC$MDCCloseable : java/io/Closeable {
+	public fun close ()V
+}
+
+public abstract interface class org/slf4j/Marker : java/io/Serializable {
+	public static final field ANY_MARKER Ljava/lang/String;
+	public static final field ANY_NON_NULL_MARKER Ljava/lang/String;
+	public abstract fun add (Lorg/slf4j/Marker;)V
+	public abstract fun contains (Ljava/lang/String;)Z
+	public abstract fun contains (Lorg/slf4j/Marker;)Z
+	public abstract fun equals (Ljava/lang/Object;)Z
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun hasChildren ()Z
+	public abstract fun hasReferences ()Z
+	public abstract fun hashCode ()I
+	public abstract fun iterator ()Ljava/util/Iterator;
+	public abstract fun remove (Lorg/slf4j/Marker;)Z
+}
+
+public class org/slf4j/MarkerFactory {
+	public static fun getDetachedMarker (Ljava/lang/String;)Lorg/slf4j/Marker;
+	public static fun getIMarkerFactory ()Lorg/slf4j/IMarkerFactory;
+	public static fun getMarker (Ljava/lang/String;)Lorg/slf4j/Marker;
+}
+
+public class org/slf4j/event/DefaultLoggingEvent : org/slf4j/event/LoggingEvent {
+	public fun <init> (Lorg/slf4j/event/Level;Lorg/slf4j/Logger;)V
+	public fun addArgument (Ljava/lang/Object;)V
+	public fun addArguments ([Ljava/lang/Object;)V
+	public fun addKeyValue (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun addMarker (Lorg/slf4j/Marker;)V
+	public fun getArgumentArray ()[Ljava/lang/Object;
+	public fun getArguments ()Ljava/util/List;
+	public fun getCallerBoundary ()Ljava/lang/String;
+	public fun getKeyValuePairs ()Ljava/util/List;
+	public fun getLevel ()Lorg/slf4j/event/Level;
+	public fun getLoggerName ()Ljava/lang/String;
+	public fun getMarkers ()Ljava/util/List;
+	public fun getMessage ()Ljava/lang/String;
+	public fun getThreadName ()Ljava/lang/String;
+	public fun getThrowable ()Ljava/lang/Throwable;
+	public fun getTimeStamp ()J
+	public fun setCallerBoundary (Ljava/lang/String;)V
+	public fun setMessage (Ljava/lang/String;)V
+	public fun setThrowable (Ljava/lang/Throwable;)V
+	public fun setTimeStamp (J)V
+}
+
+public class org/slf4j/event/EventConstants {
+	public static final field DEBUG_INT I
+	public static final field ERROR_INT I
+	public static final field INFO_INT I
+	public static final field NA_SUBST Ljava/lang/String;
+	public static final field TRACE_INT I
+	public static final field WARN_INT I
+	public fun <init> ()V
+}
+
+public class org/slf4j/event/EventRecordingLogger : org/slf4j/helpers/LegacyAbstractLogger {
+	public fun <init> (Lorg/slf4j/helpers/SubstituteLogger;Ljava/util/Queue;)V
+	protected fun getFullyQualifiedCallerName ()Ljava/lang/String;
+	public fun getName ()Ljava/lang/String;
+	protected fun handleNormalizedLoggingCall (Lorg/slf4j/event/Level;Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public fun isDebugEnabled ()Z
+	public fun isErrorEnabled ()Z
+	public fun isInfoEnabled ()Z
+	public fun isTraceEnabled ()Z
+	public fun isWarnEnabled ()Z
+}
+
+public class org/slf4j/event/KeyValuePair {
+	public final field key Ljava/lang/String;
+	public final field value Ljava/lang/Object;
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/slf4j/event/Level : java/lang/Enum {
+	public static final field DEBUG Lorg/slf4j/event/Level;
+	public static final field ERROR Lorg/slf4j/event/Level;
+	public static final field INFO Lorg/slf4j/event/Level;
+	public static final field TRACE Lorg/slf4j/event/Level;
+	public static final field WARN Lorg/slf4j/event/Level;
+	public static fun intToLevel (I)Lorg/slf4j/event/Level;
+	public fun toInt ()I
+	public fun toString ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lorg/slf4j/event/Level;
+	public static fun values ()[Lorg/slf4j/event/Level;
+}
+
+public abstract interface class org/slf4j/event/LoggingEvent {
+	public abstract fun getArgumentArray ()[Ljava/lang/Object;
+	public abstract fun getArguments ()Ljava/util/List;
+	public fun getCallerBoundary ()Ljava/lang/String;
+	public abstract fun getKeyValuePairs ()Ljava/util/List;
+	public abstract fun getLevel ()Lorg/slf4j/event/Level;
+	public abstract fun getLoggerName ()Ljava/lang/String;
+	public abstract fun getMarkers ()Ljava/util/List;
+	public abstract fun getMessage ()Ljava/lang/String;
+	public abstract fun getThreadName ()Ljava/lang/String;
+	public abstract fun getThrowable ()Ljava/lang/Throwable;
+	public abstract fun getTimeStamp ()J
+}
+
+public class org/slf4j/event/SubstituteLoggingEvent : org/slf4j/event/LoggingEvent {
+	public fun <init> ()V
+	public fun addMarker (Lorg/slf4j/Marker;)V
+	public fun getArgumentArray ()[Ljava/lang/Object;
+	public fun getArguments ()Ljava/util/List;
+	public fun getKeyValuePairs ()Ljava/util/List;
+	public fun getLevel ()Lorg/slf4j/event/Level;
+	public fun getLogger ()Lorg/slf4j/helpers/SubstituteLogger;
+	public fun getLoggerName ()Ljava/lang/String;
+	public fun getMarkers ()Ljava/util/List;
+	public fun getMessage ()Ljava/lang/String;
+	public fun getThreadName ()Ljava/lang/String;
+	public fun getThrowable ()Ljava/lang/Throwable;
+	public fun getTimeStamp ()J
+	public fun setArgumentArray ([Ljava/lang/Object;)V
+	public fun setLevel (Lorg/slf4j/event/Level;)V
+	public fun setLogger (Lorg/slf4j/helpers/SubstituteLogger;)V
+	public fun setLoggerName (Ljava/lang/String;)V
+	public fun setMessage (Ljava/lang/String;)V
+	public fun setThreadName (Ljava/lang/String;)V
+	public fun setThrowable (Ljava/lang/Throwable;)V
+	public fun setTimeStamp (J)V
+}
+
+public abstract class org/slf4j/helpers/AbstractLogger : java/io/Serializable, org/slf4j/Logger {
+	protected field name Ljava/lang/String;
+	public fun <init> ()V
+	public fun debug (Ljava/lang/String;)V
+	public fun debug (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun debug (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun debug (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun debug (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun error (Ljava/lang/String;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun error (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	protected abstract fun getFullyQualifiedCallerName ()Ljava/lang/String;
+	public fun getName ()Ljava/lang/String;
+	protected abstract fun handleNormalizedLoggingCall (Lorg/slf4j/event/Level;Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public fun info (Ljava/lang/String;)V
+	public fun info (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun info (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun info (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun info (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	protected fun readResolve ()Ljava/lang/Object;
+	public fun trace (Ljava/lang/String;)V
+	public fun trace (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun trace (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun trace (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun trace (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun warn (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+}
+
+public class org/slf4j/helpers/BasicMDCAdapter : org/slf4j/spi/MDCAdapter {
+	public fun <init> ()V
+	public fun clear ()V
+	public fun clearDequeByKey (Ljava/lang/String;)V
+	public fun get (Ljava/lang/String;)Ljava/lang/String;
+	public fun getCopyOfContextMap ()Ljava/util/Map;
+	public fun getCopyOfDequeByKey (Ljava/lang/String;)Ljava/util/Deque;
+	public fun getKeys ()Ljava/util/Set;
+	public fun popByKey (Ljava/lang/String;)Ljava/lang/String;
+	public fun pushByKey (Ljava/lang/String;Ljava/lang/String;)V
+	public fun put (Ljava/lang/String;Ljava/lang/String;)V
+	public fun remove (Ljava/lang/String;)V
+	public fun setContextMap (Ljava/util/Map;)V
+}
+
+public class org/slf4j/helpers/BasicMarker : org/slf4j/Marker {
+	public fun add (Lorg/slf4j/Marker;)V
+	public fun contains (Ljava/lang/String;)Z
+	public fun contains (Lorg/slf4j/Marker;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun hasChildren ()Z
+	public fun hasReferences ()Z
+	public fun hashCode ()I
+	public fun iterator ()Ljava/util/Iterator;
+	public fun remove (Lorg/slf4j/Marker;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public class org/slf4j/helpers/BasicMarkerFactory : org/slf4j/IMarkerFactory {
+	public fun <init> ()V
+	public fun detachMarker (Ljava/lang/String;)Z
+	public fun exists (Ljava/lang/String;)Z
+	public fun getDetachedMarker (Ljava/lang/String;)Lorg/slf4j/Marker;
+	public fun getMarker (Ljava/lang/String;)Lorg/slf4j/Marker;
+}
+
+public abstract interface annotation class org/slf4j/helpers/CheckReturnValue : java/lang/annotation/Annotation {
+}
+
+public class org/slf4j/helpers/FormattingTuple {
+	public static field NULL Lorg/slf4j/helpers/FormattingTuple;
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public fun getArgArray ()[Ljava/lang/Object;
+	public fun getMessage ()Ljava/lang/String;
+	public fun getThrowable ()Ljava/lang/Throwable;
+}
+
+public abstract class org/slf4j/helpers/LegacyAbstractLogger : org/slf4j/helpers/AbstractLogger {
+	public fun <init> ()V
+	public fun isDebugEnabled (Lorg/slf4j/Marker;)Z
+	public fun isErrorEnabled (Lorg/slf4j/Marker;)Z
+	public fun isInfoEnabled (Lorg/slf4j/Marker;)Z
+	public fun isTraceEnabled (Lorg/slf4j/Marker;)Z
+	public fun isWarnEnabled (Lorg/slf4j/Marker;)Z
+}
+
+public abstract class org/slf4j/helpers/MarkerIgnoringBase : org/slf4j/Logger {
+	public fun <init> ()V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public synthetic fun getName ()Ljava/lang/String;
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun isDebugEnabled (Lorg/slf4j/Marker;)Z
+	public fun isErrorEnabled (Lorg/slf4j/Marker;)Z
+	public fun isInfoEnabled (Lorg/slf4j/Marker;)Z
+	public fun isTraceEnabled (Lorg/slf4j/Marker;)Z
+	public fun isWarnEnabled (Lorg/slf4j/Marker;)Z
+	public fun toString ()Ljava/lang/String;
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+}
+
+public final class org/slf4j/helpers/MessageFormatter {
+	public fun <init> ()V
+	public static final fun arrayFormat (Ljava/lang/String;[Ljava/lang/Object;)Lorg/slf4j/helpers/FormattingTuple;
+	public static final fun arrayFormat (Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/slf4j/helpers/FormattingTuple;
+	public static final fun basicArrayFormat (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+	public static fun basicArrayFormat (Lorg/slf4j/helpers/NormalizedParameters;)Ljava/lang/String;
+	public static final fun format (Ljava/lang/String;Ljava/lang/Object;)Lorg/slf4j/helpers/FormattingTuple;
+	public static final fun format (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Lorg/slf4j/helpers/FormattingTuple;
+	public static fun getThrowableCandidate ([Ljava/lang/Object;)Ljava/lang/Throwable;
+	public static fun trimmedCopy ([Ljava/lang/Object;)[Ljava/lang/Object;
+}
+
+public class org/slf4j/helpers/NOPLogger : org/slf4j/Logger {
+	public static final field NOP_LOGGER Lorg/slf4j/helpers/NOPLogger;
+	protected fun <init> ()V
+	public final fun debug (Ljava/lang/String;)V
+	public final fun debug (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun debug (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun debug (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun debug (Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun debug (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public final fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun debug (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun error (Ljava/lang/String;)V
+	public final fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun error (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun error (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun error (Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun error (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public final fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun error (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun getName ()Ljava/lang/String;
+	public final fun info (Ljava/lang/String;)V
+	public final fun info (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun info (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun info (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun info (Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun info (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public final fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun info (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun isDebugEnabled ()Z
+	public final fun isDebugEnabled (Lorg/slf4j/Marker;)Z
+	public final fun isErrorEnabled ()Z
+	public final fun isErrorEnabled (Lorg/slf4j/Marker;)Z
+	public final fun isInfoEnabled ()Z
+	public fun isInfoEnabled (Lorg/slf4j/Marker;)Z
+	public final fun isTraceEnabled ()Z
+	public final fun isTraceEnabled (Lorg/slf4j/Marker;)Z
+	public final fun isWarnEnabled ()Z
+	public final fun isWarnEnabled (Lorg/slf4j/Marker;)Z
+	public final fun trace (Ljava/lang/String;)V
+	public final fun trace (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun trace (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun trace (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun trace (Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun trace (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public final fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun trace (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun warn (Ljava/lang/String;)V
+	public final fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun warn (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun warn (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun warn (Ljava/lang/String;[Ljava/lang/Object;)V
+	public final fun warn (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public final fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public final fun warn (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+}
+
+public class org/slf4j/helpers/NOPLoggerFactory : org/slf4j/ILoggerFactory {
+	public fun <init> ()V
+	public fun getLogger (Ljava/lang/String;)Lorg/slf4j/Logger;
+}
+
+public class org/slf4j/helpers/NOPMDCAdapter : org/slf4j/spi/MDCAdapter {
+	public fun <init> ()V
+	public fun clear ()V
+	public fun clearDequeByKey (Ljava/lang/String;)V
+	public fun get (Ljava/lang/String;)Ljava/lang/String;
+	public fun getCopyOfContextMap ()Ljava/util/Map;
+	public fun getCopyOfDequeByKey (Ljava/lang/String;)Ljava/util/Deque;
+	public fun popByKey (Ljava/lang/String;)Ljava/lang/String;
+	public fun pushByKey (Ljava/lang/String;Ljava/lang/String;)V
+	public fun put (Ljava/lang/String;Ljava/lang/String;)V
+	public fun remove (Ljava/lang/String;)V
+	public fun setContextMap (Ljava/util/Map;)V
+}
+
+public class org/slf4j/helpers/NOP_FallbackServiceProvider : org/slf4j/spi/SLF4JServiceProvider {
+	public static field REQUESTED_API_VERSION Ljava/lang/String;
+	public fun <init> ()V
+	public fun getLoggerFactory ()Lorg/slf4j/ILoggerFactory;
+	public fun getMDCAdapter ()Lorg/slf4j/spi/MDCAdapter;
+	public fun getMarkerFactory ()Lorg/slf4j/IMarkerFactory;
+	public fun getRequestedApiVersion ()Ljava/lang/String;
+	public fun initialize ()V
+}
+
+public class org/slf4j/helpers/NormalizedParameters {
+	public fun <init> (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun <init> (Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public fun getArguments ()[Ljava/lang/Object;
+	public fun getMessage ()Ljava/lang/String;
+	public fun getThrowable ()Ljava/lang/Throwable;
+	public static fun getThrowableCandidate ([Ljava/lang/Object;)Ljava/lang/Throwable;
+	public static fun normalize (Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)Lorg/slf4j/helpers/NormalizedParameters;
+	public static fun normalize (Lorg/slf4j/event/LoggingEvent;)Lorg/slf4j/helpers/NormalizedParameters;
+	public static fun trimmedCopy ([Ljava/lang/Object;)[Ljava/lang/Object;
+}
+
+public class org/slf4j/helpers/Reporter {
+	public static final field SLF4J_INTERNAL_REPORT_STREAM_KEY Ljava/lang/String;
+	public static final field SLF4J_INTERNAL_VERBOSITY_KEY Ljava/lang/String;
+	public fun <init> ()V
+	public static fun debug (Ljava/lang/String;)V
+	public static final fun error (Ljava/lang/String;)V
+	public static final fun error (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static fun info (Ljava/lang/String;)V
+	public static final fun warn (Ljava/lang/String;)V
+}
+
+public class org/slf4j/helpers/Slf4jEnvUtil {
+	public fun <init> ()V
+	public static fun slf4jVersion ()Ljava/lang/String;
+}
+
+public class org/slf4j/helpers/SubstituteLogger : org/slf4j/Logger {
+	public final field createdPostInitialization Z
+	public fun <init> (Ljava/lang/String;Ljava/util/Queue;Z)V
+	public fun atDebug ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atError ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atInfo ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atLevel (Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atTrace ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun atWarn ()Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun debug (Ljava/lang/String;)V
+	public fun debug (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun debug (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun debug (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun debug (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun debug (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun delegate ()Lorg/slf4j/Logger;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun error (Ljava/lang/String;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun error (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun error (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun error (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun info (Ljava/lang/String;)V
+	public fun info (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun info (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun info (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun info (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun info (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun isDebugEnabled ()Z
+	public fun isDebugEnabled (Lorg/slf4j/Marker;)Z
+	public fun isDelegateEventAware ()Z
+	public fun isDelegateNOP ()Z
+	public fun isDelegateNull ()Z
+	public fun isEnabledForLevel (Lorg/slf4j/event/Level;)Z
+	public fun isErrorEnabled ()Z
+	public fun isErrorEnabled (Lorg/slf4j/Marker;)Z
+	public fun isInfoEnabled ()Z
+	public fun isInfoEnabled (Lorg/slf4j/Marker;)Z
+	public fun isTraceEnabled ()Z
+	public fun isTraceEnabled (Lorg/slf4j/Marker;)Z
+	public fun isWarnEnabled ()Z
+	public fun isWarnEnabled (Lorg/slf4j/Marker;)Z
+	public fun log (Lorg/slf4j/event/LoggingEvent;)V
+	public fun makeLoggingEventBuilder (Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun setDelegate (Lorg/slf4j/Logger;)V
+	public fun trace (Ljava/lang/String;)V
+	public fun trace (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun trace (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun trace (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun trace (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun trace (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun warn (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun warn (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun warn (Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V
+}
+
+public class org/slf4j/helpers/SubstituteLoggerFactory : org/slf4j/ILoggerFactory {
+	public fun <init> ()V
+	public fun clear ()V
+	public fun getEventQueue ()Ljava/util/concurrent/LinkedBlockingQueue;
+	public fun getLogger (Ljava/lang/String;)Lorg/slf4j/Logger;
+	public fun getLoggerNames ()Ljava/util/List;
+	public fun getLoggers ()Ljava/util/List;
+	public fun postInitialization ()V
+}
+
+public class org/slf4j/helpers/SubstituteServiceProvider : org/slf4j/spi/SLF4JServiceProvider {
+	public fun <init> ()V
+	public fun getLoggerFactory ()Lorg/slf4j/ILoggerFactory;
+	public fun getMDCAdapter ()Lorg/slf4j/spi/MDCAdapter;
+	public fun getMarkerFactory ()Lorg/slf4j/IMarkerFactory;
+	public fun getRequestedApiVersion ()Ljava/lang/String;
+	public fun getSubstituteLoggerFactory ()Lorg/slf4j/helpers/SubstituteLoggerFactory;
+	public fun initialize ()V
+}
+
+public class org/slf4j/helpers/ThreadLocalMapOfStacks {
+	public fun <init> ()V
+	public fun clearDequeByKey (Ljava/lang/String;)V
+	public fun getCopyOfDequeByKey (Ljava/lang/String;)Ljava/util/Deque;
+	public fun popByKey (Ljava/lang/String;)Ljava/lang/String;
+	public fun pushByKey (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class org/slf4j/helpers/Util {
+	public static fun getCallingClass ()Ljava/lang/Class;
+	public static final fun report (Ljava/lang/String;)V
+	public static final fun report (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static fun safeGetBooleanSystemProperty (Ljava/lang/String;)Z
+	public static fun safeGetSystemProperty (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract interface class org/slf4j/spi/CallerBoundaryAware {
+	public abstract fun setCallerBoundary (Ljava/lang/String;)V
+}
+
+public class org/slf4j/spi/DefaultLoggingEventBuilder : org/slf4j/spi/CallerBoundaryAware, org/slf4j/spi/LoggingEventBuilder {
+	protected field logger Lorg/slf4j/Logger;
+	protected field loggingEvent Lorg/slf4j/event/DefaultLoggingEvent;
+	public fun <init> (Lorg/slf4j/Logger;Lorg/slf4j/event/Level;)V
+	public fun addArgument (Ljava/lang/Object;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addArgument (Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addKeyValue (Ljava/lang/String;Ljava/lang/Object;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addKeyValue (Ljava/lang/String;Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addMarker (Lorg/slf4j/Marker;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun log ()V
+	public fun log (Ljava/lang/String;)V
+	public fun log (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun log (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun log (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun log (Ljava/util/function/Supplier;)V
+	protected fun log (Lorg/slf4j/event/LoggingEvent;)V
+	public fun setCallerBoundary (Ljava/lang/String;)V
+	public fun setCause (Ljava/lang/Throwable;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun setMessage (Ljava/lang/String;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun setMessage (Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+}
+
+public abstract interface class org/slf4j/spi/LocationAwareLogger : org/slf4j/Logger {
+	public static final field DEBUG_INT I
+	public static final field ERROR_INT I
+	public static final field INFO_INT I
+	public static final field TRACE_INT I
+	public static final field WARN_INT I
+	public abstract fun log (Lorg/slf4j/Marker;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/Object;Ljava/lang/Throwable;)V
+}
+
+public abstract interface class org/slf4j/spi/LoggerFactoryBinder {
+	public abstract fun getLoggerFactory ()Lorg/slf4j/ILoggerFactory;
+	public abstract fun getLoggerFactoryClassStr ()Ljava/lang/String;
+}
+
+public abstract interface class org/slf4j/spi/LoggingEventAware {
+	public abstract fun log (Lorg/slf4j/event/LoggingEvent;)V
+}
+
+public abstract interface class org/slf4j/spi/LoggingEventBuilder {
+	public abstract fun addArgument (Ljava/lang/Object;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun addArgument (Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun addKeyValue (Ljava/lang/String;Ljava/lang/Object;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun addKeyValue (Ljava/lang/String;Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun addMarker (Lorg/slf4j/Marker;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun log ()V
+	public abstract fun log (Ljava/lang/String;)V
+	public abstract fun log (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun log (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun log (Ljava/lang/String;[Ljava/lang/Object;)V
+	public abstract fun log (Ljava/util/function/Supplier;)V
+	public abstract fun setCause (Ljava/lang/Throwable;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun setMessage (Ljava/lang/String;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public abstract fun setMessage (Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+}
+
+public abstract interface class org/slf4j/spi/MDCAdapter {
+	public abstract fun clear ()V
+	public abstract fun clearDequeByKey (Ljava/lang/String;)V
+	public abstract fun get (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getCopyOfContextMap ()Ljava/util/Map;
+	public abstract fun getCopyOfDequeByKey (Ljava/lang/String;)Ljava/util/Deque;
+	public abstract fun popByKey (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun pushByKey (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun put (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun remove (Ljava/lang/String;)V
+	public abstract fun setContextMap (Ljava/util/Map;)V
+}
+
+public abstract interface class org/slf4j/spi/MarkerFactoryBinder {
+	public abstract fun getMarkerFactory ()Lorg/slf4j/IMarkerFactory;
+	public abstract fun getMarkerFactoryClassStr ()Ljava/lang/String;
+}
+
+public class org/slf4j/spi/NOPLoggingEventBuilder : org/slf4j/spi/LoggingEventBuilder {
+	public fun addArgument (Ljava/lang/Object;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addArgument (Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addKeyValue (Ljava/lang/String;Ljava/lang/Object;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addKeyValue (Ljava/lang/String;Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun addMarker (Lorg/slf4j/Marker;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun log ()V
+	public fun log (Ljava/lang/String;)V
+	public fun log (Ljava/lang/String;Ljava/lang/Object;)V
+	public fun log (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun log (Ljava/lang/String;[Ljava/lang/Object;)V
+	public fun log (Ljava/util/function/Supplier;)V
+	public fun setCause (Ljava/lang/Throwable;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun setMessage (Ljava/lang/String;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public fun setMessage (Ljava/util/function/Supplier;)Lorg/slf4j/spi/LoggingEventBuilder;
+	public static fun singleton ()Lorg/slf4j/spi/LoggingEventBuilder;
+}
+
+public abstract interface class org/slf4j/spi/SLF4JServiceProvider {
+	public abstract fun getLoggerFactory ()Lorg/slf4j/ILoggerFactory;
+	public abstract fun getMDCAdapter ()Lorg/slf4j/spi/MDCAdapter;
+	public abstract fun getMarkerFactory ()Lorg/slf4j/IMarkerFactory;
+	public abstract fun getRequestedApiVersion ()Ljava/lang/String;
+	public abstract fun initialize ()V
+}
+

@@ -1,0 +1,12 @@
+public abstract interface annotation class io/github/gmazzo/codeowners/CodeOwners : java/lang/annotation/Annotation {
+	public abstract fun owners ()[Ljava/lang/String;
+}
+
+public final class io/github/gmazzo/codeowners/CodeOwnersUtils {
+	public static final fun getCodeOwners (Ljava/lang/Class;)Ljava/util/Set;
+	public static final fun getCodeOwners (Ljava/lang/Throwable;)Ljava/util/Set;
+	public static final fun getCodeOwners (Ljava/lang/Throwable;Ljava/lang/ClassLoader;)Ljava/util/Set;
+	public static final fun getCodeOwners (Lkotlin/reflect/KClass;)Ljava/util/Set;
+	public static final fun getCodeOwners (Lkotlin/reflect/KFunction;)Ljava/util/Set;
+}
+

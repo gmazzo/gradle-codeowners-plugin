@@ -1,0 +1,21 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, js]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <io.github.gmazzo.codeowners:kotlin-core>
+open annotation class io.github.gmazzo.codeowners/CodeOwners : kotlin/Annotation { // io.github.gmazzo.codeowners/CodeOwners|null[0]
+    constructor <init>(kotlin/Array<out kotlin/String>...) // io.github.gmazzo.codeowners/CodeOwners.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
+
+    final val owners // io.github.gmazzo.codeowners/CodeOwners.owners|{}owners[0]
+        final fun <get-owners>(): kotlin/Array<out kotlin/String> // io.github.gmazzo.codeowners/CodeOwners.owners.<get-owners>|<get-owners>(){}[0]
+}
+
+final val io.github.gmazzo.codeowners/codeOwners // io.github.gmazzo.codeowners/codeOwners|@kotlin.Throwable{}codeOwners[0]
+    final fun (kotlin/Throwable).<get-codeOwners>(): kotlin.collections/Set<kotlin/String>? // io.github.gmazzo.codeowners/codeOwners.<get-codeOwners>|<get-codeOwners>@kotlin.Throwable(){}[0]
+final val io.github.gmazzo.codeowners/codeOwners // io.github.gmazzo.codeowners/codeOwners|@kotlin.reflect.KClass<*>{}codeOwners[0]
+    final fun (kotlin.reflect/KClass<*>).<get-codeOwners>(): kotlin.collections/Set<kotlin/String>? // io.github.gmazzo.codeowners/codeOwners.<get-codeOwners>|<get-codeOwners>@kotlin.reflect.KClass<*>(){}[0]
+
+final inline fun <#A: reified kotlin/Any?> io.github.gmazzo.codeowners/codeOwnersOf(): kotlin.collections/Set<kotlin/String>? // io.github.gmazzo.codeowners/codeOwnersOf|codeOwnersOf(){0§<kotlin.Any?>}[0]
