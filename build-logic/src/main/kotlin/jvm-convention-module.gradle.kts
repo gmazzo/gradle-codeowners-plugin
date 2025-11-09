@@ -8,7 +8,10 @@ plugins {
     org.jetbrains.`dokka-javadoc`
 }
 
-kotlin.abiValidation.enabled = true
+kotlin {
+    abiValidation.enabled = true
+    explicitApi()
+}
 
 tasks.check {
     dependsOn(tasks.checkLegacyAbi)

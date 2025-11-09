@@ -4,18 +4,18 @@ import io.github.gmazzo.codeowners.matcher.CodeOwnersFile
 import io.github.gmazzo.codeowners.matcher.CodeOwnersMatcher
 import java.io.File
 
-class CodeOwnersMappings(
+public class CodeOwnersMappings(
     private val matcher: CodeOwnersMatcher,
     private var mappingFile: File?,
 ) {
 
     private val mappings = mutableMapOf<File, Mapping?>()
 
-    fun resolve(file: File) = mappings.computeIfAbsent(file) {
+    public fun resolve(file: File): CodeOwnersMappings.Mapping? = mappings.computeIfAbsent(file) {
         matcher.ownerOf(file)?.let { Mapping(owners = it) }
     }
 
-    fun noteFrontedFinished() = mappingFile?.let { file ->
+    public fun noteFrontedFinished(): Unit? = mappingFile?.let { file ->
         mappingFile = null
 
         val entries = mappings.entries.asSequence()
@@ -32,7 +32,7 @@ class CodeOwnersMappings(
         file.writeText(CodeOwnersFile(entries).content)
     }
 
-    data class Mapping(
+    public data class Mapping(
         val classes: MutableSet<String> = mutableSetOf(),
         val owners: Set<String>,
     )

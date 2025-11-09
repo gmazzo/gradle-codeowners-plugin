@@ -36,10 +36,10 @@ import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Document
 
 @CacheableTask
-abstract class CodeOwnersReportTask : DefaultTask() {
+public abstract class CodeOwnersReportTask : DefaultTask() {
 
     @get:Internal
-    abstract val rootDirectory: DirectoryProperty
+    public abstract val rootDirectory: DirectoryProperty
 
     @get:Input
     @Suppress("unused")
@@ -49,10 +49,10 @@ abstract class CodeOwnersReportTask : DefaultTask() {
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
-    abstract val codeOwnersFile: RegularFileProperty
+    public abstract val codeOwnersFile: RegularFileProperty
 
     @get:Internal
-    abstract val sources: ConfigurableFileCollection
+    public abstract val sources: ConfigurableFileCollection
 
     @get:InputFiles
     @get:IgnoreEmptyDirectories
@@ -61,10 +61,10 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     protected val sourcesFiles: FileTree = sources.asFileTree
 
     @get:Internal
-    abstract val classes: ConfigurableFileCollection
+    public abstract val classes: ConfigurableFileCollection
 
     @get:Internal
-    abstract val mappings: ConfigurableFileCollection
+    public abstract val mappings: ConfigurableFileCollection
 
     @get:InputFiles
     @get:IgnoreEmptyDirectories
@@ -74,7 +74,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     protected val classesAndMappingFiles: FileTree = classes.asFileTree + mappings.asFileTree
 
     @get:Nested
-    abstract val reports: CodeOwnersReports
+    public abstract val reports: CodeOwnersReports
 
     private val pathsBaseDir = project.projectDir
 
@@ -85,7 +85,7 @@ abstract class CodeOwnersReportTask : DefaultTask() {
     }
 
     @TaskAction
-    fun reportCodeOwners() {
+    public fun reportCodeOwners() {
         val ownersWithFiles = mutableMapOf<String, SortedSet<File>>()
         val unownedFiles = sortedSetOf<File>()
         val byPathOwners = mutableMapOf<String, MutableSet<String>>()

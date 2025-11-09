@@ -3,33 +3,33 @@ package io.github.gmazzo.codeowners.matcher
 import java.io.Serializable
 import kotlin.math.max
 
-data class CodeOwnersFile(
+public data class CodeOwnersFile(
     val entries: List<Part>,
 ) : Serializable, Iterable<CodeOwnersFile.Part> by entries {
 
     val content: String by lazy { generateContent(entries) }
 
-    constructor(
+    public constructor(
         vararg entries: Part,
     ) : this(entries.toList())
 
-    constructor(
+    public constructor(
         content: String,
     ) : this(content.lineSequence())
 
-    constructor(
+    public constructor(
         lines: Sequence<String>,
     ) : this(lines.map(Companion::parseLine).toList())
 
-    sealed interface Part : Serializable
+    public sealed interface Part : Serializable
 
-    data class Entry(
+    public data class Entry(
         val pattern: String,
         val owners: List<String>,
         val comment: String? = null,
     ) : Part {
 
-        constructor(
+        public constructor(
             pattern: String,
             vararg owners: String,
             comment: String? = null,
@@ -37,13 +37,15 @@ data class CodeOwnersFile(
 
     }
 
-    data class Comment(
+    public data class Comment(
         val comment: String,
     ) : Part
 
-    object EmptyLine : Part {
-        override fun equals(other: Any?) = other is EmptyLine
-        override fun toString() = "EmptyLine"
+    public object EmptyLine : Part {
+        @Suppress("unused")
+        private fun readResolve(): Any = EmptyLine
+        override fun equals(other: Any?): Boolean = other is EmptyLine
+        override fun toString(): String = "EmptyLine"
     }
 
     private companion object {

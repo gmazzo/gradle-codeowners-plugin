@@ -13,17 +13,17 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-abstract class CodeOwnersRenameTask : DefaultTask() {
+public abstract class CodeOwnersRenameTask : DefaultTask() {
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
-    abstract val codeOwnersFile: RegularFileProperty
+    public abstract val codeOwnersFile: RegularFileProperty
 
     @get:Input
-    abstract val codeOwnersRenamer: Property<CodeOwnersExtensionBase.Renamer>
+    public abstract val codeOwnersRenamer: Property<CodeOwnersExtensionBase.Renamer>
 
     @get:OutputFile
-    abstract val renamedCodeOwnersFile: RegularFileProperty
+    public abstract val renamedCodeOwnersFile: RegularFileProperty
 
     init {
         renamedCodeOwnersFile.convention(project.layout.file(codeOwnersFile.asFile.map {
@@ -32,7 +32,7 @@ abstract class CodeOwnersRenameTask : DefaultTask() {
     }
 
     @TaskAction
-    fun renameCodeOwners() {
+    public fun renameCodeOwners() {
         val renamer = codeOwnersRenamer.get()
         val original = codeOwnersFile.asFile.get().useLines { CodeOwnersFile(it) }
         val renamed = CodeOwnersFile(original.map { entry ->

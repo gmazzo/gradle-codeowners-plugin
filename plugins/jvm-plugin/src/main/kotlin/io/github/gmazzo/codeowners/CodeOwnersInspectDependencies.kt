@@ -2,7 +2,7 @@ package io.github.gmazzo.codeowners
 
 import org.gradle.api.provider.Property
 
-interface CodeOwnersInspectDependencies {
+public interface CodeOwnersInspectDependencies {
 
     /**
      * Whether to inspect or not runtime dependencies of the module to detect package collisions and generate more
@@ -10,9 +10,9 @@ interface CodeOwnersInspectDependencies {
      *
      * Default to [DependenciesMode.LOCAL_PROJECTS] which has the best performance/accuracy ratio.
      */
-    val inspectDependencies: Property<DependenciesMode>
+    public val inspectDependencies: Property<DependenciesMode>
 
-    enum class DependenciesMode {
+    public enum class DependenciesMode {
 
         /**
          * Inspects both local (projects) and remote (modules) dependencies.

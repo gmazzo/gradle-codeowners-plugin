@@ -16,7 +16,9 @@ kotlin {
     iosSimulatorArm64()
     js(IR) { browser(); nodejs() }
     applyDefaultHierarchyTemplate()
+
     abiValidation.enabled = true
+    explicitApi()
 }
 
 dependencies {
