@@ -4,17 +4,17 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.TaskProvider
 
-abstract class CodeOwnersExtensionBaseInternal<SourceSet : CodeOwnersSourceSet>(
+public abstract class CodeOwnersExtensionBaseInternal<SourceSet : CodeOwnersSourceSet>(
     private val project: Project,
-    val renameTask: Lazy<TaskProvider<CodeOwnersRenameTask>>,
+    public val renameTask: Lazy<TaskProvider<CodeOwnersRenameTask>>,
 ) : CodeOwnersExtensionBase<SourceSet> {
 
-    abstract val renamedCodeOwnersFile: RegularFileProperty
+    public abstract val renamedCodeOwnersFile: RegularFileProperty
 
     /**
      * A hack to avoid "can't query property of task before it has been run" on native kotlin compilations
      */
-    abstract val renamedCodeOwnersFileUntracked: RegularFileProperty
+    public abstract val renamedCodeOwnersFileUntracked: RegularFileProperty
 
     override fun codeOwnersRenamer(renamer: CodeOwnersExtensionBase.Renamer) {
         if (!renameTask.isInitialized()) {

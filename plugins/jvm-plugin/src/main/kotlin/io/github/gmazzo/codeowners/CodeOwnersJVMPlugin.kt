@@ -34,16 +34,16 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
 
-class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionInternal>() {
+public class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionInternal>() {
 
     private companion object {
         const val ARTIFACT_TYPE_CODEOWNERS = "codeowners"
         private const val ARTIFACT_TYPE_ANDROID_JAVA_RES = "android-java-res"
     }
 
-    override val extensionClass = CodeOwnersJVMExtension::class.java
+    override val extensionClass: Class<CodeOwnersJVMExtension> = CodeOwnersJVMExtension::class.java
 
-    override val extensionClassImpl = CodeOwnersJVMExtensionInternal::class.java
+    override val extensionClassImpl: Class<CodeOwnersJVMExtensionInternal> = CodeOwnersJVMExtensionInternal::class.java
 
     override fun Project.configureExtension() {
         extension.inspectDependencies

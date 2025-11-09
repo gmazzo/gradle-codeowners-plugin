@@ -6,16 +6,16 @@ import java.io.Reader
 import java.lang.reflect.Proxy
 import kotlin.reflect.KClass
 
-inline fun <reified Type> codeOwnersOf() =
+public inline fun <reified Type> codeOwnersOf(): Set<String>? =
     Type::class.codeOwners
 
-val KClass<*>.codeOwners
+public val KClass<*>.codeOwners: Set<String>?
     get() = java.codeOwners
 
-val Class<*>.codeOwners: Set<String>?
+public val Class<*>.codeOwners: Set<String>?
     get() = with(topLevelClass()) { classLoader.getCodeOwners(`package`?.name, simpleName) }
 
-val Throwable.codeOwners
+public val Throwable.codeOwners: Set<String>?
     get() = stackTrace.asSequence().mapNotNull { it.codeOwners }.firstOrNull()
 
 private tailrec fun Class<*>.topLevelClass(): Class<*> = when (val enclosing = enclosingClass) {
@@ -27,7 +27,7 @@ private tailrec fun Class<*>.topLevelClass(): Class<*> = when (val enclosing = e
     else -> enclosing.topLevelClass()
 }
 
-val StackTraceElement.codeOwners: Set<String>?
+public val StackTraceElement.codeOwners: Set<String>?
     get() {
         val clazz = runCatching { Class.forName(className) }.getOrNull() ?: return null
 
@@ -37,7 +37,7 @@ val StackTraceElement.codeOwners: Set<String>?
     }
 
 @JvmOverloads
-tailrec fun ClassLoader.getCodeOwners(packageName: String?, className: String? = null): Set<String>? {
+public tailrec fun ClassLoader.getCodeOwners(packageName: String?, className: String? = null): Set<String>? {
     val packagePath = packageName?.replace('.', '/') ?: return null
     val path = "$packagePath/${className.orEmpty()}.codeowners"
     val owners = getResources(path).asSequence()

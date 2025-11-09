@@ -20,16 +20,16 @@ import org.jetbrains.kotlin.fir.visitors.FirVisitor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 
-class CodeOwnersFirProcessor(
+public class CodeOwnersFirProcessor(
     session: FirSession,
     private val mappings: CodeOwnersMappings,
 ) : FirAdditionalCheckersExtension(session) {
 
-    override val declarationCheckers = object : DeclarationCheckers() {
+    override val declarationCheckers: DeclarationCheckers = object : DeclarationCheckers() {
         override val fileCheckers = setOf(CodeOwnersMapper())
     }
 
-    inner class CodeOwnersMapper : FirFileChecker(MppCheckerKind.Platform) {
+    public inner class CodeOwnersMapper : FirFileChecker(MppCheckerKind.Platform) {
         context(_: CheckerContext, _: DiagnosticReporter)
         override fun check(declaration: FirFile) {
             val mappings = declaration.sourceFile?.toIoFileOrNull()?.let(mappings::resolve) ?: return

@@ -24,10 +24,10 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-abstract class CodeOwnersResourcesTask : DefaultTask() {
+public abstract class CodeOwnersResourcesTask : DefaultTask() {
 
     @get:Internal
-    abstract val rootDirectory: DirectoryProperty
+    public abstract val rootDirectory: DirectoryProperty
 
     /**
      * Helper input to declare that we only care about paths and not file contents on [rootDirectory] and [sources]
@@ -42,10 +42,10 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
-    abstract val codeOwnersFile: RegularFileProperty
+    public abstract val codeOwnersFile: RegularFileProperty
 
     @get:Internal
-    abstract val sources: ConfigurableFileCollection
+    public abstract val sources: ConfigurableFileCollection
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -55,26 +55,26 @@ abstract class CodeOwnersResourcesTask : DefaultTask() {
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
-    abstract val transitiveCodeOwners: ConfigurableFileCollection
+    public abstract val transitiveCodeOwners: ConfigurableFileCollection
 
     @get:Optional
     @get:OutputDirectory
-    abstract val outputDirectory: DirectoryProperty
+    public abstract val outputDirectory: DirectoryProperty
 
     @get:Optional
     @get:OutputFile
-    abstract val rawMappedCodeOwnersFile: RegularFileProperty
+    public abstract val rawMappedCodeOwnersFile: RegularFileProperty
 
     @get:Optional
     @get:OutputFile
-    abstract val simplifiedMappedCodeOwnersFile: RegularFileProperty
+    public abstract val simplifiedMappedCodeOwnersFile: RegularFileProperty
 
     init {
         outputDirectory.convention(project.layout.dir(project.provider { temporaryDir }))
     }
 
     @TaskAction
-    fun generateCodeOwnersInfo() {
+    public fun generateCodeOwnersInfo() {
         val ownership = sortedMapOf<String, Entry>()
 
         collectFromDependencies(ownership)

@@ -9,11 +9,11 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
 
-class AndroidSupport(private val project: Project) {
+public class AndroidSupport(private val project: Project) {
 
-    val androidComponents: AndroidComponentsExtension<*, *, *> by project.extensions
+    public val androidComponents: AndroidComponentsExtension<*, *, *> by project.extensions
 
-    fun configureVariants(action: Variant.() -> Unit) {
+    public fun configureVariants(action: Variant.() -> Unit) {
         project.plugins.withId("com.android.base") {
             with(androidComponents) {
                 onVariants(selector().all(), action)
@@ -21,7 +21,7 @@ class AndroidSupport(private val project: Project) {
         }
     }
 
-    fun configureComponents(action: Component.() -> Unit) = configureVariants {
+    public fun configureComponents(action: Component.() -> Unit): Unit = configureVariants {
         action()
         (this as? HasUnitTest)?.unitTest?.action()
         (this as? HasAndroidTest)?.androidTest?.action()

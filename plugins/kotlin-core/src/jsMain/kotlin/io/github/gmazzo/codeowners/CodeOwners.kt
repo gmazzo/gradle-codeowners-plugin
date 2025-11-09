@@ -14,8 +14,8 @@ internal abstract class CodeOwnersProvider(val value: Array<String>)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 internal annotation class CodeOwnersProviderKey(val provider: KClass<out CodeOwnersProvider>)
 
-actual val KClass<*>.codeOwners: Set<String>?
+public actual val KClass<*>.codeOwners: Set<String>?
     get() = (findAssociatedObject<CodeOwnersProviderKey>() as CodeOwnersProvider?)?.value?.toSet()
 
-actual val Throwable.codeOwners: Set<String>?
+public actual val Throwable.codeOwners: Set<String>?
     get() = this::class.codeOwners

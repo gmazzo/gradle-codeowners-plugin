@@ -22,23 +22,23 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 
-class CodeOwnersKotlinPlugin :
+public class CodeOwnersKotlinPlugin :
     CodeOwnersPlugin<CodeOwnersKotlinExtensionInternal>(),
     KotlinCompilerPluginSupportPlugin {
 
-    override val extensionClass = CodeOwnersKotlinExtension::class.java
+    override val extensionClass: Class<CodeOwnersKotlinExtension> = CodeOwnersKotlinExtension::class.java
 
-    override val extensionClassImpl = CodeOwnersKotlinExtensionInternal::class.java
+    override val extensionClassImpl: Class<CodeOwnersKotlinExtensionInternal> = CodeOwnersKotlinExtensionInternal::class.java
 
     override fun apply(target: Project) {
         super<CodeOwnersPlugin>.apply(target)
     }
 
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = true
+    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
 
-    override fun getCompilerPluginId() = COMPILER_PLUGIN_ID
+    override fun getCompilerPluginId(): String = COMPILER_PLUGIN_ID
 
-    override fun getPluginArtifact() = COMPILER_DEPENDENCY.split(':', limit = 3).let {
+    override fun getPluginArtifact(): SubpluginArtifact = COMPILER_DEPENDENCY.split(':', limit = 3).let {
         SubpluginArtifact(groupId = it[0], artifactId = it[1], version = it[2])
     }
 
@@ -72,7 +72,7 @@ class CodeOwnersKotlinPlugin :
             return project.layout.buildDirectory.file("codeowners/mappings/$name/$name.codeowners")
         }
 
-    override fun Project.configureExtension() =
+    override fun Project.configureExtension(): Unit =
         KotlinSupport(this).configureTargets target@{
             if (this !is KotlinMetadataTarget) {
                 val targetExtension = objects.newInstance<CodeOwnersKotlinTargetExtension>()

@@ -26,10 +26,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 
-open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Plugin<Project> {
+public open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*>> : Plugin<Project> {
 
-    companion object {
-        const val TASK_GROUP = "CodeOwners"
+    public companion object {
+        public const val TASK_GROUP: String = "CodeOwners"
         private const val EXTENSION_NAME = "codeOwners"
     }
 

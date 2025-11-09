@@ -11,11 +11,11 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 
-class KotlinSupport(private val project: Project) {
+public class KotlinSupport(private val project: Project) {
 
-    val kotlin: KotlinProjectExtension by project.extensions
+    public val kotlin: KotlinProjectExtension by project.extensions
 
-    fun configureTargets(action: KotlinTarget.() -> Unit) {
+    public fun configureTargets(action: KotlinTarget.() -> Unit) {
         project.plugins.withType<KotlinBasePlugin> {
             when (val kotlin = kotlin) {
                 is KotlinSingleTargetExtension<*> -> action(kotlin.target)
@@ -24,9 +24,9 @@ class KotlinSupport(private val project: Project) {
         }
     }
 
-    companion object {
+    public companion object {
 
-        val KotlinCompilation<*>.codeOwnersSourceSetName
+        public val KotlinCompilation<*>.codeOwnersSourceSetName: String
             get() = when (val classifier = target.disambiguationClassifier?.takeUnless { it.isBlank() }) {
                 null -> name
                 else -> classifier + name
