@@ -96,6 +96,7 @@ abstract class CodeOwnersBaseCompatTest(
         )
 
         File(rootDir, "CODEOWNERS").createNewFile()
+        File(rootDir, "app").mkdirs()
 
         val build = GradleRunner.create()
             .withProjectDir(rootDir)

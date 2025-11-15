@@ -126,7 +126,9 @@ public abstract class CodeOwnersResourcesTask : DefaultTask() {
             }
 
             if (!isDirectory) {
-                ownership[relativePath.parent.pathString.appendSuffix("/")]?.hasOwnFiles = true
+                val parentPath = relativePath.parent?.pathString?.appendSuffix("/") ?: return@visit
+
+                ownership[parentPath]?.hasOwnFiles = true
             }
         }
     }

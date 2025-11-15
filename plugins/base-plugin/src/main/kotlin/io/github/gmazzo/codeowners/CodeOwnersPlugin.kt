@@ -308,7 +308,7 @@ public open class CodeOwnersPlugin<Extension : CodeOwnersExtensionBaseInternal<*
         sarif.outputLocation.convention(reportsDir.map { it.file("report${prefix}.sarif") })
     }
 
-    private fun <Type> Provider<Type>?.orElse(
+    private fun <Type : Any> Provider<Type>?.orElse(
         provider: Provider<Type>,
     ): Provider<Type> = this?.orElse(provider) ?: provider
 
