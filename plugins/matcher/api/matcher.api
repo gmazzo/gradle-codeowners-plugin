@@ -123,8 +123,7 @@ public class io/github/gmazzo/codeowners/matcher/jgit/i : io/github/gmazzo/codeo
 public class io/github/gmazzo/codeowners/matcher/jgit/j {
 	public static fun a (Ljava/lang/String;C)Ljava/lang/String;
 	public static fun b (Ljava/lang/String;C)Ljava/util/List;
-	public static fun d (Ljava/lang/String;)Ljava/lang/String;
-	public static fun e (Ljava/lang/String;)Z
+	public static fun d (Ljava/lang/String;)Z
 }
 
 public class io/github/gmazzo/codeowners/matcher/jgit/k : io/github/gmazzo/codeowners/matcher/jgit/h {
