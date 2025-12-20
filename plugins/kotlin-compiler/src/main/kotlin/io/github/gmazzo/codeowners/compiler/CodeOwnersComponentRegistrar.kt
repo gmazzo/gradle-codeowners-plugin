@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 
 internal class CodeOwnersComponentRegistrar : CompilerPluginRegistrar() {
 
+    override val pluginId: String = COMPILER_PLUGIN_ID
+
     override val supportsK2 = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
