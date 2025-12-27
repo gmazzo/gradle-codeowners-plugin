@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.multiplatform)
     alias(libs.plugins.kotlin.multiplatform)
     id("io.github.gmazzo.codeowners.kotlin")
 }

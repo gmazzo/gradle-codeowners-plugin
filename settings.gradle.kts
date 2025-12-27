@@ -24,6 +24,7 @@ include(
     "demo-project-jvm:app",
     "demo-project-jvm:lib1",
     "demo-project-jvm:lib2",
+    "demo-project-jvm:lib3",
     "demo-project-jvm:utils",
     "demo-project-jvm:unowned",
 )
