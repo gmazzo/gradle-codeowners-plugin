@@ -8,11 +8,6 @@ android {
     namespace = "org.test.kotlin.lib2"
     compileSdk = 30
     buildFeatures.buildConfig = false
-
-    compileOptions {
-        sourceCompatibility(java.sourceCompatibility)
-        targetCompatibility(java.targetCompatibility)
-    }
 }
 
 dependencies {
