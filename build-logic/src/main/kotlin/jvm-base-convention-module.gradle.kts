@@ -8,7 +8,7 @@ plugins {
 
 val libs = the<VersionCatalogsExtension>().find("libs").get()
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.findVersion("java").get().requiredVersion))
 
 val originUrl = providers
     .exec { commandLine("git", "remote", "get-url", "origin") }

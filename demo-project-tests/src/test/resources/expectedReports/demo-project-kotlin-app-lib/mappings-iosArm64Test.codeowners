@@ -1,0 +1,6 @@
+# CodeOwners of module ':demo-project-kotlin:app-lib' (source set 'iosArm64Test')
+
+org/test/kotlin/app/AppException        kt-app-devs
+org/test/kotlin/app/AppOwnersTest       kt-app-devs
+org/test/kotlin/app/RethrowKt           kt-app-devs
+org/test/kotlin/app/RethrowUtils        kt-app-devs

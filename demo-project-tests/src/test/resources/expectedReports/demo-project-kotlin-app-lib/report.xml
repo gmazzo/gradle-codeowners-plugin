@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<codeowners files="8" unowned="0">
+    <owner files="8" name="kt-app-devs">
+        <file path="src/commonMain/kotlin/org/test/kotlin/app/AppClass.kt"/>
+        <file path="src/commonMain/kotlin/org/test/kotlin/utils/AppUtils.kt"/>
+        <file path="src/commonTest/kotlin/org/test/kotlin/app/AppOwnersTest.kt"/>
+        <file path="src/commonTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+        <file path="src/jsTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+        <file path="src/jvmTest/kotlin/org/test/kotlin/app/AppOwnersJVMTest.kt"/>
+        <file path="src/jvmTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+        <file path="src/nativeTest/kotlin/org/test/kotlin/app/Rethrow.kt"/>
+    </owner>
+    <unowned files="0"/>
+</codeowners>
