@@ -5,7 +5,7 @@ plugins {
 
 description = "CodeOwners Kotlin Gradle Plugin"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt()))
 
 val pluginUnderTestImplementation by configurations.creating
 val compileOnlyWithTests by configurations.creating

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<codeowners files="1" unowned="0">
+    <owner files="1" name="kt-app-devs">
+        <file path="build/generated/source/buildConfig/debug/org/test/kotlin/app/BuildConfig.java"/>
+    </owner>
+    <unowned files="0"/>
+</codeowners>

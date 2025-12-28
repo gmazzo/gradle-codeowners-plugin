@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "org.test.jvm.lib2"
-    compileSdk = 30
+    compileSdk = libs.versions.android.sdk.get().toInt()
     buildFeatures.buildConfig = false
 
     compileOptions {

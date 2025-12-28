@@ -30,9 +30,9 @@ include(
 include(
     "demo-project-kotlin",
     "demo-project-kotlin:app",
+    "demo-project-kotlin:app-lib",
     "demo-project-kotlin:lib1",
     "demo-project-kotlin:lib2",
-    "demo-project-kotlin:lib3",
     "demo-project-kotlin:utils",
     "demo-project-kotlin:unowned",
 )
