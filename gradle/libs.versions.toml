@@ -1,7 +1,7 @@
 [versions]
 java = "17"
 kotlin = "2.3.0"
-android-gradle = "8.13.2"
+android-gradle = "9.0.0"
 android-sdk = "30"
 
 [libraries]
