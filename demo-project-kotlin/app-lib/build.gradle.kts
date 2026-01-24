@@ -1,6 +1,3 @@
-import com.android.build.api.dsl.androidLibrary
-import org.gradle.kotlin.dsl.kotlin
-
 plugins {
     alias(libs.plugins.android.multiplatform)
     alias(libs.plugins.kotlin.multiplatform)
@@ -24,6 +21,10 @@ kotlin {
         getByName("jvmMain") { dependsOn(jvmCommonMain) }
         //getByName("androidMain") { dependsOn(jvmCommonMain) }
     }
+}
+
+androidComponents.beforeVariants {
+    it.hostTests["UnitTest"]?.enable = true // makes sure `release.unitTests` are enabled
 }
 
 dependencies {

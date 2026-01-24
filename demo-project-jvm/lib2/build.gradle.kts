@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     id("io.github.gmazzo.codeowners.jvm")
 }
 
@@ -15,8 +14,12 @@ android {
     }
 }
 
+androidComponents.beforeVariants {
+    it.hostTests["UnitTest"]?.enable = true // makes sure `release.unitTests` are enabled
+}
+
 dependencies {
     implementation(projects.demoProjectJvm.lib1)
 
-    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
 }
