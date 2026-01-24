@@ -29,11 +29,8 @@ abstract class CodeOwnersBaseCompatTest(
         val plugins = when (kind) {
             Kind.alone -> "java"
             Kind.withKotlin -> "id(\"org.jetbrains.kotlin.jvm\")"
+            Kind.withBoth, // AGP now applies Kotlin automatically
             Kind.withAndroid -> "id(\"com.android.application\")"
-            Kind.withBoth -> """
-                id("com.android.application")
-                id("org.jetbrains.kotlin.android")
-            """.trimIndent()
         }
 
         val buildFile = File(rootDir, "build.gradle.kts")

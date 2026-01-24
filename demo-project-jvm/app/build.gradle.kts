@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     id("io.github.gmazzo.codeowners.jvm")
 }
 
@@ -13,6 +12,10 @@ android {
         sourceCompatibility(java.sourceCompatibility)
         targetCompatibility(java.targetCompatibility)
     }
+}
+
+androidComponents.beforeVariants {
+    it.hostTests["UnitTest"]?.enable = true // makes sure `release.unitTests` are enabled
 }
 
 androidComponents.onVariants {
@@ -29,5 +32,5 @@ dependencies {
     // we need this dependency to run the shared test on `test` folder
     releaseImplementation("io.github.gmazzo.codeowners:jvm-core")
 
-    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
 }
