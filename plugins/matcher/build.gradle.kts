@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalAbiValidation::class)
+
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.importClasses)
@@ -5,6 +9,8 @@ plugins {
 }
 
 description = "CodeOwners Matcher Library"
+
+kotlin.abiValidation.filters.excluded.byNames.addAll("io.github.gmazzo.codeowners.matcher.jgit.**")
 
 importClasses {
     repackageTo = "io.github.gmazzo.codeowners.matcher.jgit"
