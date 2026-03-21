@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalAbiValidation::class)
+
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.embeddedDependencies)
@@ -7,8 +11,10 @@ plugins {
 
 description = "CodeOwners Kotlin Compiler Plugin"
 
-kotlin.compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
-
+kotlin {
+    abiValidation.filters.excluded.byNames.addAll("io.github.gmazzo.codeowners.matcher.jgit.**")
+    compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
+}
 buildConfig {
     packageName = "io.github.gmazzo.codeowners.compiler"
 
