@@ -11,8 +11,8 @@ import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFileChecker
 import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
 import org.jetbrains.kotlin.fir.declarations.FirFile
+import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
-import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.declarations.utils.classId
 import org.jetbrains.kotlin.fir.java.findJvmNameValue
 import org.jetbrains.kotlin.fir.packageFqName
@@ -44,7 +44,7 @@ public class CodeOwnersFirProcessor(
         override fun visitFile(file: FirFile, data: CodeOwnersMappings.Mapping) {
             file.acceptChildren(this, data)
 
-            if (file.declarations.any { it is FirSimpleFunction }) {
+            if (file.declarations.any { it is FirFunction }) {
                 val fileJvmName = file.findJvmNameValue() ?: file.name.replace("\\.kt".toRegex(), "Kt")
                 val fileClass =
                     JvmClassName.byFqNameWithoutInnerClasses(file.packageFqName.child(Name.identifier(fileJvmName))).internalName

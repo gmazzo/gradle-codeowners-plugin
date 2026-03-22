@@ -12,7 +12,7 @@ plugins {
 description = "CodeOwners Kotlin Compiler Plugin"
 
 kotlin {
-    abiValidation.filters.excluded.byNames.addAll("io.github.gmazzo.codeowners.matcher.jgit.**")
+    abiValidation.filters.exclude.byNames.addAll("io.github.gmazzo.codeowners.matcher.jgit.**")
     compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
 }
 buildConfig {
