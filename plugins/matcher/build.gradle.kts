@@ -10,7 +10,7 @@ plugins {
 
 description = "CodeOwners Matcher Library"
 
-kotlin.abiValidation.filters.excluded.byNames.addAll("io.github.gmazzo.codeowners.matcher.jgit.**")
+kotlin.abiValidation.filters.exclude.byNames.addAll("io.github.gmazzo.codeowners.matcher.jgit.**")
 
 importClasses {
     repackageTo = "io.github.gmazzo.codeowners.matcher.jgit"
