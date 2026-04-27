@@ -1,6 +1,6 @@
 [versions]
 java = "17"
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 android-gradle = "9.2.0"
 android-sdk = "30"
 
