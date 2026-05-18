@@ -14,7 +14,7 @@ kotlin-plugin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", 
 kotlin-plugin-compiler-api = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.17" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.18" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle" }
