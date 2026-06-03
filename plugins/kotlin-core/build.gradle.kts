@@ -17,7 +17,7 @@ kotlin {
     js(IR) { browser(); nodejs() }
     applyDefaultHierarchyTemplate()
 
-    abiValidation.enabled = true
+    abiValidation()
     explicitApi()
 }
 
@@ -25,8 +25,4 @@ dependencies {
     commonMainImplementation(libs.kotlin.reflect)
     commonTestImplementation(libs.kotlin.test)
     commonTestImplementation(platform(libs.junit.bom))
-}
-
-tasks.check {
-    dependsOn(tasks.checkLegacyAbi)
 }

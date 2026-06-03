@@ -16,7 +16,6 @@ public final class io/github/gmazzo/codeowners/CodeOwnersKotlinPlugin : io/githu
 	public fun applyToCompilation (Lorg/jetbrains/kotlin/gradle/plugin/KotlinCompilation;)Lorg/gradle/api/provider/Provider;
 	public fun getCompilerPluginId ()Ljava/lang/String;
 	public fun getPluginArtifact ()Lorg/jetbrains/kotlin/gradle/plugin/SubpluginArtifact;
-	public fun getPluginArtifactForNative ()Lorg/jetbrains/kotlin/gradle/plugin/SubpluginArtifact;
 	public fun isApplicable (Lorg/jetbrains/kotlin/gradle/plugin/KotlinCompilation;)Z
 }
 
