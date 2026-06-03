@@ -9,10 +9,6 @@ plugins {
 }
 
 kotlin {
-    abiValidation.enabled = true
+    abiValidation()
     explicitApi()
-}
-
-tasks.check {
-    dependsOn(tasks.checkLegacyAbi)
 }

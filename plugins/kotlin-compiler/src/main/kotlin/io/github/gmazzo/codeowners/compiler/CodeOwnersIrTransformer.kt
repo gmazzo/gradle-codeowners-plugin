@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.createBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrVararg
+import org.jetbrains.kotlin.ir.expressions.impl.IrAnnotationImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
@@ -100,7 +101,7 @@ internal class CodeOwnersIrTransformer(
             },
         )
 
-        annotations += IrConstructorCallImpl.fromSymbolOwner(
+        annotations += IrAnnotationImpl.fromSymbolOwner(
             SYNTHETIC_OFFSET,
             SYNTHETIC_OFFSET,
             annotationCodeOwners.defaultType,
@@ -150,7 +151,7 @@ internal class CodeOwnersIrTransformer(
             fileCodeOwnersProvider = file.addCodeOwnersProvider("${file.nameWithoutExtension}\$CODEOWNERS", ownersValue)
         }
 
-        annotations += IrConstructorCallImpl.fromSymbolOwner(
+        annotations += IrAnnotationImpl.fromSymbolOwner(
             UNDEFINED_OFFSET,
             UNDEFINED_OFFSET,
             annotationCodeOwnersProvider.defaultType,

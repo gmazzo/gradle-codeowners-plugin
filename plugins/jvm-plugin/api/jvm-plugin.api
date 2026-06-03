@@ -24,7 +24,6 @@ public abstract class io/github/gmazzo/codeowners/CodeOwnersJVMExtensionInternal
 }
 
 public final class io/github/gmazzo/codeowners/CodeOwnersJVMPlugin : io/github/gmazzo/codeowners/CodeOwnersPlugin {
-	public static final field ARTIFACT_TYPE_CODEOWNERS Ljava/lang/String;
 	public fun <init> ()V
 }
 
