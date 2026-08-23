@@ -4,21 +4,16 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 
-internal class CodeOwnersIrGenerationExtension(
-    private val mappings: CodeOwnersMappings,
+internal class IrExtension(
+    private val mappings: Mappings,
 ) : IrGenerationExtension {
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         mappings.noteFrontedFinished()
 
-        val transformer = CodeOwnersIrTransformer(pluginContext, mappings)
+        val transformer = IrTransformer(pluginContext, mappings)
 
-        moduleFragment.accept(transformer, InvalidOwners)
-    }
-
-    @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
-    private data object InvalidOwners : Set<String> by emptySet() {
-        override val size: Int get() = error("Invalid owners")
+        moduleFragment.accept(transformer, null)
     }
 
 }
