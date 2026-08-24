@@ -5,18 +5,18 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "org.test.kotlin.lib3"
         compileSdk = libs.versions.android.sdk.get().toInt()
     }
     jvm()
     iosArm64()
     iosSimulatorArm64()
-    js(IR) { browser(); nodejs() }
+    js { browser(); nodejs() }
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val jvmCommonMain by creating { dependsOn(commonMain.get()) }
+        val jvmCommonMain = create("jvmCommonMain") { dependsOn(commonMain.get()) }
 
         getByName("jvmMain") { dependsOn(jvmCommonMain) }
         //getByName("androidMain") { dependsOn(jvmCommonMain) }

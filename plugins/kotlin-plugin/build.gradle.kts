@@ -7,8 +7,8 @@ description = "CodeOwners Kotlin Gradle Plugin"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt()))
 
-val pluginUnderTestImplementation by configurations.creating
-val compileOnlyWithTests by configurations.creating
+val pluginUnderTestImplementation = configurations.create("pluginUnderTestImplementation")
+val compileOnlyWithTests = configurations.create("compileOnlyWithTests")
 
 configurations.compileOnly { extendsFrom(compileOnlyWithTests) }
 configurations.testRuntimeOnly { extendsFrom(compileOnlyWithTests) }

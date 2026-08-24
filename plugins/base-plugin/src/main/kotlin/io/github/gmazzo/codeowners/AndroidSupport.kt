@@ -6,12 +6,14 @@ import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasUnitTest
 import com.android.build.api.variant.Variant
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
 
 public class AndroidSupport(private val project: Project) {
 
-    public val androidComponents: AndroidComponentsExtension<*, *, *> by project.extensions
+    public val androidComponents: AndroidComponentsExtension<*, *, *>
+        get() = project.extensions.getByName<AndroidComponentsExtension<*, *, *>>("androidComponents")
 
     public fun configureVariants(action: Variant.() -> Unit) {
         project.plugins.withId("com.android.base") {

@@ -63,7 +63,7 @@ tasks.register<Sync>("updateTestSpecs") {
 
 // we intentionally have some file classes unowned in the demo project,
 // we delete the check outputs to avoid reporting them in the CI (failing the check)
-val cleanupFailedChecks by tasks.registering(Delete::class) {
+val cleanupFailedChecks = tasks.register<Delete>("cleanupFailedChecks") {
     val isCI = providers.environmentVariable("CI")
         .map(String::toBoolean)
         .getOrElse(false)
