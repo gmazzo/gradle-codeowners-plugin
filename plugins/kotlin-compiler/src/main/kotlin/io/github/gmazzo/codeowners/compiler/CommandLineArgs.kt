@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 
-internal class CodeOwnersCommandLineProcessor : CommandLineProcessor {
+internal class CommandLineArgs : CommandLineProcessor {
 
     override val pluginId = COMPILER_PLUGIN_ID
 
@@ -22,9 +22,9 @@ internal class CodeOwnersCommandLineProcessor : CommandLineProcessor {
 
     override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) =
         when (option) {
-            CODEOWNERS_ROOT -> configuration.put(CodeOwnersConfigurationKeys.CODEOWNERS_ROOT, File(value))
-            CODEOWNERS_FILE -> configuration.put(CodeOwnersConfigurationKeys.CODEOWNERS_FILE, File(value))
-            MAPPINGS_OUTPUT -> configuration.put(CodeOwnersConfigurationKeys.MAPPINGS_OUTPUT, File(value))
+            CODEOWNERS_ROOT -> configuration.put(ConfigurationKeys.CODEOWNERS_ROOT, File(value))
+            CODEOWNERS_FILE -> configuration.put(ConfigurationKeys.CODEOWNERS_FILE, File(value))
+            MAPPINGS_OUTPUT -> configuration.put(ConfigurationKeys.MAPPINGS_OUTPUT, File(value))
             else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
         }
 

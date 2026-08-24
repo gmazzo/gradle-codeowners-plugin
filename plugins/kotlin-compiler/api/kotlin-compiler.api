@@ -1,43 +1,8 @@
-public final class io/github/gmazzo/codeowners/compiler/CodeOwnersConfigurationKeys {
-	public static final field INSTANCE Lio/github/gmazzo/codeowners/compiler/CodeOwnersConfigurationKeys;
+public final class io/github/gmazzo/codeowners/compiler/ConfigurationKeys {
+	public static final field INSTANCE Lio/github/gmazzo/codeowners/compiler/ConfigurationKeys;
 	public final fun getCODEOWNERS_FILE ()Lorg/jetbrains/kotlin/config/CompilerConfigurationKey;
 	public final fun getCODEOWNERS_ROOT ()Lorg/jetbrains/kotlin/config/CompilerConfigurationKey;
 	public final fun getMAPPINGS_OUTPUT ()Lorg/jetbrains/kotlin/config/CompilerConfigurationKey;
-}
-
-public final class io/github/gmazzo/codeowners/compiler/CodeOwnersFirExtensionRegistrar : org/jetbrains/kotlin/fir/extensions/FirExtensionRegistrar {
-	public fun <init> (Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings;)V
-}
-
-public final class io/github/gmazzo/codeowners/compiler/CodeOwnersFirProcessor : org/jetbrains/kotlin/fir/analysis/extensions/FirAdditionalCheckersExtension {
-	public fun <init> (Lorg/jetbrains/kotlin/fir/FirSession;Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings;)V
-	public fun getDeclarationCheckers ()Lorg/jetbrains/kotlin/fir/analysis/checkers/declaration/DeclarationCheckers;
-}
-
-public final class io/github/gmazzo/codeowners/compiler/CodeOwnersFirProcessor$CodeOwnersMapper : org/jetbrains/kotlin/fir/analysis/checkers/declaration/FirDeclarationChecker {
-	public fun <init> (Lio/github/gmazzo/codeowners/compiler/CodeOwnersFirProcessor;)V
-	public synthetic fun check (Lorg/jetbrains/kotlin/fir/analysis/checkers/context/CheckerContext;Lorg/jetbrains/kotlin/diagnostics/DiagnosticReporter;Lorg/jetbrains/kotlin/fir/declarations/FirDeclaration;)V
-	public fun check (Lorg/jetbrains/kotlin/fir/analysis/checkers/context/CheckerContext;Lorg/jetbrains/kotlin/diagnostics/DiagnosticReporter;Lorg/jetbrains/kotlin/fir/declarations/FirFile;)V
-}
-
-public final class io/github/gmazzo/codeowners/compiler/CodeOwnersMappings {
-	public fun <init> (Lio/github/gmazzo/codeowners/matcher/CodeOwnersMatcher;Ljava/io/File;)V
-	public final fun noteFrontedFinished ()Lkotlin/Unit;
-	public final fun resolve (Ljava/io/File;)Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;
-}
-
-public final class io/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping {
-	public fun <init> (Ljava/util/Set;Ljava/util/Set;)V
-	public synthetic fun <init> (Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/util/Set;
-	public final fun component2 ()Ljava/util/Set;
-	public final fun copy (Ljava/util/Set;Ljava/util/Set;)Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;
-	public static synthetic fun copy$default (Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Lio/github/gmazzo/codeowners/compiler/CodeOwnersMappings$Mapping;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getClasses ()Ljava/util/Set;
-	public final fun getOwners ()Ljava/util/Set;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
 }
 
 public final class io/github/gmazzo/codeowners/matcher/CodeOwnersFile : java/io/Serializable, java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
