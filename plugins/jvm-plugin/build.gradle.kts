@@ -7,7 +7,7 @@ plugins {
 
 description = "A Gradle plugin to propagate CODEOWNERS to JVM classes"
 
-val pluginUnderTestImplementation by configurations.creating
+val pluginUnderTestImplementation = configurations.create("pluginUnderTestImplementation")
 
 dependencies {
     fun plugin(plugin: Provider<PluginDependency>) =

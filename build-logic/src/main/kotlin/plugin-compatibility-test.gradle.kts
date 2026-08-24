@@ -2,7 +2,7 @@ plugins {
     `java-gradle-plugin`
 }
 
-val compatibilityTest by testing.suites.registering(JvmTestSuite::class) {
+val compatibilityTest = testing.suites.register<JvmTestSuite>("compatibilityTest") {
     dependencies {
         implementation(testFixtures(project(":base-plugin")))
     }
@@ -22,9 +22,9 @@ fun prepare(config: Configuration) = with(config) {
     }
 }
 
-val compatibilityTestSelfPlugin by configurations.creating(::prepare)
-val compatibilityTestKotlinPlugin by configurations.creating(::prepare)
-val compatibilityTestAndroidPlugin by configurations.creating(::prepare)
+val compatibilityTestSelfPlugin = configurations.create("compatibilityTestSelfPlugin", ::prepare)
+val compatibilityTestKotlinPlugin = configurations.create("compatibilityTestKotlinPlugin", ::prepare)
+val compatibilityTestAndroidPlugin = configurations.create("compatibilityTestAndroidPlugin", ::prepare)
 
 dependencies {
     compatibilityTestSelfPlugin(project)
@@ -32,7 +32,7 @@ dependencies {
     compatibilityTestAndroidPlugin(BuildConfig.ANDROID_PLUGIN)
 }
 
-val collectPluginMetadata by tasks.registering(CollectDependencies::class) {
+val collectPluginMetadata = tasks.register<CollectDependencies>("collectPluginMetadata") {
     aloneClasspath.from(compatibilityTestSelfPlugin)
     kotlinClasspath.from(compatibilityTestSelfPlugin, compatibilityTestKotlinPlugin)
     androidClasspath.from(compatibilityTestSelfPlugin, compatibilityTestAndroidPlugin)

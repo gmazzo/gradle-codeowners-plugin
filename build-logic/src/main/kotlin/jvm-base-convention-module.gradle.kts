@@ -57,7 +57,7 @@ plugins.withId("jvm-test-suite") {
 
 // disables testFixtures artifact publication
 plugins.withId("java-test-fixtures") {
-    val testFixtures by the<SourceSetContainer>()
+    val testFixtures = the<SourceSetContainer>().getByName("testFixtures")
 
     afterEvaluate {
         components.withType<AdhocComponentWithVariants>().configureEach {

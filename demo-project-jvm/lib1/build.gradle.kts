@@ -3,7 +3,7 @@ plugins {
     id("io.github.gmazzo.codeowners.jvm")
 }
 
-val integrationTest by testing.suites.registering(JvmTestSuite::class)
+val integrationTest = testing.suites.register<JvmTestSuite>("integrationTest")
 
 sourceSets.test {
     codeOwners {

@@ -2,6 +2,7 @@ package io.github.gmazzo.codeowners
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -13,7 +14,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
 
 public class KotlinSupport(private val project: Project) {
 
-    public val kotlin: KotlinProjectExtension by project.extensions
+    public val kotlin: KotlinProjectExtension
+        get() = project.extensions.getByName<KotlinProjectExtension>("kotlin")
 
     public fun configureTargets(action: KotlinTarget.() -> Unit) {
         project.plugins.withType<KotlinBasePlugin> {
