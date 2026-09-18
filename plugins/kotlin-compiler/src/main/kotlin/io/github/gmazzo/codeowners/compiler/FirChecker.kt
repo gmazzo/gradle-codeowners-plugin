@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.fir.caches.firCachesFactory
 import org.jetbrains.kotlin.fir.caches.getValue
 import org.jetbrains.kotlin.fir.declarations.FirDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirFile
+import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirNamedFunction
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
@@ -40,7 +41,7 @@ internal class FirChecker(
     override val declarationCheckers: DeclarationCheckers = object : DeclarationCheckers() {
         override val fileCheckers = setOf(FileChecker())
         override val regularClassCheckers = setOf(RegularClassChecker())
-        override val simpleFunctionCheckers = setOf(SimpleFunctionChecker())
+        override val functionCheckers = setOf(SimpleFunctionChecker())
     }
 
     abstract inner class Checker<Declaration : FirDeclaration> : FirDeclarationChecker<Declaration>(MppCheckerKind.Common) {
@@ -78,12 +79,13 @@ internal class FirChecker(
 
     }
 
-    inner class SimpleFunctionChecker : Checker<FirNamedFunction>() {
+    inner class SimpleFunctionChecker : Checker<FirFunction>() {
 
         private val addedFiles = mutableSetOf<FirFile>()
 
-        override val FirNamedFunction.className: JvmClassName?
+        override val FirFunction.className: JvmClassName?
             get() {
+                if (this !is FirNamedFunction) return null
                 if (symbol.callableId.classId != null) return null
                 val file = file?.takeIf(addedFiles::add) ?: return null
 
