@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.MessageCollectorAccess
 import org.jetbrains.kotlin.config.messageCollector
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 
@@ -22,6 +23,7 @@ internal class ExtensionsRegistrar : CompilerPluginRegistrar() {
 
     override val supportsK2 = true
 
+    @OptIn(MessageCollectorAccess::class)
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         if (KotlinVersion.CURRENT.major != BuildConfig.EXPECTED_KOTLIN_VERSION.substringBefore('.').toInt()) {
             configuration.messageCollector.report(
