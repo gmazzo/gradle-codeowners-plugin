@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.gradle.plugin.compatibility.compatibility
+
+
 plugins {
     id("plugin-convention-module")
     id("com.github.gmazzo.buildconfig")
@@ -41,6 +44,12 @@ gradlePlugin {
         displayName = name
         implementationClass = "io.github.gmazzo.codeowners.CodeOwnersJVMPlugin"
         description = project.description
+        compatibility {
+            features {
+                configurationCache = true
+                isolatedProjects = true
+            }
+        }
         tags.addAll("codeowners", "ownership", "attribution")
     }
 }
@@ -50,9 +59,8 @@ buildConfig {
     packageName = "io.github.gmazzo.codeowners"
 
     buildConfigField(
-        "CORE_DEPENDENCY", evaluationDependsOn(projects.jvmCore.path)
-            .publishing.publications.named<MavenPublication>("maven")
-            .map { "${it.groupId}:${it.artifactId}:${it.version}" }
+        "CORE_DEPENDENCY", projects.jvmCore
+            .let { "${it.group}:${it.name}:${it.version}" }
     )
 }
 

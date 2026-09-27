@@ -1,3 +1,5 @@
+import org.gradle.plugin.compatibility.compatibility
+
 plugins {
     id("plugin-convention-module")
     id("compiler-arguments")
@@ -43,6 +45,12 @@ gradlePlugin {
         displayName = name
         implementationClass = "io.github.gmazzo.codeowners.CodeOwnersKotlinPlugin"
         description = "A Gradle plugin to propagate CODEOWNERS to Kotlin classes"
+        compatibility {
+            features {
+                configurationCache = true
+                isolatedProjects = true
+            }
+        }
         tags.addAll("codeowners", "ownership", "attribution")
     }
 }

@@ -8,10 +8,6 @@ plugins {
     base
 }
 
-allprojects {
-    group = "io.github.gmazzo.codeowners"
-}
-
 tasks.build {
     subprojects { dependsOn(tasks.build) }
 }

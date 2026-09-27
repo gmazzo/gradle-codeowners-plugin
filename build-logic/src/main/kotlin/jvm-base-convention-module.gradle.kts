@@ -8,6 +8,7 @@ plugins {
 
 val libs = the<VersionCatalogsExtension>().find("libs").get()
 
+group = "io.github.gmazzo.codeowners"
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.findVersion("java").get().requiredVersion))
 
 val originUrl = providers
