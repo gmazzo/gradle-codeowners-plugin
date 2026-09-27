@@ -3,7 +3,7 @@ package io.github.gmazzo.codeowners
 import java.io.File
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
@@ -70,6 +70,14 @@ abstract class CodeOwnersBaseCompatTest(
                 .writeText("<manifest/>")
         }
 
+        File(rootDir, "gradle.properties").writeText(
+            """
+            org.gradle.caching=true
+            #org.gradle.configuration-cache=true
+            #org.gradle.isolated-projects=true
+            """.trimIndent()
+        )
+
         File(rootDir, "settings.gradle.kts").writeText(
             """
             pluginManagement {
@@ -101,9 +109,10 @@ abstract class CodeOwnersBaseCompatTest(
             .withArguments("codeOwnersReport", "-s")
             .build()
 
-        assertEquals(
-            if (kind.android) TaskOutcome.SUCCESS else TaskOutcome.NO_SOURCE,
-            build.task(":codeOwnersReport")?.outcome
+        assertTrue(
+            build.task(":codeOwnersReport")?.outcome in
+                if (kind.android) setOf(TaskOutcome.SUCCESS, TaskOutcome.FROM_CACHE)
+                else setOf(TaskOutcome.NO_SOURCE)
         )
     }
 

@@ -1,3 +1,5 @@
+import org.gradle.plugin.compatibility.compatibility
+
 plugins {
     id("plugin-convention-module")
     id("com.github.gmazzo.buildconfig")
@@ -36,6 +38,12 @@ gradlePlugin {
         displayName = name
         implementationClass = "io.github.gmazzo.codeowners.CodeOwnersPlugin"
         description = project.description
+        compatibility {
+            features {
+                configurationCache = true
+                isolatedProjects = true
+            }
+        }
         tags.addAll("codeowners", "ownership", "attribution")
     }
 }
