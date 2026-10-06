@@ -36,10 +36,10 @@ internal class ExtensionsRegistrar : CompilerPluginRegistrar() {
         val codeOwnersFile = configuration[CODEOWNERS_FILE]!!.useLines { CodeOwnersFile(it) }
         val mappingFile = configuration[MAPPINGS_OUTPUT]
         val matcher = CodeOwnersMatcher(codeOwnersRoot, codeOwnersFile)
-        val mappings = Mappings(matcher, mappingFile)
+        val mappings = Mappings(matcher)
 
         FirExtensionRegistrarAdapter.registerExtension(FirRegistrar(mappings))
-        IrGenerationExtension.registerExtension(IrExtension(mappings))
+        IrGenerationExtension.registerExtension(IrExtension(mappings, mappingFile))
     }
 
 }

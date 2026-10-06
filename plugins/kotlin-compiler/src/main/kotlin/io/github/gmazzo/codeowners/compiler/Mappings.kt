@@ -6,7 +6,6 @@ import java.io.File
 
 internal class Mappings(
     private val matcher: CodeOwnersMatcher,
-    private val mappingFile: File?,
 ) {
 
     private var locked = false
@@ -15,11 +14,11 @@ internal class Mappings(
     private val unowned = Mapping(owners = emptySet())
 
     fun resolve(file: File): Mapping? = mappings.computeIfAbsent(file) {
-        check(!locked) { "Mappings have already be processed: $file" }
+        check(!locked) { "Mappings were already exported; can't add: $file" }
         matcher.ownerOf(file)?.let { Mapping(owners = it) } ?: unowned
     }.takeUnless { it === unowned }
 
-    fun noteFrontedFinished() {
+    fun export(mappingFile: File) {
         if (locked) return
         locked = true
 
