@@ -13,7 +13,7 @@ internal object Diagnostics : KtDiagnosticsContainer() {
 
     val ILLEGAL_CODEOWNERS_USAGE: KtDiagnosticFactory0 = KtDiagnosticFactory0(
         name = "ILLEGAL_CODEOWNERS_USAGE",
-        severity = Severity.ERROR,
+        severity = Severity.WARNING,
         defaultPositioningStrategy = SourceElementPositioningStrategies.DEFAULT,
         psiType = FirBasedSymbol::class,
         rendererFactory = getRendererFactory(),
@@ -24,7 +24,8 @@ internal object Diagnostics : KtDiagnosticsContainer() {
         override val MAP by KtDiagnosticFactoryToRendererMap("CodeOwnersPlugin") {
             it.put(
                 ILLEGAL_CODEOWNERS_USAGE,
-                "@${CODEOWNERS_ANNOTATION.shortClassName} can not be used in code"
+                "@${CODEOWNERS_ANNOTATION.shortClassName} should not be used directly in source code," +
+                    " it should be only introduced by CodeOwners compiler plugin"
             )
         }
 
