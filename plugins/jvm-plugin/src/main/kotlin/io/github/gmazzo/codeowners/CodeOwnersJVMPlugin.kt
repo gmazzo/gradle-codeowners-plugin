@@ -33,6 +33,7 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerTransform
 import org.gradle.kotlin.dsl.the
+import org.gradle.kotlin.dsl.withType
 
 public class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionInternal>() {
 
@@ -102,7 +103,11 @@ public class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionIntern
             }
 
             ss.extensions.add(CodeOwnersJVMSourceSet::class.java, Component::codeOwners.name, sourceSet)
-            tasks.named<AbstractCopyTask>(processResourcesTaskName).addResources(extension, sourceSet)
+            tasks.named<AbstractCopyTask>(processResourcesTaskName) {
+                from(extension.enabled.and(sourceSet.enabled).map {
+                    if (it) sourceSet.generateTask.map(CodeOwnersResourcesTask::outputDirectory) else emptyList<Any>()
+                })
+            }
         }
     }
 
@@ -121,11 +126,13 @@ public class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionIntern
                 addCodeDependency(extension, sourceSet, component.compileConfiguration.name)
                 addCodeDependency(extension, sourceSet, component.runtimeConfiguration.name)
 
-                // TODO there is no `variant.sources.resources.addGeneratedSourceDirectory` DSL for this?
                 afterEvaluate {
-                    @Suppress("DEPRECATION")
-                    tasks.named<AbstractCopyTask>("process${component.name.replaceFirstChar { it.uppercaseChar() }}JavaRes")
-                        .addResources(extension, sourceSet)
+                    if (extension.enabled.and(sourceSet.enabled).get()) {
+                        component.sources.resources?.addGeneratedSourceDirectory(
+                            sourceSet.generateTask,
+                            CodeOwnersResourcesTask::outputDirectory,
+                        )
+                    }
                 }
 
                 if (defaultsTo != null) {
@@ -186,15 +193,6 @@ public class CodeOwnersJVMPlugin : CodeOwnersPlugin<CodeOwnersJVMExtensionIntern
                 }
             }.files)
         }
-    }
-
-    private fun TaskProvider<out AbstractCopyTask>.addResources(
-        extension: CodeOwnersJVMExtension,
-        sources: CodeOwnersJVMSourceSet
-    ) = configure {
-        from(extension.enabled.and(sources.enabled).map {
-            if (it) sources.generateTask.map(CodeOwnersResourcesTask::outputDirectory) else emptyList<Any>()
-        })
     }
 
     private fun Project.addCodeDependency(
