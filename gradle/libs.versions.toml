@@ -21,7 +21,7 @@ android-application = { id = "com.android.application", version.ref = "android-g
 android-library = { id = "com.android.library", version.ref = "android-gradle" }
 android-multiplatform = { id = "com.android.kotlin.multiplatform.library", version.ref = "android-gradle" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version = "6.1.2" }
-dokka = { id = "org.jetbrains.dokka", version = "2.2.0" }
+dokka = { id = "org.jetbrains.dokka", version = "2.3.0" }
 dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version = "2.3.0" }
 embeddedDependencies = { id = "io.github.gmazzo.dependencies.embedded", version = "1.1.7" }
 importClasses = { id = "io.github.gmazzo.importclasses", version = "1.3.2" }
